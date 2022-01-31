@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Profile Update
+{% endblock title %}
+
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/authentication/user_profile.css'%}">
+{% endblock extra_css %}
+
+{% block pageheader %}
+
+<div class="content-wrapper">
+  <!-- Content Header (Page header) -->
+  <div class="content-header">
+  <div class="container-fluid">
+    <div class="row mb-2">
+      <div class="col-sm-6">
+        <h1 class="m-0">Update Profile</h1>
+      </div><!-- /.col -->
+      <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-right">
+          <li class="breadcrumb-item"><a href="{% url 'user-profile'%}">User Profile</a></li>
+          <li class="breadcrumb-item active">Update Profile</li>
+        </ol>
+      </div><!-- /.col -->
+  </div><!-- /.row -->
+</div><!-- /.container-fluid -->
+</div>
+  
+{% endblock pageheader %}
+
+{% block content %}
+
+<div class="user-profile-box" >
+  {% include "partials/_messages.html" %}
+  <div class="user-profile"> 
+    <div class="card card-info card-outline">
+      <div class="card-body box-profile">
+        {% include "partials/_form_errors.html" %}
+        <div class="text-center">
+          <!-- <img class="profile-user-img img-fluid img-circle" src="../../dist/img/user4-128x128.jpg" alt="User profile picture"> -->
+        </div>
+ 
+        <h4 class="profile-username text-center mb-3">Update profile</h4>
+
+        <form action="{% url 'user-profile-update'%}" method="post">
+          {% csrf_token %}
+          
+          <div class="input-group mb-3">
+            <input type="text" class="form-control" value="{{request.user.first_name}}" name="first_name" placeholder="First Name">
+            <div class="input-group-append">
+              <div class="input-group-text">
+                <i class="fas fa-file-alt"></i>
+              </div>
+            </div>
+          </div>
+          <div class="input-group mb-3">
+            <input type="text" class="form-control" value="{{request.user.last_name}}" name="last_name" placeholder="Last Name">
+            <div class="input-group-append">
+              <div class="input-group-text">
+                <i class="fas fa-file-alt"></i>
+              </div>
+            </div>
+          </div>
+          <div class="input-group mb-3">
+            <input type="text" class="form-control" value="{{request.user.mobile_number}}" name="mobile_number" placeholder="Mobile Number">
+            <div class="input-group-append">
+              <div class="input-group-text">
+                <i class="fas fa-mobile-alt"></i>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <button type="submit" class="btn btn-outline-info btn-block">Update</button>
+            </div>
+            <!-- /.col -->
+            <div class="col-md-6">
+              <a href="{% url 'user-profile'%}" class="btn btn-outline-danger btn-block"><b>Cancel</b></a>
+            </div>
+            <!-- /.col -->
+          </div>
+        </form>
+      </div>
+      <!-- /.card-body -->
+    </div>
+  </div>
+</div>
+  
+{% endblock content %}

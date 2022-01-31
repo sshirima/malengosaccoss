@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% load render_table from django_tables2 %}
+
+{% load bootstrap3 %}
+
+{% block title %}
+    Transactions
+{% endblock title %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/transactions/main.css'%}">
+{% endblock extra_css %}
+
+
+{% block pageheader %}
+
+<div class="content-wrapper">
+  <!-- Content Header (Page header) -->
+  <div class="content-header">
+  <div class="container-fluid">
+    <div class="row mb-2">
+      <div class="col-sm-6">
+        <h1 class="m-0">Transactions</h1>
+      </div><!-- /.col -->
+      <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-right">
+          <li class="breadcrumb-item active">Transactions </li>
+        </ol>
+      </div><!-- /.col -->
+  </div><!-- /.row -->
+</div><!-- /.container-fluid -->
+</div>
+  
+{% endblock pageheader %}
+  
+
+
+{% block content %}
+
+<div class="transation-box" >
+  <div class="info-box bg-success">
+    <span class="info-box-icon"><i class="far fa-bookmark"></i></span>
+
+    <div class="info-box-content">
+      <span class="info-box-text">Total amount credit</span>
+      <span class="info-box-number">{{total_credit}}</span>      
+    </div>
+    <!-- /.info-box-content -->
+  </div>
+  <div class="info-box bg-danger">
+    <span class="info-box-icon"><i class="far fa-bookmark"></i></span>
+
+    <div class="info-box-content">
+      <span class="info-box-text">Total amount debit</span>
+      <span class="info-box-number">{{total_debit}}</span>      
+    </div>
+    <!-- /.info-box-content -->
+  </div>
+
+  {% if filter %}
+
+      <form action="" method="get" class="form form-inline">
+        {% bootstrap_form filter.form layout='inline' %}
+        {% bootstrap_button 'Search'%}
+      </form>
+    
+  {% endif %}
+    
+    {% include "partials/_messages.html" %}
+    {% render_table table 'partials/_table.html'%}
+
+
+
+</div>
+  
+{% endblock content %}

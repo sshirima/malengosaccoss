@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block title %}
+    Share Create
+{% endblock title %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/shares/main.css'%}">
+{% endblock extra_css %}
+
+
+{% block pageheader %}
+
+<div class="content-wrapper">
+  <!-- Content Header (Page header) -->
+  <div class="content-header">
+  <div class="container-fluid">
+    <div class="row mb-2">
+      <div class="col-sm-6">
+        <h1 class="m-0">Shares</h1>
+      </div><!-- /.col -->
+      <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-right">
+            <li class="breadcrumb-item"><a href="{% url 'shares-list'%}">Shares</a></li>
+            <li class="breadcrumb-item active">Create</li>
+        </ol>
+      </div><!-- /.col -->
+  </div><!-- /.row -->
+</div><!-- /.container-fluid -->
+</div>
+  
+{% endblock pageheader %}
+  
+
+
+{% block content %}
+
+<div class="share-box" >
+    {% include "partials/_messages.html" %}
+
+    <div class="card card-info">
+        <div class="card-header">
+          <h3 class="card-title">Create New Share</h3>
+        </div>
+        <form action="{% url 'share-create' bank_transaction.id %}" method="post">
+            {% csrf_token %}
+            <div class="card-body">
+                {% include "partials/_form_errors.html" %}
+                
+                <div class="input-group mb-3">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                  </div>
+                  <input type="text" class="form-control" name="description" placeholder="Description">
+                </div>
+                <div class="input-group mb-3">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fas fa-user"></i></span>
+                  </div>
+                  <select name="owner" class="form-control">
+                    <option>Select Owner</option>
+                    {% for owner in owners %}
+                    <option value="{{owner.email}}">{{owner.email}}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+
+                <div class="form-group row mt-5">
+                  <h4>Bank Transaction Details</h4>
+                </div>
+                <div class="form-group row">
+                  <label for="amount" class="col-sm-2 col-form-label">Amount</label>
+                  <div class="col-sm-10">
+                    <input type="email" class="form-control" disabled id="amount" value="{{bank_transaction.amount}}">
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="description" class="col-sm-2 col-form-label">Description</label>
+                  <div class="col-sm-10">
+                    <input type="email" class="form-control" disabled id="description" value="{{bank_transaction.description}}">
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label for="type" class="col-sm-2 col-form-label">Type</label>
+                  <div class="col-sm-10">
+                    <input type="email" class="form-control" disabled id="type" value="{{bank_transaction.type}}">
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label for="status" class="col-sm-2 col-form-label">Status</label>
+                  <div class="col-sm-10">
+                    <input type="text" class="form-control" disabled id="status" value="{{bank_transaction.status}}">
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label for="date_trans" class="col-sm-2 col-form-label">Trans Date</label>
+                  <div class="col-sm-10">
+                    <input type="text" class="form-control" disabled id="date_trans" value="{{bank_transaction.date_trans}}">
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label for="date_value" class="col-sm-2 col-form-label">Value Date</label>
+                  <div class="col-sm-10">
+                    <input type="text" class="form-control" disabled id="date_trans" value="{{bank_transaction.date_value}}">
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label for="created_by" class="col-sm-2 col-form-label">Created By</label>
+                  <div class="col-sm-10">
+                    <input type="text" class="form-control" disabled id="created_by" value="{{bank_transaction.created_by.email}}">
+                  </div>
+                </div>
+      
+                <div class="card-footer">
+                  <button type="submit" class="btn btn-outline-info mr-2">Create</button>
+                  <a href="{% url 'shares-list' %}" class="btn btn-outline-danger">Cancel</a>
+                </div>
+      
+            </div>
+        </form>
+        <!-- /.card-body -->
+      </div>
+    
+</div>
+  
+{% endblock content %}

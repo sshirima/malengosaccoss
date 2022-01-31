@@ -1,0 +1,68 @@
+
+{% load static %}
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{APP_NAME}}:{% block title %}
+  
+  {% endblock title %}</title>
+
+  <!-- Google Font: Source Sans Pro -->
+  <link href='{% static "css/fonts.googleapis.css"%}' rel="stylesheet">
+   <!-- Font Awesome Icons -->
+   <link href="https://use.fontawesome.com/releases/v5.0.6/css/all.css" rel="stylesheet">
+  {% comment %} <link href='{% static "css/fontawesome.all.min.css"%}' rel="stylesheet"> {% endcomment %}
+  <!-- IonIcons -->
+  <link href='{% static "css/ionicons.min.css"%}' rel="stylesheet">
+  <!-- Theme style -->
+  <link rel="stylesheet" href="{% static 'css/adminlte.min.css' %}">
+
+   <!-- Custom CSS -->
+  <link rel="stylesheet" href="{% static 'css/authentication/main.css' %}">
+
+  {% block extra_css %}
+
+  {% endblock extra_css %}
+
+</head>
+<!--
+`body` tag options:
+
+  Apply one or more of the following classes to to the body tag
+  to get the desired effect
+
+  * sidebar-collapse
+  * sidebar-mini
+-->
+<body class="hold-transition sidebar-mini" >
+
+<div class="wrapper">
+  
+    <!-- /.content-header -->
+   
+    <!-- Main content -->
+
+    {% block content %}
+                            
+    {% endblock content %}
+    
+    <!-- /.content -->
+  </div>
+  blockname
+  blockname
+<script src="{% static 'js/jquery.min.js'%}"></script>
+<!-- Bootstrap -->
+<script src="{% static 'js/bootstrap.bundle.min.js'%}"></script>
+
+<!-- AdminLTE -->
+<script src="{% static 'js/adminlte.js'%}"></script>
+<script src="{% static 'js/toastr.min.js'%}"></script>
+
+
+{% block extra_js %}
+  
+{% endblock extra_js %}
+  
+</body>
+</html>

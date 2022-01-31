@@ -1,0 +1,98 @@
+
+{% load static %}
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{APP_NAME}}:{% block title %}
+  
+  {% endblock title %}</title>
+
+  <!-- Google Font: Source Sans Pro -->
+  <link href='{% static "css/fonts.googleapis.css"%}' rel="stylesheet">
+   <!-- Font Awesome Icons -->
+   <link href="https://use.fontawesome.com/releases/v5.0.6/css/all.css" rel="stylesheet">
+  {% comment %} <link href='{% static "css/fontawesome.all.min.css"%}' rel="stylesheet"> {% endcomment %}
+  <!-- IonIcons -->
+  <link href='{% static "css/ionicons.min.css"%}' rel="stylesheet">
+  <!-- Theme style -->
+  <link rel="stylesheet" href="{% static 'css/adminlte.min.css' %}">
+  
+  {% block extra_css %}
+
+  {% endblock extra_css %}
+    
+
+</head>
+<!--
+`body` tag options:
+
+  Apply one or more of the following classes to to the body tag
+  to get the desired effect
+
+  * sidebar-collapse
+  * sidebar-mini
+-->
+<body class="hold-transition sidebar-mini">
+
+<div class="wrapper">
+  <!-- Navbar -->
+  {% include 'partials/_navbar.html'%}
+  <!-- /.navbar -->
+
+  <!-- Main Sidebar Container -->
+  {% include 'partials/_sidebar.html'%}
+
+  <!-- Content Wrapper. Contains page content -->
+
+  
+  {% block pageheader %}
+    
+  {% endblock pageheader %}
+ 
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <div class="content">
+      <div class="container-fluid">
+        <div class="row">
+          {% block content %}
+          
+          {% endblock content %}
+        </div>
+        <!-- /.row -->
+      </div>
+      <!-- /.container-fluid -->
+    </div>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+  <!-- Control Sidebar -->
+  <aside class="control-sidebar control-sidebar-dark">
+    <!-- Control sidebar content goes here -->
+  </aside>
+  <!-- /.control-sidebar -->
+
+  <!-- Main Footer -->
+  {% include 'partials/_footer.html'%}
+</div>
+<!-- ./wrapper -->
+
+<!-- REQUIRED SCRIPTS -->
+
+<!-- jQuery -->
+<script src="{% static 'js/jquery.min.js'%}"></script>
+<!-- Bootstrap -->
+<script src="{% static 'js/bootstrap.bundle.min.js'%}"></script>
+
+<!-- AdminLTE -->
+<script src="{% static 'js/adminlte.js'%}"></script>
+
+{% block extra_js %}
+
+{% endblock extra_js %}
+
+
+</body>
+</html>

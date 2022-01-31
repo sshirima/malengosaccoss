@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block title %}
+    Transaction Detail
+{% endblock title %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/transactions/main.css'%}">
+{% endblock extra_css %}
+
+
+{% block pageheader %}
+
+<div class="content-wrapper">
+  <!-- Content Header (Page header) -->
+  <div class="content-header">
+  <div class="container-fluid">
+    <div class="row mb-2">
+      <div class="col-sm-6">
+        <h1 class="m-0">Transactions</h1>
+      </div><!-- /.col -->
+      <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-right">
+            <li class="breadcrumb-item"><a href="{% url 'transactions-list'%}">Transactions</a></li>
+            <li class="breadcrumb-item active">Details</li>
+        </ol>
+      </div><!-- /.col -->
+  </div><!-- /.row -->
+</div><!-- /.container-fluid -->
+</div>
+  
+{% endblock pageheader %}
+  
+
+
+{% block content %}
+
+<div class="transaction-box" >
+    {% include "partials/_messages.html" %}
+    <div class="card card-info">
+      <div class="card-header">
+        <h3 class="card-title">Transaction Detail</h3>
+      </div>
+          <div class="card-body">
+              {% include "partials/_form_errors.html" %}
+              <div class="form-group row">
+                <label for="amount" class="col-sm-2 col-form-label">Amount</label>
+                <div class="col-sm-10">
+                  {{transaction.amount}}
+                  </div>
+              </div>
+              <div class="form-group row">
+                <label for="amount" class="col-sm-2 col-form-label">Description</label>
+                <div class="col-sm-10">
+                  {{transaction.description}}
+                  </div>
+              </div>
+              <div class="form-group row">
+                <label for="amount" class="col-sm-2 col-form-label">Type</label>
+                <div class="col-sm-10">
+                  {{transaction.type}}
+                  </div>
+              </div>
+              <div class="form-group row">
+                <label for="amount" class="col-sm-2 col-form-label">Status</label>
+                <div class="col-sm-10">
+                  {{transaction.status}}
+                  </div>
+              </div>
+              <div class="form-group row">
+                <label for="amount" class="col-sm-2 col-form-label">Created By</label>
+                <div class="col-sm-10">
+                  {{transaction.created_by.email}}
+                  </div>
+              </div>
+              <div class="form-group row">
+                <label for="amount" class="col-sm-2 col-form-label">Date Created</label>
+                <div class="col-sm-10">
+                  {{transaction.date_created}}
+                  </div>
+              </div>
+              <div class="form-group row">
+                <label for="amount" class="col-sm-2 col-form-label">Date Updated</label>
+                <div class="col-sm-10">
+                  {{transaction.date_updated}}
+                  </div>
+              </div>
+              <div class="form-group row">
+                <label for="amount" class="col-sm-2 col-form-label">Related Share</label>
+                <div class="col-sm-10">
+                  <a href="{% url 'share-detail' transaction.share.id%}">Share({{transaction.share.description}})</a>
+                  
+                  </div>
+              </div>
+              <div class="form-group row">
+                <label for="amount" class="col-sm-2 col-form-label">Referenced Bank Transaction</label>
+                <div class="col-sm-10">
+                  <a href="{% url 'bank-transaction-detail' transaction.reference.id%}">({{transaction.reference.description}})</a>
+                  
+                  </div>
+              </div>
+             
+              
+    
+          </div>
+      <!-- /.card-body -->
+    </div>
+    
+</div>
+  
+{% endblock content %}

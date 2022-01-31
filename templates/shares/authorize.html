@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block title %}
+    Share Authorize
+{% endblock title %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/shares/main.css'%}">
+{% endblock extra_css %}
+
+{% block pageheader %}
+
+<div class="content-wrapper">
+  <!-- Content Header (Page header) -->
+  <div class="content-header">
+  <div class="container-fluid">
+    <div class="row mb-2">
+      <div class="col-sm-6">
+        <h1 class="m-0">Shares</h1>
+      </div><!-- /.col -->
+      <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-right">
+            <li class="breadcrumb-item"><a href="{% url 'shares-list'%}">Shares</a></li>
+            <li class="breadcrumb-item active">Authorize</li>
+        </ol>
+      </div><!-- /.col -->
+  </div><!-- /.row -->
+</div><!-- /.container-fluid -->
+</div>
+  
+{% endblock pageheader %}
+  
+
+
+{% block content %}
+
+<div class="share-box" >
+    {% include "partials/_messages.html" %}
+
+    <div class="card card-info">
+        <div class="card-header">
+          <h3 class="card-title">Authorize share</h3>
+        </div>
+        <form action="{% url 'share-authorize' uuid %}" method="post">
+            {% csrf_token %}
+            <div class="card-body">
+                {% include "partials/_form_errors.html" %}
+                <div class="form-group row">
+                  <label for="created_by" class="col-sm-4 col-form-label">Owner</label>
+                  <div class="col-sm-6">
+                    <input type="text" class="form-control" disabled value="{{share.owner}}" name="email">
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label for="created_by" class="col-sm-4 col-form-label">Status</label>
+                  <div class="col-sm-6">
+                    <select name="status" class="form-control">
+                      <option>Change status</option>
+                      {% for status in status_list %}
+                      <option value="{{status.0 }}">{{status.0 }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+                <div class="card-footer">
+                  <button type="submit" class="btn btn-outline-info mr-2">Authorize</button>
+                  <a href="{% url 'shares-list' %}" class="btn btn-outline-danger">Cancel</a>
+                </div>
+      
+              </div>
+        </form>
+        <!-- /.card-body -->
+      </div>
+    
+</div>
+  
+{% endblock content %}

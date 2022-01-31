@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block title %}
+    Transaction Update
+{% endblock title %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/transactions/main.css'%}">
+{% endblock extra_css %}
+
+
+{% block pageheader %}
+
+<div class="content-wrapper">
+  <!-- Content Header (Page header) -->
+  <div class="content-header">
+  <div class="container-fluid">
+    <div class="row mb-2">
+      <div class="col-sm-6">
+        <h1 class="m-0">Transactions</h1>
+      </div><!-- /.col -->
+      <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-right">
+            <li class="breadcrumb-item"><a href="{% url 'transactions-list'%}">Transactions</a></li>
+            <li class="breadcrumb-item active">Update</li>
+        </ol>
+      </div><!-- /.col -->
+  </div><!-- /.row -->
+</div><!-- /.container-fluid -->
+</div>
+  
+{% endblock pageheader %}
+  
+
+
+{% block content %}
+
+<div class="transations-box" >
+    {% include "partials/_messages.html" %}
+
+    <div class="card card-info">
+        <div class="card-header">
+          <h3 class="card-title">New Transaction</h3>
+        </div>
+        <form action="{% url 'transaction-update' transaction.id %}" method="post">
+            {% csrf_token %}
+            <div class="card-body">
+                {% include "partials/_form_errors.html" %}
+                <div class="input-group mb-3">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                  </div>
+                  <input type="number" class="form-control" value="{{transaction.amount}}"  name="amount" placeholder="Amount">
+                </div>
+      
+                <div class="input-group mb-3">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                  </div>
+                  <input type="text" class="form-control" value="{{transaction.reference}}" name="reference" placeholder="Reference">
+                </div>
+      
+                <div class="input-group mb-3">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                  </div>
+                  <input type="text" class="form-control" value="{{transaction.description}}" name="description" placeholder="Description">
+                </div>
+      
+                <div class="card-footer">
+                  <button type="submit" class="btn btn-outline-info mr-2">Update</button>
+                  <a href="{% url 'transactions-list' %}" class="btn btn-outline-danger">Cancel</a>
+                </div>
+      
+              </div>
+        </form>
+        <!-- /.card-body -->
+      </div>
+    
+</div>
+  
+{% endblock content %}
