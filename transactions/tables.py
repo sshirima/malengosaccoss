@@ -25,11 +25,22 @@ class StatusColumn(django_tables2.Column):
         else :
             return mark_safe('<span class="badge badge-success">{}</span>'.format(value))
 
+class TypeColumn(django_tables2.Column):
+    def render(self, value):
+        if value.lower() == 'credit':
+            return mark_safe('<small class="text-success mr-1"><i class="fas fa-arrow-down"></i>{}</small>'.format(value))
+
+        elif value.lower() == 'debit':
+            return mark_safe('<small class="text-danger mr-1"><i class="fas fa-arrow-up"></i>{}</small>'.format(value))
+
+        else :
+            return mark_safe('<small class="text-info mr-1"><i class="fas fa-exclamation"></i>{}</small>">{}</span>'.format(value))
+
 
 class BankTransactionTable(django_tables2.Table):
     amount = django_tables2.Column(accessor='amount', verbose_name='Amount')
     description = django_tables2.Column(accessor='description', verbose_name='Description')
-    type = StatusColumn(accessor='type', verbose_name='Type')
+    type = TypeColumn(accessor='type', verbose_name='Type')
     status = StatusColumn(accessor='status', verbose_name = "Status")
     date_value = django_tables2.Column(accessor='date_value', verbose_name = "Value Date")
     assign = django_tables2.TemplateColumn(template_name ='partials/_btn_assign.html')
@@ -45,11 +56,11 @@ class BankTransactionTable(django_tables2.Table):
         sequence = ('amount','description','status','type','date_value')
     
     def render_amount(self,record):
-        return mark_safe('<a href="{}">{}</a>'.format(reverse("bank-transaction-detail", args=[record.id]), record.amount))
+        return mark_safe('<a href="{}">{}</a>'.format(reverse("bank-transaction-detail", args=[record.id]), '{:0,.0f}'.format(record.amount)))
 
 
 class TransactionTable(django_tables2.Table):
-    amount = django_tables2.Column(accessor='reference.amount', verbose_name='Amount')
+    amount = django_tables2.Column(accessor='reference.amount', verbose_name='Amount(Tsh)')
     description = django_tables2.Column(accessor='description', verbose_name='Description')
     type = StatusColumn(accessor='type', verbose_name='Type')
     status = StatusColumn(accessor='status', verbose_name = "Status")
@@ -66,17 +77,25 @@ class TransactionTable(django_tables2.Table):
         sequence = ('amount','description','status','type','created_by','date_created')
     
     def render_amount(self,record):
-        return mark_safe('<a href="{}">{}</a>'.format(reverse("transaction-detail", args=[record.id]), record.amount))
+        return mark_safe('<a href="{}">{}</a>'.format(reverse("transaction-detail", args=[record.id]), '{:0,.0f}'.format(record.amount)))
 
 class BankTransactionTableFilter(django_filters.FilterSet):
     description = django_filters.CharFilter(label='Description', method='search_description')
+    start_date = django_filters.CharFilter(label='Start Date', method='search_start_date')
+    end_date = django_filters.CharFilter(label='End Date', method='search_end_date')
 
     def search_description(self, qs, name, value):
         return qs.filter(Q(description__icontains=value))
 
+    def search_start_date(self, qs, name, value):
+        return qs.filter(Q(date_trans__gte=value))
+
+    def search_end_date(self, qs, name, value):
+        return qs.filter(Q(date_trans__lte=value))
+
     class Meta:
         model = BankTransaction
-        fields = ['description']
+        fields = ['description', 'start_date', 'end_date']
 
 
 class TransactionTableFilter(django_filters.FilterSet):

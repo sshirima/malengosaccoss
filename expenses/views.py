@@ -6,34 +6,34 @@ from django_tables2 import RequestConfig
 from django.db.models import Sum
 from django.urls.base import reverse_lazy
 from django.http import HttpResponseRedirect
-from savings.forms import SavingCreateForm, SavingUpdateForm
 from django.contrib import messages
 
-from savings.models import Saving
-from savings.tables import SavingTable, SavingTableFilter
-from savings.services import SavingCrudService
+from expenses.forms import ExpenseCreateForm, ExpenseUpdateForm
+from expenses.models import Expense
+from expenses.tables import ExpenseTable, ExpenseTableFilter
+from expenses.services import ExpenseCrudService
 from transactions.models import BankTransaction
 
 # Create your views here.
-class SavingListView(LoginRequiredMixin, ListView):
-    template_name ='savings/saving-list.html'
-    model = Saving
+class ExpenseListView(LoginRequiredMixin, ListView):
+    template_name ='expenses/expense-list.html'
+    model = Expense
     
-    table_class = SavingTable
-    table_data = Saving.objects.all()
-    filterset_class = SavingTableFilter
+    table_class = ExpenseTable
+    table_data = Expense.objects.all()
+    filterset_class = ExpenseTableFilter
     context_filter_name = 'filter'
 
     def get_queryset(self, *args, **kwargs):
-        qs = Saving.objects.filter(transaction__created_by = self.request.user)
+        qs = Expense.objects.filter(transaction__created_by = self.request.user)
         self.filter = self.filterset_class(self.request.GET, queryset=qs)
         return self.filter.qs
 
     def get_context_data(self,*args, **kwargs):
-        context = super(SavingListView, self).get_context_data()
+        context = super(ExpenseListView, self).get_context_data()
         queryset = self.get_queryset(**kwargs)
-        filter = SavingTableFilter(self.request.GET, queryset=queryset)
-        table = SavingTable(filter.qs)
+        filter = ExpenseTableFilter(self.request.GET, queryset=queryset)
+        table = ExpenseTable(filter.qs)
         RequestConfig(self.request, paginate={"per_page": 10}).configure(table)
         context['filter']=filter
         context['table']=table
@@ -42,11 +42,11 @@ class SavingListView(LoginRequiredMixin, ListView):
         return context
 
 
-class SavingCreateView(LoginRequiredMixin, CreateView):
-    template_name ='savings/saving_create.html'
-    form_class = SavingCreateForm
-    context_object_name = 'saving'
-    success_url = reverse_lazy('savings-list')
+class ExpenseCreateView(LoginRequiredMixin, CreateView):
+    template_name ='expenses/expense_create.html'
+    form_class = ExpenseCreateForm
+    context_object_name = 'expense'
+    success_url = reverse_lazy('expense-list')
 
     def get(self, request, uuid):
         context = self.get_context_data(uuid)
@@ -54,17 +54,17 @@ class SavingCreateView(LoginRequiredMixin, CreateView):
 
 
     def post(self, request, uuid):
-        form = SavingCreateForm(uuid=uuid,data= request.POST)
+        form = ExpenseCreateForm(uuid=uuid,data= request.POST)
 
         if not form.is_valid():
             context = self.get_context_data(uuid)
             context['form'] = form
             return render(request, self.template_name, context) 
 
-        service = SavingCrudService(self.request)
+        service = ExpenseCrudService(self.request)
         data = form.cleaned_data
         data['uuid'] = uuid
-        msg, created, share = service.create_saving(data=data, created_by=self.request.user)
+        msg, created, share = service.create_expense(data=data, created_by=self.request.user)
 
         if not created and share is None:
             messages.error(self.request, msg)
@@ -72,7 +72,7 @@ class SavingCreateView(LoginRequiredMixin, CreateView):
             context['form'] = form
             return render(request, self.template_name, context) 
 
-        messages.success(self.request, 'Saving record added successful')
+        messages.success(self.request, 'Expense record added successful')
         return HttpResponseRedirect(share.get_absolute_url())
 
     def get_context_data(self,uuid):
@@ -82,29 +82,29 @@ class SavingCreateView(LoginRequiredMixin, CreateView):
         return context
 
 
-class SavingDetailView(LoginRequiredMixin, DetailView):
-    template_name = 'savings/saving_detail.html'
-    model = Saving
-    context_object_name = 'saving'
+class ExpenseDetailView(LoginRequiredMixin, DetailView):
+    template_name = 'expenses/expense_detail.html'
+    model = Expense
+    context_object_name = 'expense'
     slug_field = 'id'
     slug_url_kwarg = 'id'
 
     def get_queryset(self):
 
         if self.request.user.is_admin:
-            return Saving.objects.filter(id=self.kwargs['id'])
+            return Expense.objects.filter(id=self.kwargs['id'])
 
         if self.request.user.is_authenticated:
-            return Saving.objects.filter( transaction__created_by=self.request.user)
+            return Expense.objects.filter( transaction__created_by=self.request.user)
         else:
-            return Saving.objects.none()
+            return Expense.objects.none()
 
 
-class SavingUpdateView(LoginRequiredMixin, UpdateView):
-    template_name ='savings/saving_update.html'
-    model = Saving
-    context_object_name = 'saving'
-    form_class = SavingUpdateForm
+class ExpenseUpdateView(LoginRequiredMixin, UpdateView):
+    template_name ='expenses/expense_update.html'
+    model = Expense
+    context_object_name = 'expense'
+    form_class = ExpenseUpdateForm
     success_url = reverse_lazy('shares-list')
     slug_field = 'id'
     slug_url_kwarg = 'id'
@@ -113,57 +113,57 @@ class SavingUpdateView(LoginRequiredMixin, UpdateView):
        
         #Create transaction first
 
-        saving = Saving.objects.get(id=self.kwargs['id'])
+        expense = Expense.objects.get(id=self.kwargs['id'])
 
-        if not saving:
+        if not expense:
             return super.form_invalid()
 
-        saving.description = form.cleaned_data['description']
-        saving.save()
+        expense.description = form.cleaned_data['description']
+        expense.save()
         
-        return HttpResponseRedirect(saving.get_absolute_url())
+        return HttpResponseRedirect(expense.get_absolute_url())
 
         
 
     def get_queryset(self):
         if self.request.user.is_authenticated:
-            return Saving.objects.filter(transaction__created_by=self.request.user)
+            return Expense.objects.filter(transaction__created_by=self.request.user)
         else:
-            return Saving.objects.none()
+            return Expense.objects.none()
 
     def get_form_kwargs(self, *args, **kwargs):
-        kwargs = super(SavingUpdateView, self).get_form_kwargs(*args, **kwargs)
+        kwargs = super(ExpenseUpdateView, self).get_form_kwargs(*args, **kwargs)
         kwargs['user'] = self.request.user
         return kwargs
 
 
 
 
-class SavingDeleteView(LoginRequiredMixin, DeleteView):
-    template_name ='savings/saving_delete.html'
-    model = Saving
+class ExpenseDeleteView(LoginRequiredMixin, DeleteView):
+    template_name ='expenses/expense_delete.html'
+    model = Expense
 
     slug_field = 'id'
     slug_url_kwarg = 'id'
 
-    success_url = reverse_lazy('savings-list')
+    success_url = reverse_lazy('expense-list')
 
     def get_queryset(self):
         if self.request.user.is_authenticated:
-            return Saving.objects.filter(id=self.kwargs['id'])
+            return Expense.objects.filter(id=self.kwargs['id'])
         else:
-            return Saving.objects.none()
+            return Expense.objects.none()
 
 
     def form_valid(self, form):
         self.object = self.get_object()
-        service = SavingCrudService(self.request)
-        msg, deleted, trans = service.delete_saving(self.object)
+        service = ExpenseCrudService(self.request)
+        msg, deleted, trans = service.delete_expense(self.object)
 
         if deleted:
             success_url = self.get_success_url()
             return HttpResponseRedirect(success_url)
 
         messages.error(self.request, msg)
-        return HttpResponseRedirect(reverse_lazy('savings-list'))
+        return HttpResponseRedirect(reverse_lazy('expense-list'))
         

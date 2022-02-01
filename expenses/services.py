@@ -1,19 +1,18 @@
 from transactions.models import BankTransaction, Transaction
 from authentication.models import User
-from shares.models import Share
+from expenses.models import Expense
 import transactions.models as t_models
 import shares.models as s_models
 
 from django.core.exceptions import ObjectDoesNotExist
 
-class ShareCrudService():
+class ExpenseCrudService():
 
-    
     def __init__(self, request):
         self.request = request
     
     
-    def create_share(self, data, created_by):
+    def create_expense(self, data, created_by):
         #Retrieving data
         try:
             description = data['description']
@@ -41,11 +40,12 @@ class ShareCrudService():
 
             owner = User.objects.get(email=owner)
             #Creating Share
+
             #Default Description
             if description == '':
-                description = self._get_default_share_description(owner, bank_transaction)
-                
-            share = Share.objects.create(
+                description = self._get_default_expense_description(owner, bank_transaction)
+
+            expense = Expense.objects.create(
                 description = description,
                 status = s_models.SHARE_STATUS[1][0],
                 owner = owner,
@@ -54,13 +54,13 @@ class ShareCrudService():
 
             self._change_bank_transaction_status(bank_transaction, t_models.BANK_TRANSACTION_STATUS[1][0])
 
-            return ('', True, share)
+            return ('', True, expense)
 
         except KeyError as e:
             
             self._delete_transaction(transaction)
-            print('ERROR, retrieving share creation data: {}'.format(str(e)))
-            return ('ERROR, retrieving share creation data', False, None)
+            print('ERROR, retrieving expense creation data: {}'.format(str(e)))
+            return ('ERROR, retrieving expense creation data', False, None)
 
         except ObjectDoesNotExist as e:
             self._delete_transaction(transaction)
@@ -74,21 +74,21 @@ class ShareCrudService():
             return ('Error creating share', False, None)
 
 
-    def delete_share(self, share):
+    def delete_expense(self, expense):
         try:
-            transaction = share.transaction
+            transaction = expense.transaction
 
             transaction.reference.status = t_models.BANK_TRANSACTION_STATUS[0][0]
             transaction.reference.save()
 
             transaction.delete()
 
-            share.delete()
+            expense.delete()
 
             return ('', True, None)
 
         except Exception as e:
-            return ('ERROR, deleting share transaction: {}'.format(str(e)),False, transaction)
+            return ('ERROR, deleting expense transaction: {}'.format(str(e)),False, transaction)
 
 
     def _delete_transaction(self, transaction):
@@ -105,5 +105,5 @@ class ShareCrudService():
 
         return False
 
-    def _get_default_share_description(self, owner, bank_transaction):
-        return 'Share: {}, {}'.format(owner.get_full_name(), bank_transaction.date_trans)
+    def _get_default_expense_description(self, owner, bank_transaction):
+        return 'Expense: {}, {}'.format(owner.get_full_name(), bank_transaction.date_trans)

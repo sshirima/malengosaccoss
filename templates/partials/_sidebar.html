@@ -49,6 +49,25 @@
               </p>
             </a>
           </li>
+          {% url 'savings-list' as url %}
+          <li class="nav-item {% if request.path == url %}menu-open{% endif %}">
+            <a href="{% url 'savings-list'%}" class="nav-link">
+              <i class="nav-icon far fa-image"></i>
+              <p>
+                Savings
+              </p>
+            </a>
+          </li>
+
+          {% url 'expenses-list' as url %}
+          <li class="nav-item {% if request.path == url %}menu-open{% endif %}">
+            <a href="{% url 'expenses-list'%}" class="nav-link">
+              <i class="nav-icon far fa-image"></i>
+              <p>
+                Expenses
+              </p>
+            </a>
+          </li>
 
           {% url 'bank-transaction-list' as url %}
           <li class="nav-item {% if request.path == url %}menu-open{% endif %}">

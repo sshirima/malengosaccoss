@@ -6,6 +6,8 @@
 
 {% load bootstrap3 %}
 
+{% load humanize %}
+
 {% block title %}
     Bank Transactions
 {% endblock title %}
@@ -40,36 +42,72 @@
 
 {% block content %}
 
+<div class="info-box bg-success">
+  <span class="info-box-icon"><i class="far fa-bookmark"></i></span>
+
+  <div class="info-box-content">
+    <span class="info-box-text">Total amount credit</span>
+    <span class="info-box-number">{{total_credit|floatformat:0|intcomma }} Tsh</span>      
+  </div>
+  <!-- /.info-box-content -->
+</div>
+<div class="info-box bg-danger">
+  <span class="info-box-icon"><i class="far fa-bookmark"></i></span>
+
+  <div class="info-box-content">
+    <span class="info-box-text">Total amount debit</span>
+    <span class="info-box-number">{{total_debit|floatformat:0|intcomma  }} Tsh</span>      
+  </div>
+  <!-- /.info-box-content -->
+</div>
+{% if filter %}
+<div class="card card-info filter-box">
+  <div class="card-header">
+    <h3 class="card-title">Filters Criteria</h3>
+  </div>
+  <div class="card-body">
+    <form action="" method="get" class="form">
+        <div class="row">
+          <div class="col-md-3">
+            <div class="form-group">
+              <label for="id_description">Description</label>
+              <input type="text" name="description" class="form-control" value="{{request.GET.description}}" placeholder="Description" title="" id="id_description">
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div  class="form-group">
+              <label for="id_start_date">Start Date</label>
+              <input type="date" name="start_date" class="form-control" value="{{request.GET.start_date}}"  placeholder="Start Date" title="" id="id_start_date">
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div  class="form-group">
+              <div  class="form-group mb-3">
+                <label for="id_end_date">End Date</label>
+                <div class="input-group ">
+                  <input type="date" name="end_date" class="form-control" value="{{request.GET.end_date}}" placeholder="End Date" title="" id="id_end_date">
+                  <div class="input-group-append">
+                    <button type="submit" class="btn btn-lg btn-info">
+                      <i class="fa fa-search"></i>
+                  </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+          </div>
+      </div>
+    </form>
+    
+  </div>
+</div>
+  
+
+  {% endif %}
 <div class="transaction-box" >
   {% include "partials/_messages.html" %}
   
-  <div class="info-box bg-success">
-    <span class="info-box-icon"><i class="far fa-bookmark"></i></span>
-
-    <div class="info-box-content">
-      <span class="info-box-text">Total amount credit</span>
-      <span class="info-box-number">{{total_credit}}</span>      
-    </div>
-    <!-- /.info-box-content -->
-  </div>
-  <div class="info-box bg-danger">
-    <span class="info-box-icon"><i class="far fa-bookmark"></i></span>
-
-    <div class="info-box-content">
-      <span class="info-box-text">Total amount debit</span>
-      <span class="info-box-number">{{total_debit}}</span>      
-    </div>
-    <!-- /.info-box-content -->
-  </div>
-  {% if filter %}
-
-      <form action="" method="get" class="form form-inline">
-        {% bootstrap_form filter.form layout='inline' %}
-        {% bootstrap_button 'Search'%}
-      </form>
-    
-  {% endif %}
-    
     {% include "partials/_messages.html" %}
     {% render_table table 'partials/_table.html'%}
   

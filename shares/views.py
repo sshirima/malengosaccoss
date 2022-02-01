@@ -82,15 +82,12 @@ class ShareCreateView(LoginRequiredMixin, CreateView):
         messages.success(self.request, 'Share created successful')
         return HttpResponseRedirect(share.get_absolute_url())
 
-
-    
-
-
     def get_context_data(self,uuid):
         context = {}
         context['owners'] = User.objects.all()
         context['bank_transaction'] = BankTransaction.objects.get(id=uuid)
         return context
+        
 
 class ShareDetailView(LoginRequiredMixin, DetailView):
     template_name = 'shares/detail.html'
@@ -161,7 +158,7 @@ class ShareDeleteView(LoginRequiredMixin, DeleteView):
         else:
             return Share.objects.none()
 
-    def delete(self, *args, **kwargs):
+    def form_valid(self, form):
         self.object = self.get_object()
         service = ShareCrudService(self.request)
         msg, deleted, trans = service.delete_share(self.object)

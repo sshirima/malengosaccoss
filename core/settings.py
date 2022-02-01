@@ -46,9 +46,12 @@ INSTALLED_APPS = [
     'dashboard',
     'transactions',
     'shares',
+    'savings',
+    'expenses',
     'django_tables2',
     'django_filters',
     'bootstrap3',
+    'django.contrib.humanize',
 ]
 
 MIDDLEWARE = [

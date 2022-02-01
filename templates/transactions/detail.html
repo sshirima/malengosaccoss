@@ -87,6 +87,8 @@
                   {{transaction.date_updated}}
                   </div>
               </div>
+              
+              {% if transaction.share %}
               <div class="form-group row">
                 <label for="amount" class="col-sm-2 col-form-label">Related Share</label>
                 <div class="col-sm-10">
@@ -94,6 +96,19 @@
                   
                   </div>
               </div>
+              {% endif %}
+
+              {% if transaction.saving %}
+              <div class="form-group row">
+                <label for="amount" class="col-sm-2 col-form-label">Related Saving</label>
+                <div class="col-sm-10">
+                  <a href="{% url 'saving-detail' transaction.saving.id%}">Saving({{transaction.saving.description}})</a>
+                  
+                  </div>
+              </div>
+              {% endif %}
+                
+              
               <div class="form-group row">
                 <label for="amount" class="col-sm-2 col-form-label">Referenced Bank Transaction</label>
                 <div class="col-sm-10">

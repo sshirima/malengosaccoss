@@ -46,7 +46,7 @@ class BankTransactionAssignForm(forms.Form):
     def clean_assign_scope(self):
         assign_scope = self.cleaned_data['assign_scope']
 
-        if not assign_scope in ['shares']:
+        if not assign_scope in ['shares', 'savings','expenses']:
             raise forms.ValidationError("Assign Scope not a valid selection")
 
         return assign_scope

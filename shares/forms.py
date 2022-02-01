@@ -52,20 +52,7 @@ class ShareUpdateForm(forms.ModelForm):
 
 
 class ShareAuthorizationForm(forms.Form):
-    # email = forms.EmailField(max_length=255, required=True)
     status = forms.CharField(max_length=20, required=True)
-
-    # def clean_email(self):
-    #     email = self.cleaned_data['email']
-
-    #     owner = User.objects.get(email=email)
-    #     if not owner:
-    #         raise forms.ValidationError("Owner does not exist")
-
-    #     if not owner.is_admin:
-    #         raise forms.ValidationError("You dont have permission to authorize shares")
-
-    #     return email
 
     def clean_status(self):
         status = self.cleaned_data['status']

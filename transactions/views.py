@@ -193,6 +193,7 @@ class BankTransactionAssignView(LoginRequiredMixin, View):
 
     assign_scope = (
             ('shares', 'Shares'),
+            ('savings', 'Saving'),
         )
 
     def get(self, request, uuid):
@@ -213,6 +214,9 @@ class BankTransactionAssignView(LoginRequiredMixin, View):
 
         if form.cleaned_data['assign_scope'] == self.assign_scope[0][0]:
             return redirect('share-create', uuid=uuid)
+
+        if form.cleaned_data['assign_scope'] == self.assign_scope[1][0]:
+            return redirect('saving-create', uuid=uuid)
 
         return redirect('bank-transaction-list')
 
