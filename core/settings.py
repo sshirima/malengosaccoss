@@ -28,7 +28,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True #env('DEBUG')
+DEBUG = False #env('DEBUG')
 
 ALLOWED_HOSTS = ['malengosaccoss-test.herokuapp.com']
 
@@ -152,8 +152,8 @@ MESSAGE_TAGS= {
 }
 
 #Loging URL
-LOGIN_URL = '/authentication/login/'
-LOGIN_REDIRECT_URL = '/'
+LOGIN_URL = '/authentication/login'
+LOGIN_REDIRECT_URL = '/dashboard'
 LOGOUT_REDIRECT_URL = '/'
 AUTH_USER_MODEL = 'authentication.User'
 
