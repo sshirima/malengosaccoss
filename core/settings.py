@@ -16,11 +16,6 @@ from pathlib import Path
 import os
 from django.contrib import messages
 
-import environ
-
-# Initialise environment variables
-env = environ.Env()
-environ.Env.read_env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -30,10 +25,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-oo9z^h-89ogm%w6(sgm^kh!obrrf%m!(rq1&ky+^r_dmri*+4m'#env('SECRET_KEY')
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False #env('DEBUG')
+DEBUG = True #env('DEBUG')
 
 ALLOWED_HOSTS = ['malengosaccoss-test.herokuapp.com']
 
