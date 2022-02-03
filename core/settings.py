@@ -28,7 +28,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True #env('DEBUG')
+DEBUG = False #env('DEBUG')
 
 ALLOWED_HOSTS = ['malengosaccoss-test.herokuapp.com']
 
@@ -175,6 +175,7 @@ AUTH_USER_MODEL = 'authentication.User'
 # DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
 # EMAIL_PORT = env('EMAIL_PORT')
 # EMAIL_USE_TLS = env('EMAIL_USE_TLS')
+
 EMAIL_BACKEND='django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST_USER='shirimas.work@gmail.com'
 EMAIL_HOST='smtp.gmail.com'
