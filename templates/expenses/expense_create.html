@@ -13,23 +13,22 @@
 
 {% block pageheader %}
 
-<div class="content-wrapper">
   <!-- Content Header (Page header) -->
   <div class="content-header">
-  <div class="container-fluid">
-    <div class="row mb-2">
-      <div class="col-sm-6">
-        <h1 class="m-0">Expenses</h1>
-      </div><!-- /.col -->
-      <div class="col-sm-6">
-        <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{% url 'expenses-list'%}">Expenses</a></li>
-            <li class="breadcrumb-item active">Create</li>
-        </ol>
-      </div><!-- /.col -->
-  </div><!-- /.row -->
-</div><!-- /.container-fluid -->
-</div>
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">Expenses</h1>
+          </div><!-- /.col -->
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+                <li class="breadcrumb-item"><a href="{% url 'expenses-list'%}">Expenses</a></li>
+                <li class="breadcrumb-item active">Create</li>
+            </ol>
+          </div><!-- /.col -->
+      </div><!-- /.row -->
+    </div><!-- /.container-fluid -->
+  </div>
   
 {% endblock pageheader %}
   
@@ -37,8 +36,9 @@
 
 {% block content %}
 
-<div class="expense-box" >
-    {% include "partials/_messages.html" %}
+<div class="row" >
+    <div class="col-md-12">
+      {% include "partials/_messages.html" %}
 
     <div class="card card-info">
         <div class="card-header">
@@ -60,7 +60,7 @@
                     <span class="input-group-text"><i class="fas fa-user"></i></span>
                   </div>
                   <select name="owner" class="form-control">
-                    <option>Select Owner</option>
+                    <option value="">Select Owner</option>
                     {% for owner in owners %}
                     <option value="{{owner.email}}">{{owner.email}}</option>
                     {% endfor %}
@@ -123,6 +123,7 @@
         </form>
         <!-- /.card-body -->
       </div>
+    </div>
     
 </div>
   

@@ -17,47 +17,54 @@
 
 {% block pageheader %}
 
-<div class="content-wrapper">
   <!-- Content Header (Page header) -->
   <div class="content-header">
-  <div class="container-fluid">
-    <div class="row mb-2">
-      <div class="col-sm-6">
-        <h1 class="m-0">Savings</h1>
-      </div><!-- /.col -->
-      <div class="col-sm-6">
-        <ol class="breadcrumb float-sm-right">
-        </ol>
-      </div><!-- /.col -->
-  </div><!-- /.row -->
-</div><!-- /.container-fluid -->
-</div>
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">Savings</h1>
+          </div><!-- /.col -->
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+            </ol>
+          </div><!-- /.col -->
+      </div><!-- /.row -->
+    </div><!-- /.container-fluid -->
+  </div>
   
 {% endblock pageheader %}
   
 {% block content %}
 
-<div class="saving-box" >
-  <div class="info-box bg-info">
-    <span class="info-box-icon"><i class="far fa-bookmark"></i></span>
-
-    <div class="info-box-content">
-      <span class="info-box-text">Total Savings Amount</span>
-      <span class="info-box-number">{{total_amount}}</span>      
+<div class="row" >
+  <div class="col-md-12">
+    <div class="info-box bg-info">
+      <span class="info-box-icon"><i class="far fa-bookmark"></i></span>
+  
+      <div class="info-box-content">
+        <span class="info-box-text">Total Savings Amount</span>
+        <span class="info-box-number">{{total_amount}}</span>      
+      </div>
+      <!-- /.info-box-content -->
     </div>
-    <!-- /.info-box-content -->
   </div>
-  {% if filter %}
+</div>
 
+{% if filter %}
+  <div class="row">
+    <div class="col-md-12">
       <form action="" method="get" class="form form-inline">
-        {% bootstrap_form filter.form layout='inline' %}
-        {% bootstrap_button 'Search'%}
-      </form>
-    
-  {% endif %}
-    
+          {% bootstrap_form filter.form layout='inline' %}
+          {% bootstrap_button 'Search'%}
+        </form>
+    </div>
+  </div>
+{% endif %}
+      
+<div class="row">
+  <div class="col-md-12">
     {% include "partials/_messages.html" %}
     {% render_table table 'partials/_table.html'%}
-</div>
-  
+  </div>
+</div>  
 {% endblock content %}

@@ -31,8 +31,8 @@ class ExpenseCreateForm(forms.ModelForm):
         super(ExpenseCreateForm, self).__init__(*args, **kwargs)
 
 
-    def clean_owner(self):
-        email = self.cleaned_data['owner']
-        if not User.objects.filter(email=email).exists():
-            raise forms.ValidationError("Owner does not exists: "+email)
-        return email
+    # def clean_owner(self):
+    #     email = self.cleaned_data['owner']
+    #     if not User.objects.filter(email=email).exists():
+    #         raise forms.ValidationError("Owner does not exists: "+email)
+    #     return email

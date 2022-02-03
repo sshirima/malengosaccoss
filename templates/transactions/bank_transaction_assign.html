@@ -13,23 +13,22 @@
 
 {% block pageheader %}
 
-<div class="content-wrapper">
   <!-- Content Header (Page header) -->
   <div class="content-header">
-  <div class="container-fluid">
-    <div class="row mb-2">
-      <div class="col-sm-6">
-        <h1 class="m-0">Bank Transactions</h1>
-      </div><!-- /.col -->
-      <div class="col-sm-6">
-        <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{% url 'bank-transaction-list'%}">Bank Transactions</a></li>
-            <li class="breadcrumb-item active">Asssign</li>
-        </ol>
-      </div><!-- /.col -->
-  </div><!-- /.row -->
-</div><!-- /.container-fluid -->
-</div>
+    <div class="container-fluid">
+      <div class="row mb-2">
+        <div class="col-sm-6">
+          <h1 class="m-0">Bank Transactions</h1>
+        </div><!-- /.col -->
+        <div class="col-sm-6">
+          <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item"><a href="{% url 'bank-transaction-list'%}">Bank Transactions</a></li>
+              <li class="breadcrumb-item active">Asssign</li>
+          </ol>
+        </div><!-- /.col -->
+      </div><!-- /.row -->
+    </div><!-- /.container-fluid -->
+  </div>
   
 {% endblock pageheader %}
   
@@ -37,7 +36,9 @@
 
 {% block content %}
 
-<div class="transaction-box" >
+<div class="row" >
+    
+  <div class="col-md-12">
     {% include "partials/_messages.html" %}
 
     <div class="card card-info">
@@ -52,7 +53,7 @@
                   <label for="assign_scope" class="col-sm-2 col-form-label">Assign To: </label>
                   <div class="col-sm-10">
                     <select name="assign_scope" class="custom-select form-control-border" id="assign_scope">
-                      <option>Select a scope to assign the bank transaction</option>
+                      <option value="">Select Scope</option>
                       {% for scope in assign_scopes %}
                       <option value="{{scope.0}}">{{scope.1}}</option>
                       {% endfor %}
@@ -115,6 +116,7 @@
         </form>
         <!-- /.card-body -->
       </div>
+  </div>
     
 </div>
   

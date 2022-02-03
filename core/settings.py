@@ -16,6 +16,12 @@ from pathlib import Path
 import os
 from django.contrib import messages
 
+import environ
+
+# Initialise environment variables
+env = environ.Env()
+environ.Env.read_env()
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -24,10 +30,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-oo9z^h-89ogm%w6(sgm^kh!obrrf%m!(rq1&ky+^r_dmri*+4m'
+SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env('DEBUG')
 
 ALLOWED_HOSTS = []
 
@@ -122,7 +128,7 @@ FILE_UPLOAD_HANDLERS = ['django.core.files.uploadhandler.TemporaryFileUploadHand
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Africa/Dar_es_Salaam'
 
 USE_I18N = True
 
@@ -155,13 +161,13 @@ LOGOUT_REDIRECT_URL = '/'
 AUTH_USER_MODEL = 'authentication.User'
 
 #Email BACKEND SETTINGS
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST_USER = 'shirimas.work@gmail.com'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_PASSWORD = '246CSOacc##'
-DEFAULT_FROM_EMAIL = 'shirimas.work@gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
+EMAIL_BACKEND = env('EMAIL_BACKEND')
+EMAIL_HOST_USER = env('EMAIL_HOST_USER')
+EMAIL_HOST = env('EMAIL_HOST')
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
+EMAIL_PORT = env('EMAIL_PORT')
+EMAIL_USE_TLS = env('EMAIL_USE_TLS')
 
 #Bootstrap template
 CRISPY_TEMPLATE_PACK = 'bootstrap4'

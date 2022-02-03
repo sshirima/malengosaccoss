@@ -13,23 +13,22 @@
 
 {% block pageheader %}
 
-<div class="content-wrapper">
   <!-- Content Header (Page header) -->
   <div class="content-header">
-  <div class="container-fluid">
-    <div class="row mb-2">
-      <div class="col-sm-6">
-        <h1 class="m-0">Shares</h1>
-      </div><!-- /.col -->
-      <div class="col-sm-6">
-        <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{% url 'shares-list'%}">Shares</a></li>
-            <li class="breadcrumb-item active">Details</li>
-        </ol>
-      </div><!-- /.col -->
-  </div><!-- /.row -->
-</div><!-- /.container-fluid -->
-</div>
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">Shares</h1>
+          </div><!-- /.col -->
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+                <li class="breadcrumb-item"><a href="{% url 'shares-list'%}">Shares</a></li>
+                <li class="breadcrumb-item active">Details</li>
+            </ol>
+          </div><!-- /.col -->
+      </div><!-- /.row -->
+    </div><!-- /.container-fluid -->
+  </div>
   
 {% endblock pageheader %}
   
@@ -37,7 +36,8 @@
 
 {% block content %}
 
-<div class="share-box" >
+<div class="row" >
+  <div class="col-md-12">
     {% include "partials/_messages.html" %}
 
     <div class="card card-info">
@@ -45,8 +45,8 @@
         <h3 class="card-title">Update Share Information</h3>
       </div>
      
-          {% csrf_token %}
-          <div class="card-body">
+      {% csrf_token %}
+      <div class="card-body">
               {% include "partials/_form_errors.html" %}
     
               <div class="input-group mb-3">
@@ -99,12 +99,11 @@
                 <a href="{% url 'share-update' share.id %}" class="btn btn-outline-info mr-1">Edit</a>
                 <a href="{% url 'shares-list' %}" class="btn btn-outline-danger">Back</a>
               </div>
-              </div>
     
-            </div>
+      </div>
       <!-- /.card-body -->
     </div>
-    
+  </div>
 </div>
   
 {% endblock content %}

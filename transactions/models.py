@@ -4,20 +4,20 @@ from authentication.models import User
 import uuid
 # Create your models here.
 TRANSACTION_STATUS = (
-    ('pending', 'PENDING' ),
-    ('approved', 'APPROVED' ),
-    ('cancelled', 'CANCELLED'),
+    ('pending', 'Pending' ),
+    ('approved', 'Approved' ),
+    ('cancelled', 'Canceled'),
 )
 
 TRANSACTION_TYPE = (
-    ('debit', 'DEBIT' ),
-    ('credit', 'CREDIT' ),
+    ('debit', 'Debit' ),
+    ('credit', 'Credit' ),
 )
 
 BANK_TRANSACTION_STATUS = (
-    ('imported', 'IMPORTED' ),
-    ('assigned', 'ASSIGNED' ),
-    ('cancelled', 'CANCELLED'),
+    ('imported', 'Imported' ),
+    ('assigned', 'Assigned' ),
+    ('cancelled', 'Canceled'),
 )
 
 class BankTransaction(models.Model):

@@ -12,6 +12,7 @@ from django.db.models import Sum
 
 from transactions.forms import BankTransactionAssignForm, TransactionCreateForm, TransactionUpdateForm, BankStatementImportForm
 from transactions.models import BankTransaction, Transaction
+import transactions.models as tr_models
 from transactions.services import BankStatementParserService
 from transactions.tables import BankTransactionTable, BankTransactionTableFilter,TransactionTable,TransactionTableFilter
 # Create your views here.
@@ -32,7 +33,7 @@ class TransactionListView(LoginRequiredMixin, ListView):
         queryset = self.get_queryset(**kwargs)
         filter = TransactionTableFilter(self.request.GET, queryset=queryset)
         table = TransactionTable(filter.qs)
-        RequestConfig(self.request, paginate={"per_page": 10}).configure(table)
+        RequestConfig(self.request, paginate={"per_page": 5}).configure(table)
         context['filter']=filter
         context['table']=table
         context['total_credit'] = queryset.filter(type='credit').aggregate(Sum('amount'))['amount__sum']
@@ -130,9 +131,11 @@ class BankTransactionListView(LoginRequiredMixin, ListView):
         queryset = self.get_queryset(**kwargs)
         filter = BankTransactionTableFilter(self.request.GET, queryset=queryset)
         table = BankTransactionTable(filter.qs)
-        RequestConfig(self.request, paginate={"per_page": 10}).configure(table)
+        RequestConfig(self.request, paginate={"per_page": 20}).configure(table)
         context['filter']=filter
         context['table']=table
+        context['transaction_types']=tr_models.TRANSACTION_TYPE
+        context['transaction_statuses']=tr_models.BANK_TRANSACTION_STATUS
         context['total_credit'] = queryset.filter(type='credit').aggregate(Sum('amount'))['amount__sum']
         context['total_debit'] = queryset.filter(type='debit').aggregate(Sum('amount'))['amount__sum']
 
@@ -192,9 +195,10 @@ class BankTransactionAssignView(LoginRequiredMixin, View):
     template_name = 'transactions/bank_transaction_assign.html'
 
     assign_scope = (
-            ('shares', 'Shares'),
-            ('savings', 'Saving'),
-        )
+                ('shares', 'Shares'),
+                ('savings', 'Saving'),
+                ('expenses', 'Expenses'),
+            )
 
     def get(self, request, uuid):
     
@@ -218,14 +222,28 @@ class BankTransactionAssignView(LoginRequiredMixin, View):
         if form.cleaned_data['assign_scope'] == self.assign_scope[1][0]:
             return redirect('saving-create', uuid=uuid)
 
+        if form.cleaned_data['assign_scope'] == self.assign_scope[2][0]:
+            return redirect('expense-create', uuid=uuid)
+
         return redirect('bank-transaction-list')
 
     
     def get_context_data(self, uuid):
         bank_trans= BankTransaction.objects.get(id=uuid)
+
+        if bank_trans.type == tr_models.TRANSACTION_TYPE[0][0]:
+            assign_scope = (
+                ('expenses', 'Expenses'),
+            )
+        else:
+            assign_scope = (
+                ('shares', 'Shares'),
+                ('savings', 'Saving'),
+            )
         
         context= {
             'bank_transaction':bank_trans,
-            'assign_scopes':self.assign_scope,
+            'assign_scopes':assign_scope,
         }
+        print(context)
         return context

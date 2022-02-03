@@ -2,7 +2,7 @@ from transactions.models import BankTransaction, Transaction
 from authentication.models import User
 from expenses.models import Expense
 import transactions.models as t_models
-import shares.models as s_models
+import expenses.models as e_models
 
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -25,9 +25,9 @@ class ExpenseCrudService():
                 print('ERROR, Bank transaction already assigned')
                 return ('ERROR, Bank transaction already assigned', False, None)
 
-            if not bank_transaction.type == 'credit':
-                print('ERROR, Bank transaction reference type must be of type credit')
-                return ('ERROR, Bank transaction reference type must be of type credit', False, None)
+            if not bank_transaction.type == 'debit':
+                print('ERROR, Bank transaction reference type must be of type debit')
+                return ('ERROR, Bank transaction reference type must be of type debit', False, None)
 
             transaction = Transaction.objects.create(
                     amount= bank_transaction.amount, 
@@ -38,16 +38,18 @@ class ExpenseCrudService():
                     created_by = created_by
             )
 
-            owner = User.objects.get(email=owner)
-            #Creating Share
+            if not owner =="":
+                owner = User.objects.get(email=owner)
+            else:
+                owner = None
 
             #Default Description
             if description == '':
-                description = self._get_default_expense_description(owner, bank_transaction)
+                description = self._get_default_expense_description(bank_transaction)
 
             expense = Expense.objects.create(
                 description = description,
-                status = s_models.SHARE_STATUS[1][0],
+                status = e_models.EXPENSE_STATUS[1][0],
                 owner = owner,
                 transaction=transaction,
             )
@@ -105,5 +107,5 @@ class ExpenseCrudService():
 
         return False
 
-    def _get_default_expense_description(self, owner, bank_transaction):
-        return 'Expense: {}, {}'.format(owner.get_full_name(), bank_transaction.date_trans)
+    def _get_default_expense_description(self, bank_transaction):
+        return 'Expense: {}'.format(bank_transaction.description)

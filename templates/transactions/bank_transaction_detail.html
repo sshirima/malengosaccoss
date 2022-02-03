@@ -13,23 +13,22 @@
 
 {% block pageheader %}
 
-<div class="content-wrapper">
   <!-- Content Header (Page header) -->
   <div class="content-header">
-  <div class="container-fluid">
-    <div class="row mb-2">
-      <div class="col-sm-6">
-        <h1 class="m-0">Bank Transactions</h1>
-      </div><!-- /.col -->
-      <div class="col-sm-6">
-        <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{% url 'bank-transaction-list'%}">Bank Transactions</a></li>
-            <li class="breadcrumb-item active">Details</li>
-        </ol>
-      </div><!-- /.col -->
-  </div><!-- /.row -->
-</div><!-- /.container-fluid -->
-</div>
+    <div class="container-fluid">
+      <div class="row mb-2">
+        <div class="col-sm-6">
+          <h1 class="m-0">Transaction Details</h1>
+        </div><!-- /.col -->
+        <div class="col-sm-6">
+          <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item"><a href="{% url 'bank-transaction-list'%}">Bank Transactions</a></li>
+              <li class="breadcrumb-item active">Details</li>
+          </ol>
+        </div><!-- /.col -->
+      </div><!-- /.row -->
+    </div><!-- /.container-fluid -->
+  </div>
   
 {% endblock pageheader %}
   
@@ -37,80 +36,82 @@
 
 {% block content %}
 
-<div class="transaction-box" >
-    {% include "partials/_messages.html" %}
-    <div class="card card-info">
-      <div class="card-header">
-        <h3 class="card-title">Bank Transaction Details</h3>
-      </div>
-          <div class="card-body">
-              {% include "partials/_form_errors.html" %}
-              
-              <div class="form-group row">
-                <label for="amount" class="col-sm-2 col-form-label">Amount</label>
-                <div class="col-sm-10">
-                  <input type="email" class="form-control" disabled id="amount" value="{{bank_transaction.amount}}">
+<div class="row" >
+    <div class="col-md-12">
+        {% include "partials/_messages.html" %}
+      <div class="card card-info">
+        <div class="card-header">
+          <h3 class="card-title">Bank Transaction Details</h3>
+        </div>
+            <div class="card-body">
+                {% include "partials/_form_errors.html" %}
+                
+                <div class="form-group row">
+                  <label for="amount" class="col-sm-2 col-form-label">Amount</label>
+                  <div class="col-sm-10">
+                    <input type="email" class="form-control" disabled id="amount" value="{{bank_transaction.amount}}">
+                  </div>
                 </div>
-              </div>
 
-              <div class="form-group row">
-                <label for="description" class="col-sm-2 col-form-label">Description</label>
-                <div class="col-sm-10">
-                  <input type="email" class="form-control" disabled id="description" value="{{bank_transaction.description}}">
+                <div class="form-group row">
+                  <label for="description" class="col-sm-2 col-form-label">Description</label>
+                  <div class="col-sm-10">
+                    <input type="email" class="form-control" disabled id="description" value="{{bank_transaction.description}}">
+                  </div>
                 </div>
-              </div>
-              <div class="form-group row">
-                <label for="type" class="col-sm-2 col-form-label">Type</label>
-                <div class="col-sm-10">
-                  <input type="email" class="form-control" disabled id="type" value="{{bank_transaction.type}}">
+                <div class="form-group row">
+                  <label for="type" class="col-sm-2 col-form-label">Type</label>
+                  <div class="col-sm-10">
+                    <input type="email" class="form-control" disabled id="type" value="{{bank_transaction.type}}">
+                  </div>
                 </div>
-              </div>
-              <div class="form-group row">
-                <label for="status" class="col-sm-2 col-form-label">Status</label>
-                <div class="col-sm-10">
-                  <input type="text" class="form-control" disabled id="status" value="{{bank_transaction.status}}">
+                <div class="form-group row">
+                  <label for="status" class="col-sm-2 col-form-label">Status</label>
+                  <div class="col-sm-10">
+                    <input type="text" class="form-control" disabled id="status" value="{{bank_transaction.status}}">
+                  </div>
                 </div>
-              </div>
-              <div class="form-group row">
-                <label for="status" class="col-sm-2 col-form-label">Instrument Id</label>
-                <div class="col-sm-10">
-                  <input type="text" class="form-control" disabled id="status" value="{{bank_transaction.instrument_id}}">
+                <div class="form-group row">
+                  <label for="status" class="col-sm-2 col-form-label">Instrument Id</label>
+                  <div class="col-sm-10">
+                    <input type="text" class="form-control" disabled id="status" value="{{bank_transaction.instrument_id}}">
+                  </div>
                 </div>
-              </div>
-              <div class="form-group row">
-                <label for="created_by" class="col-sm-2 col-form-label">Created By</label>
-                <div class="col-sm-10">
-                  <input type="text" class="form-control" disabled id="created_by" value="{{bank_transaction.created_by.email}}">
+                <div class="form-group row">
+                  <label for="created_by" class="col-sm-2 col-form-label">Created By</label>
+                  <div class="col-sm-10">
+                    <input type="text" class="form-control" disabled id="created_by" value="{{bank_transaction.created_by.email}}">
+                  </div>
                 </div>
-              </div>
-              <div class="form-group row">
-                <label for="date_trans" class="col-sm-2 col-form-label">Trans Date</label>
-                <div class="col-sm-10">
-                  <input type="text" class="form-control" disabled id="date_trans" value="{{bank_transaction.date_trans}}">
+                <div class="form-group row">
+                  <label for="date_trans" class="col-sm-2 col-form-label">Trans Date</label>
+                  <div class="col-sm-10">
+                    <input type="text" class="form-control" disabled id="date_trans" value="{{bank_transaction.date_trans}}">
+                  </div>
                 </div>
-              </div>
-              <div class="form-group row">
-                <label for="date_value" class="col-sm-2 col-form-label">Value Date</label>
-                <div class="col-sm-10">
-                  <input type="text" class="form-control" disabled id="date_trans" value="{{bank_transaction.date_value}}">
+                <div class="form-group row">
+                  <label for="date_value" class="col-sm-2 col-form-label">Value Date</label>
+                  <div class="col-sm-10">
+                    <input type="text" class="form-control" disabled id="date_trans" value="{{bank_transaction.date_value}}">
+                  </div>
                 </div>
-              </div>
-              
-              <div class="form-group row">
-                <label for="created_by" class="col-sm-2 col-form-label">Date Created</label>
-                <div class="col-sm-10">
-                  <input type="text" class="form-control" disabled id="created_by" value="{{bank_transaction.date_created}}">
+                
+                <div class="form-group row">
+                  <label for="created_by" class="col-sm-2 col-form-label">Date Created</label>
+                  <div class="col-sm-10">
+                    <input type="text" class="form-control" disabled id="created_by" value="{{bank_transaction.date_created}}">
+                  </div>
                 </div>
-              </div>
-              <div class="form-group row">
-                <label for="update_by" class="col-sm-2 col-form-label">Date Updated</label>
-                <div class="col-sm-10">
-                  <input type="text" class="form-control" disabled id="update_by" value="{{bank_transaction.date_updated}}">
+                <div class="form-group row">
+                  <label for="update_by" class="col-sm-2 col-form-label">Date Updated</label>
+                  <div class="col-sm-10">
+                    <input type="text" class="form-control" disabled id="update_by" value="{{bank_transaction.date_updated}}">
+                  </div>
                 </div>
-              </div>
-    
-          </div>
-      <!-- /.card-body -->
+      
+            </div>
+        <!-- /.card-body -->
+      </div>
     </div>
 </div>
   

@@ -146,7 +146,7 @@ class ExpenseDeleteView(LoginRequiredMixin, DeleteView):
     slug_field = 'id'
     slug_url_kwarg = 'id'
 
-    success_url = reverse_lazy('expense-list')
+    success_url = reverse_lazy('expenses-list')
 
     def get_queryset(self):
         if self.request.user.is_authenticated:
@@ -165,5 +165,5 @@ class ExpenseDeleteView(LoginRequiredMixin, DeleteView):
             return HttpResponseRedirect(success_url)
 
         messages.error(self.request, msg)
-        return HttpResponseRedirect(reverse_lazy('expense-list'))
+        return HttpResponseRedirect(reverse_lazy('expenses-list'))
         

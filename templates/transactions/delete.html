@@ -13,23 +13,22 @@
 
 {% block pageheader %}
 
-<div class="content-wrapper">
   <!-- Content Header (Page header) -->
   <div class="content-header">
-  <div class="container-fluid">
-    <div class="row mb-2">
-      <div class="col-sm-6">
-        <h1 class="m-0">Transactions</h1>
-      </div><!-- /.col -->
-      <div class="col-sm-6">
-        <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{% url 'transactions-list'%}">Transactions</a></li>
-            <li class="breadcrumb-item active">Delete</li>
-        </ol>
-      </div><!-- /.col -->
-  </div><!-- /.row -->
-</div><!-- /.container-fluid -->
-</div>
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">Transactions</h1>
+          </div><!-- /.col -->
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+                <li class="breadcrumb-item"><a href="{% url 'transactions-list'%}">Transactions</a></li>
+                <li class="breadcrumb-item active">Delete</li>
+            </ol>
+          </div><!-- /.col -->
+        </div><!-- /.row -->
+      </div><!-- /.container-fluid -->
+  </div>
   
 {% endblock pageheader %}
   
@@ -37,8 +36,9 @@
 
 {% block content %}
 
-<div class="transations-box" >
-    {% include "partials/_messages.html" %}
+<div class="row" >
+    <div class="col-md-12">
+      {% include "partials/_messages.html" %}
     <div class="card card-info">
         <div class="card-header">
             <h3 class="card-title">Delete transaction confirmation</h3>
@@ -58,6 +58,7 @@
         </form>
     </div>
     
+    </div>
 </div>
   
 {% endblock content %}

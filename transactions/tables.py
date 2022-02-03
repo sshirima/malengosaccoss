@@ -83,6 +83,8 @@ class BankTransactionTableFilter(django_filters.FilterSet):
     description = django_filters.CharFilter(label='Description', method='search_description')
     start_date = django_filters.CharFilter(label='Start Date', method='search_start_date')
     end_date = django_filters.CharFilter(label='End Date', method='search_end_date')
+    type = django_filters.CharFilter(label='Type', method='search_type')
+    status = django_filters.CharFilter(label='Status', method='search_status')
 
     def search_description(self, qs, name, value):
         return qs.filter(Q(description__icontains=value))
@@ -93,9 +95,15 @@ class BankTransactionTableFilter(django_filters.FilterSet):
     def search_end_date(self, qs, name, value):
         return qs.filter(Q(date_trans__lte=value))
 
+    def search_type(self, qs, name, value):
+        return qs.filter(Q(type__iexact=value))
+
+    def search_status(self, qs, name, value):
+        return qs.filter(Q(status__iexact=value))
+
     class Meta:
         model = BankTransaction
-        fields = ['description', 'start_date', 'end_date']
+        fields = ['description', 'start_date', 'end_date', 'type','status']
 
 
 class TransactionTableFilter(django_filters.FilterSet):
