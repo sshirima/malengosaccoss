@@ -15,7 +15,7 @@ from pathlib import Path
 #CUSTOM IMPORTS
 import os
 from django.contrib import messages
-
+import django_heroku
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -187,3 +187,6 @@ EMAIL_USE_TLS= True
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 APP_NAME = 'Malengo Saccoss'
+
+#Django Heroku for static files and database setup
+django_heroku.settings(locals())
