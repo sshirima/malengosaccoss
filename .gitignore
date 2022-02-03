@@ -121,6 +121,7 @@ ENV/
 venvmalengo/
 env.bak/
 venv.bak/
+core/.env
 
 # Spyder project settings
 .spyderproject
