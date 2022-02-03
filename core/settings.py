@@ -15,7 +15,6 @@ from pathlib import Path
 #CUSTOM IMPORTS
 import os
 from django.contrib import messages
-import django_heroku
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -139,7 +138,6 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATICFILES_DIRS =[os.path.join(BASE_DIR, 'core/static')]
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-django_heroku.settings(locals())
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
@@ -177,4 +175,6 @@ EMAIL_USE_TLS= True
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 APP_NAME = 'Malengo Saccoss'
+
+
 
