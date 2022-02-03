@@ -335,6 +335,7 @@ class MemberSendPasswordResetLinkView(View):
 
         if not email_sent:
             messages.error(request, 'Fails to send password activation link, please try again')
+            return redirect(reverse('member-detail', args=[user.id]))
         
         messages.success(request, 'Password reset link has been sent')
         return redirect(reverse('member-detail', args=[user.id]))
