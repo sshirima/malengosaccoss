@@ -28,10 +28,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True #env('DEBUG')
+DEBUG = False #env('DEBUG')
 
 ALLOWED_HOSTS = ['127.0.0.1','malengosaccoss-test.herokuapp.com']
-
 
 # Application definition
 
@@ -190,4 +189,4 @@ CRISPY_TEMPLATE_PACK = 'bootstrap4'
 APP_NAME = 'Malengo Saccoss'
 
 #Django Heroku for static files and database setup
-django_heroku.settings(locals())
+# django_heroku.settings(locals())
