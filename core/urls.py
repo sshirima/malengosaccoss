@@ -16,9 +16,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import TemplateView
+from dashboard.views import DashboardView
 
 urlpatterns = [
-    path('', TemplateView.as_view(template_name='index.html')),
+    path('', DashboardView.as_view(), name='homepage'),
     path('admin/', admin.site.urls),
     path('dashboard/', include('dashboard.urls')),
     path('authentication/', include('authentication.urls')),

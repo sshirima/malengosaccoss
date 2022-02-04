@@ -39,12 +39,17 @@
     <!-- small box -->
     <div class="small-box bg-info">
       <div class="inner">
+        {% if share_amount_sum %}
         <h3>{{share_amount_sum|floatformat:0|intcomma }}</h3>
+        {% else %}
+        <h3>0</h3>
+        {% endif %}
 
         <p>Shares</p>
       </div>
+      
       <div class="icon">
-        <i class="ion ion-bag"></i>
+        <i class="far fa-share-square"></i>
       </div>
       <a href="{% url 'shares-list' %}" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
     </div>
@@ -54,12 +59,16 @@
     <!-- small box -->
     <div class="small-box bg-success">
       <div class="inner">
+        {% if saving_amount_sum %}
         <h3>{{saving_amount_sum|floatformat:0|intcomma }}</h3>
+        {% else %}
+        <h3>0</h3>
+        {% endif %}
 
         <p>Savings</p>
       </div>
       <div class="icon">
-        <i class="ion ion-stats-bars"></i>
+        <i class="far fa-save"></i>
       </div>
       <a href="{% url 'savings-list' %}" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
     </div>
@@ -69,12 +78,16 @@
     <!-- small box -->
     <div class="small-box bg-warning">
       <div class="inner">
+        {% if member_all_count %}
         <h3>{{member_all_count|floatformat:0|intcomma }}</h3>
+        {% else %}
+        <h3>0</h3>
+        {% endif %}
 
         <p>Members</p>
       </div>
       <div class="icon">
-        <i class="ion ion-person-add"></i>
+        <i class="fas fa-users"></i>
       </div>
       <a href="{% url 'members-list'%}" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
     </div>
@@ -90,13 +103,11 @@
         {% else %}
         <h3>0</h3>
         {% endif %}
-          
-        
 
         <p>Expenses</p>
       </div>
       <div class="icon">
-        <i class="ion ion-pie-graph"></i>
+        <i class="far fa-money-bill-alt"></i>
       </div>
       <a href="{% url 'expenses-list' %}" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
     </div>

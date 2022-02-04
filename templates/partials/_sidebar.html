@@ -1,6 +1,6 @@
 <aside id="control_sidebar" class="main-sidebar sidebar-dark-primary elevation-4">
     <!-- Brand Logo -->
-    <a href="#" class="brand-link">
+    <a href="{% url 'homepage'%}" class="brand-link">
       <span class="brand-text font-weight-light">{{APP_NAME}}</span>
     </a>
 
@@ -12,7 +12,8 @@
           {% comment %} <img src="dist/img/user2-160x160.jpg" class="img-circle elevation-2" alt="User Image"> {% endcomment %}
         </div>
         <div class="info">
-          <a href="#" class="d-block"> {{request.user.email}}></a>
+          <a href="{% url 'user-profile' %}" class="d-block"> {{request.user.get_full_name}}</a>
+          
         </div>
       </div>
 
@@ -31,19 +32,11 @@
             </a>
             
           </li>
-          {% url 'transactions-list' as url %}
-          <li class="nav-item {% if request.path == url %}menu-open{% endif %}">
-            <a href="{% url 'transactions-list'%}" class="nav-link">
-              <i class="nav-icon far fa-image"></i>
-              <p>
-                Transactions
-              </p>
-            </a>
-          </li>
+          
           {% url 'shares-list' as url %}
           <li class="nav-item {% if request.path == url %}menu-open{% endif %}">
             <a href="{% url 'shares-list'%}" class="nav-link">
-              <i class="nav-icon far fa-image"></i>
+              <i class="nav-icon far fa-share-square"></i>
               <p>
                 Shares
               </p>
@@ -52,7 +45,7 @@
           {% url 'savings-list' as url %}
           <li class="nav-item {% if request.path == url %}menu-open{% endif %}">
             <a href="{% url 'savings-list'%}" class="nav-link">
-              <i class="nav-icon far fa-image"></i>
+              <i class="nav-icon far fa-save"></i>
               <p>
                 Savings
               </p>
@@ -62,9 +55,18 @@
           {% url 'expenses-list' as url %}
           <li class="nav-item {% if request.path == url %}menu-open{% endif %}">
             <a href="{% url 'expenses-list'%}" class="nav-link">
-              <i class="nav-icon far fa-image"></i>
+              <i class="nav-icon far fa-money-bill-alt"></i>
               <p>
                 Expenses
+              </p>
+            </a>
+          </li>
+          {% url 'transactions-list' as url %}
+          <li class="nav-item {% if request.path == url %}menu-open{% endif %}">
+            <a href="{% url 'transactions-list'%}" class="nav-link">
+              <i class="nav-icon far fa-list-alt"></i>
+              <p>
+                Transactions
               </p>
             </a>
           </li>
@@ -72,7 +74,7 @@
           {% url 'bank-transaction-list' as url %}
           <li class="nav-item {% if request.path == url %}menu-open{% endif %}">
             <a href="{% url 'bank-transaction-list'%}" class="nav-link">
-              <i class="nav-icon far fa-image"></i>
+              <i class="nav-icon far fa-list-alt"></i>
               <p>
                 Bank Transactions
               </p>
@@ -82,7 +84,7 @@
           {% url 'members-list' as url %}
           <li class="nav-item">
             <a href="{% url 'members-list' %}" class="nav-link">
-              <i class="nav-icon far fa-image"></i>
+              <i class="fas fa-users"></i>
               <p>
                 Members
               </p>
