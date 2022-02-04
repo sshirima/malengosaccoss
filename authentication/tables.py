@@ -18,15 +18,17 @@ class BooleanColumn(django_tables2.Column):
 class MemberTable(django_tables2.Table):
     first_name = django_tables2.Column(accessor='first_name', verbose_name='First Name')
     last_name = django_tables2.Column(accessor='last_name', verbose_name='Last Name')
-    mobile_number = django_tables2.Column(accessor='mobile_number', verbose_name='Mobile Number')
-    is_active = BooleanColumn(accessor='is_active', verbose_name='Is Active')
-    is_staff = BooleanColumn(accessor='is_staff', verbose_name='Is Staff')
-    is_admin = BooleanColumn(accessor='is_admin', verbose_name='Is Admin')
+    mobile_number = django_tables2.Column( accessor='mobile_number', verbose_name='Mobile Number')
+    is_active = BooleanColumn( accessor='is_active', verbose_name='Is Active', )
+    is_staff = BooleanColumn( accessor='is_staff', verbose_name='Is Staff')
+    is_admin = BooleanColumn( accessor='is_admin', verbose_name='Is Admin')
     
     email = django_tables2.Column(accessor='email', verbose_name = "Email")
+    
     # assign = django_tables2.TemplateColumn(template_name ='partials/_btn_assign.html')
     #date_updated = django_tables2.Column(accessor='date_updated', verbose_name = "Date Updated")
     #edit_delete = django_tables2.TemplateColumn(template_name ='partials/_update_delete.html')
+    #attrs={"th": {"class": "d-none d-sm-block"}, "td": {"class": "d-none d-sm-block"}},
     
 
     class Meta:
