@@ -28,9 +28,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True #env('DEBUG')
+DEBUG = True #if os.environ.get('DEBUG') == "True" else False
 
-ALLOWED_HOSTS = ['malengosaccoss-test.herokuapp.com']
+ALLOWED_HOSTS = [os.environ.get('SERVER_HOSTNAME')]
 
 
 # Application definition
@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'shares',
     'savings',
     'expenses',
+    'loans',
     'django_tables2',
     'django_filters',
     'bootstrap3',
@@ -91,22 +92,22 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
-
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER':'root',
-        'PASSWORD':'jimaya792',
-        'HOST':'localhost',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'postgres',
+#         'USER':'root',
+#         'PASSWORD':'jimaya792',
+#         'HOST':'localhost',
+#     }
+# }
 
 
 # Password validation
@@ -190,4 +191,4 @@ CRISPY_TEMPLATE_PACK = 'bootstrap4'
 APP_NAME = 'Malengo Saccoss'
 
 #Django Heroku for static files and database setup
-django_heroku.settings(locals())
+# django_heroku.settings(locals())

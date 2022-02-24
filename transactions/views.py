@@ -10,10 +10,10 @@ from authentication.models import User
 from django_tables2 import RequestConfig
 from django.db.models import Sum
 
-from transactions.forms import BankTransactionAssignForm, TransactionCreateForm, TransactionUpdateForm, BankStatementImportForm
+from transactions.forms import BankTransactionAssignForm, BankTransactionMultipleAssignForm, TransactionCreateForm, TransactionUpdateForm, BankStatementImportForm
 from transactions.models import BankTransaction, Transaction
 import transactions.models as tr_models
-from transactions.services import BankStatementParserService
+from transactions.services import BankStatementParserService, TransactionCRUDService
 from transactions.tables import BankTransactionTable, BankTransactionTableFilter,TransactionTable,TransactionTableFilter
 # Create your views here.
 
@@ -98,17 +98,44 @@ class TransactionUpdateView(LoginRequiredMixin, UpdateView):
 class TransactionDeleteView(LoginRequiredMixin, DeleteView):
     template_name ='transactions/delete.html'
     model = Transaction
-
     slug_field = 'id'
     slug_url_kwarg = 'id'
 
     success_url = reverse_lazy('transactions-list')
 
     def get_queryset(self):
-        if self.request.user.is_authenticated:
-            return Transaction.objects.filter(created_by=self.request.user)
-        else:
-            return Transaction.objects.none()
+        return Transaction.objects.filter(id=self.kwargs['id'])
+
+    def get_context_data(self, **kwargs):
+        context = super(TransactionDeleteView, self).get_context_data()
+
+        transaction = Transaction.objects.get(id = self.kwargs['id'])
+        
+        context['related_objects'] = self.get_related_models(transaction)
+        return context
+
+    def get_related_models(self, object):
+        related_list = object.get_ralated_list()
+        related_objects = []
+        if related_list:
+            for related in related_list:
+                for m in related:
+                    name = m._meta.verbose_name + " ("+str(m)+")"
+                    related_objects.append({'name':name, 'url': m.get_absolute_url()})
+
+        return related_objects
+
+    def form_valid(self, form):
+        self.object = self.get_object()
+        service = TransactionCRUDService(self.request)
+        msg, deleted, trans = service.delete_transaction(self.object)
+
+        if deleted:
+            messages.success(self.request, 'Transaction deleted successfull')
+            return HttpResponseRedirect(self.get_success_url())
+
+        messages.error(self.request, msg)
+        return HttpResponseRedirect(reverse_lazy('transactions-list'))
 
 
 class BankTransactionListView(LoginRequiredMixin, ListView):
@@ -136,6 +163,7 @@ class BankTransactionListView(LoginRequiredMixin, ListView):
         context['table']=table
         context['transaction_types']=tr_models.TRANSACTION_TYPE
         context['transaction_statuses']=tr_models.BANK_TRANSACTION_STATUS
+        context['table_actions'] = (('assign_to_expense', 'Assign To Expenses'), ('assign_to_share', 'Assign To Share'),)
         context['total_credit'] = queryset.filter(type='credit').aggregate(Sum('amount'))['amount__sum']
         context['total_debit'] = queryset.filter(type='debit').aggregate(Sum('amount'))['amount__sum']
 
@@ -150,10 +178,11 @@ class BankTransactionDetailView(LoginRequiredMixin, DetailView):
     slug_url_kwarg = 'id'
 
     def get_queryset(self):
-        if self.request.user.is_authenticated:
-            return BankTransaction.objects.filter(created_by=self.request.user)
-        else:
-            return BankTransaction.objects.none()
+        # if self.request.user.is_authenticated:
+        #     return BankTransaction.objects.filter(created_by=self.request.user)
+        # else:
+        #     return BankTransaction.objects.none()
+        return BankTransaction.objects.filter(id = self.kwargs['id'])
 
 
 class BankTransactionImportView(LoginRequiredMixin, View):
@@ -198,11 +227,12 @@ class BankTransactionAssignView(LoginRequiredMixin, View):
                 ('shares', 'Shares'),
                 ('savings', 'Saving'),
                 ('expenses', 'Expenses'),
+                ('loans', 'Loans'),
             )
 
     def get(self, request, uuid):
     
-        context= context = self.get_context_data(uuid)
+        context = self.get_context_data(uuid)
 
         return render(request, self.template_name, context)
     
@@ -225,6 +255,9 @@ class BankTransactionAssignView(LoginRequiredMixin, View):
         if form.cleaned_data['assign_scope'] == self.assign_scope[2][0]:
             return redirect('expense-create', uuid=uuid)
 
+        if form.cleaned_data['assign_scope'] == self.assign_scope[3][0]:
+            return redirect('loan-create', uuid=uuid)
+
         return redirect('bank-transaction-list')
 
     
@@ -234,6 +267,7 @@ class BankTransactionAssignView(LoginRequiredMixin, View):
         if bank_trans.type == tr_models.TRANSACTION_TYPE[0][0]:
             assign_scope = (
                 ('expenses', 'Expenses'),
+                ('loans', 'Loans'),
             )
         else:
             assign_scope = (
@@ -245,5 +279,30 @@ class BankTransactionAssignView(LoginRequiredMixin, View):
             'bank_transaction':bank_trans,
             'assign_scopes':assign_scope,
         }
-        print(context)
         return context
+
+
+class BankTransactionMultipleAssignView(LoginRequiredMixin, View):
+    template_name = 'transactions/bank_transaction_list.html'
+
+    def post(self, request):
+
+        form = BankTransactionMultipleAssignForm(request.POST, request=request)
+
+        if not form.is_valid():
+            error_string = get_error_string(form)
+            messages.error(request, error_string)
+            
+            return redirect('bank-transaction-list')
+
+        return redirect('bank-transaction-list')
+
+
+def get_error_string(form):
+    error_string =''
+    if form.errors:
+        for field in form:
+            for error in field.errors:
+                error_string += field.label +': ' + error
+
+    return error_string

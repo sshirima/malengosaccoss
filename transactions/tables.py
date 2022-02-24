@@ -38,6 +38,9 @@ class TypeColumn(django_tables2.Column):
 
 
 class BankTransactionTable(django_tables2.Table):
+    selection = django_tables2.CheckBoxColumn(accessor="pk", attrs = { "th__input": 
+                                        {"onclick": "toggle(this)"}},
+                                        orderable=False)
     amount = django_tables2.Column(accessor='amount', verbose_name='Amount')
     description = django_tables2.Column(accessor='description', verbose_name='Description')
     type = TypeColumn(accessor='type', verbose_name='Type')
@@ -53,7 +56,7 @@ class BankTransactionTable(django_tables2.Table):
         attrs = {'class': 'table '}
         template_name = 'django_tables2/bootstrap.html'
         fields = ('date_value',)
-        sequence = ('amount','description','status','type','date_value')
+        sequence = ('selection','amount','description','status','type','date_value')
     
     def render_amount(self,record):
         return mark_safe('<a href="{}">{}</a>'.format(reverse("bank-transaction-detail", args=[record.id]), '{:0,.0f}'.format(record.amount)))

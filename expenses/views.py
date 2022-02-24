@@ -81,6 +81,43 @@ class ExpenseCreateView(LoginRequiredMixin, CreateView):
         context['bank_transaction'] = BankTransaction.objects.get(id=uuid)
         return context
 
+class ExpenseCreateMultipleView(LoginRequiredMixin, View):
+    template_name ='expenses/expense_create_multiple.html'
+    form_class = ExpenseCreateForm
+    success_url = reverse_lazy('expense-list')
+
+    def get(self, request, uuid):
+        context = self.get_context_data(uuid)
+        return render(request, self.template_name, context)
+
+
+    def post(self, request, uuid):
+        form = ExpenseCreateForm(uuid=uuid,data= request.POST)
+
+        if not form.is_valid():
+            context = self.get_context_data(uuid)
+            context['form'] = form
+            return render(request, self.template_name, context) 
+
+        service = ExpenseCrudService(self.request)
+        data = form.cleaned_data
+        data['uuid'] = uuid
+        msg, created, expense = service.create_expense(data=data, created_by=self.request.user)
+
+        if not created and expense is None:
+            messages.error(self.request, msg)
+            context = self.get_context_data(uuid)
+            context['form'] = form
+            return render(request, self.template_name, context) 
+
+        messages.success(self.request, 'Expense record added successful')
+        return HttpResponseRedirect(expense.get_absolute_url())
+
+    def get_context_data(self,uuid):
+        context = {}
+        context['owners'] = User.objects.all()
+        context['bank_transaction'] = BankTransaction.objects.get(id=uuid)
+        return context
 
 class ExpenseDetailView(LoginRequiredMixin, DetailView):
     template_name = 'expenses/expense_detail.html'

@@ -10,6 +10,7 @@ from .views import (
     BankTransactionListView,
     BankTransactionAssignView,
     BankTransactionDetailView,
+    BankTransactionMultipleAssignView,
 )
 
 urlpatterns = [
@@ -22,4 +23,5 @@ urlpatterns = [
     path('bank-transaction-import', BankTransactionImportView.as_view(), name='bank-transaction-import'),
     path('bank-transaction-detail/<id>', BankTransactionDetailView.as_view(), name='bank-transaction-detail'),
     path('bank-transaction-assign/<uuid>', BankTransactionAssignView.as_view(), name='bank-transaction-assign'),
+    path('bank-transaction-multiple-assign', BankTransactionMultipleAssignView.as_view(), name='bank-transaction-multiple-assign'),
 ]

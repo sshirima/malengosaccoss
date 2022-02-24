@@ -7,12 +7,13 @@ from transactions.models import Transaction, BankTransaction
 from authentication.models import User
 from savings.models import Saving
 from expenses.models import Expense
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from django.db.models import Sum
 # Create your views here.
 
 
-class DashboardView(View):
+class DashboardView(LoginRequiredMixin, View):
     template_name = 'dashboard/index.html'
 
     def get(self, request):

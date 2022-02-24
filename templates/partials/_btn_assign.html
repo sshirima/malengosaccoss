@@ -1,6 +1,9 @@
 <span>
+    
+    {% if not record.status == 'assigned' %}
     <a class="btn btn-info btn-xs mr-1" href="{% url 'bank-transaction-assign' record.id %}">
         <i class="fas fa-arrow-circle-right"></i> Assign
     </a>
-    
+    {% endif %}
+        
 </span>

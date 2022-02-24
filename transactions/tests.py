@@ -4,7 +4,7 @@ from django.urls.base import reverse
 from authentication.forms import RegistrationForm
 from authentication.services import RegistrationService
 from transactions.forms import TransactionCreateForm
-from transactions.services import BankStatementParserService, TransactionCRUD
+from transactions.services import BankStatementParserService, TransactionCRUDService
 # Create your tests here.
 
 class TransactionTestCase(TestCase):
@@ -28,7 +28,7 @@ class TransactionTestCase(TestCase):
         self.user = user
 
     # def test_creating_transaction_success(self):
-    #     transactionCRUD = TransactionCRUD(self.response.wsgi_request)
+    #     TransactionCRUDService = TransactionCRUDService(self.response.wsgi_request)
 
     #     transactionCreateForm = TransactionCreateForm(data={
     #         'amount':10000.0,
@@ -39,7 +39,7 @@ class TransactionTestCase(TestCase):
     #     is_valid = transactionCreateForm.is_valid()
     #     self.assertTrue(is_valid)
 
-    #     (result, created, transaction) = transactionCRUD.create(transactionCreateForm.cleaned_data, self.user)
+    #     (result, created, transaction) = TransactionCRUDService.create(transactionCreateForm.cleaned_data, self.user)
 
     #     self.assertTrue(created)
     #     self.assertIsNotNone(transaction)

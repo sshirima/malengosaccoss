@@ -9,7 +9,7 @@ from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.contrib.auth import update_session_auth_hash
 from django.conf import settings # import the settings file
 
-from .models import User, UserManager
+from .models import Member, User, UserManager
 from .emails import ActivationEmailSender
 from .utils import token_generator
 
@@ -30,6 +30,16 @@ class RegistrationService():
             user.set_password(data['password1'])
             user.is_active = False
             user.save()
+
+            #Create member
+            member = Member.objects.create(
+                first_name = data['first_name'],
+                middle_name = data['middle_name'],
+                last_name = data['last_name'],
+                mobile_number = data['mobile_number'],
+                gender = data['gender'],
+                user = user,
+            )
 
             return (True, user)
         except Exception as e:
@@ -83,6 +93,11 @@ class RegistrationService():
 
             user.is_active = True
             user.save()
+            #Activate member
+            member = user.member
+            member.is_active = True
+            member.save()
+            
             return ('User activated', True, user)
 
         except Exception as e:

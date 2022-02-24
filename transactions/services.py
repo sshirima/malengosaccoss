@@ -2,9 +2,11 @@ import transactions.models as tr_models
 import pandas as pd
 from django.db import transaction
 
-class TransactionCRUD():
+import transactions.models as t_models
 
-    
+
+class TransactionCRUDService():
+
     def __init__(self, request):
         self.request = request
     
@@ -27,21 +29,35 @@ class TransactionCRUD():
 
         return ('', False, None)
 
+    def delete_transaction(self, transaction):
+        try:
+            banktransaction = transaction.reference
+
+            banktransaction.status = t_models.BANK_TRANSACTION_STATUS[0][0]
+            banktransaction.save()
+
+            transaction.delete()
+
+            return ('', True, None)
+
+        except Exception as e:
+            return ('ERROR, deleting share transaction: {}'.format(str(e)),False, transaction)
+
 class BankStatementParserService():
     
     def parse_xlsx_file(self, filename, column_names):
         try:
             xlsx_file = pd.ExcelFile(filename, engine='openpyxl')
             
-            df2 = pd.DataFrame()
+            df2 = []
 
             for sheet in xlsx_file.sheet_names:
                 
                 df = self.parse_xlsx_sheet( xlsx_file, sheet, column_names)
 
-                df2 = df2.append(df)
+                df2.append(df)
                         
-            
+            df2 = pd.concat(df2)
             # contain_values = df2[df2['Tran Particulars'].str.contains('PAY JACQUELINE', na=False)]
             # print(contain_values)
             return df2

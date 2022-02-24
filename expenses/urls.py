@@ -14,4 +14,5 @@ urlpatterns = [
     path('expense-update/<id>', ExpenseUpdateView.as_view(), name='expense-update'),
     path('expense-delete/<id>', ExpenseDeleteView.as_view(), name='expense-delete'),
     path('expense-create/<uuid>', ExpenseCreateView.as_view(), name='expense-create'),
+    path('expense-create-multiple/<str:uuids>', ExpenseCreateView.as_view(), name='expense-create-multiple'),
 ]

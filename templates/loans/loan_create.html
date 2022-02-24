@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block title %}
+    Loan Create
+{% endblock title %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/loans/main.css'%}">
+{% endblock extra_css %}
+
+
+{% block pageheader %}
+
+  <!-- Content Header (Page header) -->
+  <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">Loan</h1>
+          </div><!-- /.col -->
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+                <li class="breadcrumb-item"><a href="{% url 'shares-list'%}">Loans</a></li>
+                <li class="breadcrumb-item active">Create</li>
+            </ol>
+          </div><!-- /.col -->
+      </div><!-- /.row -->
+    </div><!-- /.container-fluid -->
+  </div>
+  
+{% endblock pageheader %}
+  
+
+
+{% block content %}
+
+<div class="row" >
+    <div class="col-md-12">
+      {% include "partials/_messages.html" %}
+
+    <div class="card card-info">
+        <div class="card-header">
+          <h3 class="card-title">Create New Loan</h3>
+        </div>
+        <form action="{% url 'loan-create' banktransaction.id %}" method="post">
+            {% csrf_token %}
+            <div class="card-body">
+                {% include "partials/_form_errors.html" %}
+                <input type="hidden" name="transaction_id" value="{{banktransaction.id}}">
+                <div class="form-group row">
+                  <label for="duration" class="col-sm-2 col-form-label">Duration(months)</label>
+                  <div class="col-sm-10">
+                    <input type="number" class="form-control" id="duration" name="duration" required>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label for="duration" class="col-sm-2 col-form-label">Loan Type</label>
+                  <div class="col-sm-10">
+                    <select name="loan_type" class="form-control" required> 
+                      <option></option>
+                      {% for type in loan_types %}
+                      <option value="{{type.0}}">{{type.1}}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+               
+                <div class="form-group row">
+                  <label for="duration" class="col-sm-2 col-form-label">Select member</label>
+                  <div class="col-sm-10">
+                    <select name="member" class="form-control" required>
+                      <option></option>
+                      {% for member in members %}
+                      <option value="{{member.id}}">{{member.get_full_name}}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+
+                <div class="card-footer">
+                  <button type="submit" class="btn btn-outline-info mr-2">Create</button>
+                  <a href="{% url 'loans-list' %}" class="btn btn-outline-danger">Cancel</a>
+                </div>
+      
+            </div>
+        </form>
+        <!-- /.card-body -->
+      </div>
+    </div>
+    
+</div>
+  
+{% endblock content %}

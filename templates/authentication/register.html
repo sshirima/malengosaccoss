@@ -48,14 +48,38 @@
                 </div>
               </div>
             </div>
-            <div class="row mb-3">
-              <div class="col-md-6 mt-3">
-                <input type="text" class="form-control" name="first_name" value="{{values.first_name}}" placeholder="First name" >
-              </div>
-              <div class="col-md-6 mt-3">
-                <input type="text" class="form-control" name="last_name" value="{{values.last_name}}" placeholder="Last name" >
+            <div class="input-group mb-3">
+              <select name="gender" class="form-control" required> 
+                <option ></option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+              </select>
+              <div class="input-group-append">
+                <div class="input-group-text">
+                  <span class="fas fa-user"></span>
+                </div>
               </div>
             </div>
+            <div class="input-group mb-3">
+              <input type="text" class="form-control" name="mobile_number" required value="{{values.mobile_number}}" placeholder="Mobile Number" >
+              <div class="input-group-append">
+                <div class="input-group-text">
+                  <span class="fas fa-mobile"></span>
+                </div>
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-md-4 mt-3">
+                <input type="text" class="form-control" name="first_name" value="{{values.first_name}}" required placeholder="First name" >
+              </div>
+              <div class="col-md-4 mt-3">
+                <input type="text" class="form-control" name="middle_name" value="{{values.middle_name}}" required placeholder="Middle Name" >
+              </div>
+              <div class="col-md-4 mt-3">
+                <input type="text" class="form-control" name="last_name" value="{{values.last_name}}" required placeholder="Last name" >
+              </div>
+            </div>
+            
             <div class="row">
               <div class="col-md-6">
                 <button type="submit" class="btn btn-outline-info btn-block">Register</button>
