@@ -1,5 +1,6 @@
 
 from audioop import reverse
+from email import message
 from django.shortcuts import redirect, render
 from django.urls.base import reverse_lazy
 from django.views.generic import CreateView, ListView, UpdateView, DeleteView, DetailView, View
@@ -228,6 +229,7 @@ class BankTransactionAssignView(LoginRequiredMixin, View):
                 ('savings', 'Saving'),
                 ('expenses', 'Expenses'),
                 ('loans', 'Loans'),
+                ('loanrepayment', 'Loan Repayments'),
             )
 
     def get(self, request, uuid):
@@ -258,6 +260,10 @@ class BankTransactionAssignView(LoginRequiredMixin, View):
         if form.cleaned_data['assign_scope'] == self.assign_scope[3][0]:
             return redirect('loan-create', uuid=uuid)
 
+        if form.cleaned_data['assign_scope'] == self.assign_scope[4][0]:
+            return redirect('loanrepayment-select-member', uuid=uuid)
+
+        messages.error(request, 'Could not action the assignment')
         return redirect('bank-transaction-list')
 
     
@@ -273,6 +279,7 @@ class BankTransactionAssignView(LoginRequiredMixin, View):
             assign_scope = (
                 ('shares', 'Shares'),
                 ('savings', 'Saving'),
+                ('loanrepayment', 'Loan Repayements'),
             )
         
         context= {

@@ -4,6 +4,8 @@
 
 {% load humanize %}
 
+{% load render_table from django_tables2 %}
+
 {% block title %}
     Loan Detail
 {% endblock title %}
@@ -38,95 +40,141 @@
 
 {% block content %}
 
-<div class="row" >
-  <div class="col-md-12">
-    {% include "partials/_messages.html" %}
-
-    <div class="card card-info">
-      <div class="card-header">
-        <h3 class="card-title">Loan Details Information</h3>
-      </div>
-     
-      <div class="card-body">
-              {% include "partials/_form_errors.html" %}
-    
-              
-              
-              <div class="form-group row">
-                <label for="" class="col-sm-3 col-form-label">Loan Type</label>
-                <div class="col-sm-9">
-                  <input type="text" class="form-control" value="{{loan.type }}" disabled>
-                </div>
-              </div>
-              <div class="form-group row">
-                <label for="" class="col-sm-3 col-form-label">Principle(Tsh)</label>
-                <div class="col-sm-9">
-                  <input type="text" class="form-control" value="{{loan.principle|floatformat:0|intcomma }}" disabled>
-                </div>
-              </div>
-              <div class="form-group row">
-                <label for="" class="col-sm-3 col-form-label">Interest(%)</label>
-                <div class="col-sm-9">
-                  <input type="text" class="form-control" value="{{loan.interest_rate|floatformat:0|intcomma }}" disabled>
-                </div>
-              </div>
-              <div class="form-group row">
-                <label for="" class="col-sm-3 col-form-label">Duration(Months)</label>
-                <div class="col-sm-9">
-                  <input type="text" class="form-control" value="{{loan.duration|floatformat:0|intcomma }}" disabled>
-                </div>
-              </div>
-              <div class="form-group row">
-                <label for="" class="col-sm-3 col-form-label">Issued(Tsh)</label>
-                <div class="col-sm-9">
-                  <input type="text" class="form-control" value="{{loan.amount_issued|floatformat:0|intcomma }}" disabled>
-                </div>
-              </div>
-              <div class="form-group row">
-                <label for="" class="col-sm-3 col-form-label">Loan Fee(Tsh)</label>
-                <div class="col-sm-9">
-                  <input type="text" class="form-control" value="{{loan.loan_fee|floatformat:0|intcomma }}" disabled>
-                </div>
-              </div>
-              <div class="form-group row">
-                <label for="" class="col-sm-3 col-form-label">Insurance Fee(Tsh)</label>
-                <div class="col-sm-9">
-                  <input type="text" class="form-control" value="{{loan.insurance_fee|floatformat:0|intcomma }}" disabled>
-                </div>
-              </div>
-              <div class="form-group row">
-                <label for="" class="col-sm-3 col-form-label">Loan Form Fee(Tsh)</label>
-                <div class="col-sm-9">
-                  <input type="text" class="form-control" value="{{loan.form_fee|floatformat:0|intcomma }}" disabled>
-                </div>
-              </div>
-              <div class="form-group row">
-                <label for="" class="col-sm-3 col-form-label">Interest Amount(Tsh)</label>
-                <div class="col-sm-9">
-                  <input type="text" class="form-control" value="{{loan.interest_amount|floatformat:0|intcomma }}" disabled>
-                </div>
-              </div>
-              <div class="form-group row">
-                <label for="" class="col-sm-3 col-form-label">Installment Amount(Tsh)</label>
-                <div class="col-sm-9">
-                  <input type="text" class="form-control" value="{{loan.installment_amount|floatformat:0|intcomma }}" disabled>
-                </div>
-              </div>
-              <div class="form-group row">
-                <label for="" class="col-sm-3 col-form-label">Reference Transaction</label>
-                <div class="col-sm-9">
-                  <a href="{% url 'transaction-detail' loan.transaction.id %}">Transaction:({{loan.transaction.description}})</a>
-                </div>
-              </div>
-              
-              <div class="card-footer">
-                <a href="{% url 'loans-list' %}" class="btn btn-outline-danger">Back</a>
-              </div>
-    
-      </div>
-      <!-- /.card-body -->
-    </div>
+<div class="card card-primary card-outline card-outline-tabs">
+  <div class="card-header p-0 border-bottom-0">
+    <ul class="nav nav-tabs" id="custom-tabs-four-tab" role="tablist">
+      <li class="nav-item">
+      <a class="nav-link active" id="loan-details-header-tab" data-toggle="pill" href="#tab-loan-details-body" role="tab" aria-controls="tab-loan-details-body" aria-selected="true">Loan Details</a>
+      </li>
+      <li class="nav-item">
+      <a class="nav-link" id="loanrepayments-list-header-tab" data-toggle="pill" href="#tab-loanrepayments-list-body" role="tab" aria-controls="tab-loanrepayments-list-body" aria-selected="false">Repayments</a>
+      </li>
+      
+    </ul>
   </div>
-</div>
+  <div class="card-body">
+    <div class="tab-content" id="custom-tab-for-tab-content">
+      <div class="row tab-pane fade show active" id="tab-loan-details-body" role="tabpanel" aria-labelledby="loan-details-header-tab">
+        <div class="col-md-12">
+          {% include "partials/_messages.html" %}
+      
+          {% include "partials/_form_errors.html" %}
+
+          <div class="row">
+            <div class="col-lg-6">
+              <div class="info-box bg-info">
+                <span class="info-box-icon"><i class="far fa-bookmark"></i></span>
+              
+                <div class="info-box-content">
+                  <span class="info-box-text"><h4>Paid Amount</h4></span>
+                  <span class="info-box-number">{{total_loanrepayment|floatformat:0|intcomma }} Tsh</span>      
+                </div>
+                <!-- /.info-box-content -->
+              </div>
+            
+            </div>
+            <div class="col-lg-6">
+              <div class="info-box bg-danger">
+                <span class="info-box-icon"><i class="far fa-bookmark"></i></span>
+              
+                <div class="info-box-content">
+                  <span class="info-box-text"><h4>Loan Balance</h4></span>
+                  <span class="info-box-number">{{loan_balance |floatformat:0|intcomma  }} Tsh</span>      
+                </div>
+                <!-- /.info-box-content -->
+              </div>
+            </div>
+            
+            
+          </div>
+          
+          <div class="form-group row">
+            <label for="" class="col-sm-3 col-form-label">Loan Type</label>
+            <div class="col-sm-9">
+              <input type="text" class="form-control" value="{{loan.type }}" disabled>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="" class="col-sm-3 col-form-label">Principle(Tsh)</label>
+            <div class="col-sm-9">
+              <input type="text" class="form-control" value="{{loan.principle|floatformat:0|intcomma }}" disabled>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="" class="col-sm-3 col-form-label">Interest(%)</label>
+            <div class="col-sm-9">
+              <input type="text" class="form-control" value="{{loan.interest_rate|floatformat:0|intcomma }}" disabled>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="" class="col-sm-3 col-form-label">Duration(Months)</label>
+            <div class="col-sm-9">
+              <input type="text" class="form-control" value="{{loan.duration|floatformat:0|intcomma }}" disabled>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="" class="col-sm-3 col-form-label">Issued(Tsh)</label>
+            <div class="col-sm-9">
+              <input type="text" class="form-control" value="{{loan.amount_issued|floatformat:0|intcomma }}" disabled>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="" class="col-sm-3 col-form-label">Loan Fee(Tsh)</label>
+            <div class="col-sm-9">
+              <input type="text" class="form-control" value="{{loan.loan_fee|floatformat:0|intcomma }}" disabled>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="" class="col-sm-3 col-form-label">Insurance Fee(Tsh)</label>
+            <div class="col-sm-9">
+              <input type="text" class="form-control" value="{{loan.insurance_fee|floatformat:0|intcomma }}" disabled>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="" class="col-sm-3 col-form-label">Loan Form Fee(Tsh)</label>
+            <div class="col-sm-9">
+              <input type="text" class="form-control" value="{{loan.form_fee|floatformat:0|intcomma }}" disabled>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="" class="col-sm-3 col-form-label">Interest Amount(Tsh)</label>
+            <div class="col-sm-9">
+              <input type="text" class="form-control" value="{{loan.interest_amount|floatformat:0|intcomma }}" disabled>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="" class="col-sm-3 col-form-label">Installment Amount(Tsh)</label>
+            <div class="col-sm-9">
+              <input type="text" class="form-control" value="{{loan.installment_amount|floatformat:0|intcomma }}" disabled>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="" class="col-sm-3 col-form-label">Payment Status</label>
+            <div class="col-sm-9">
+              {{loan.status}}
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="" class="col-sm-3 col-form-label">Reference Transaction</label>
+            <div class="col-sm-9">
+              <a href="{% url 'transaction-detail' loan.transaction.id %}">Transaction:({{loan.transaction.description}})</a>
+            </div>
+          </div>
+          
+          <a href="{% url 'loans-list' %}" class="btn btn-outline-danger">Back</a>
+        </div>
+      </div>
   
+      <div class="tab-pane fade show" id="tab-loanrepayments-list-body" role="tabpanel" aria-labelledby="loanrepayments-list-header-tab">
+        <div class="row">
+          <div class="col-md-12">
+            {% render_table table 'partials/_table.html'%}
+          </div>
+        </div> 
+      </div>
+    </div>
+    
+
+  </div>
+
 {% endblock content %}

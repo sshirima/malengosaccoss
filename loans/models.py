@@ -120,6 +120,13 @@ class Loan(LoanBaseModel):
     def get_absolute_url(self):
         return reverse('loan-detail', args=[self.id])
 
+
+    def get_total_loan_amount(self):
+        return self.principle + self.interest_amount
+
 class LoanRepayment(LoanBaseModel):
     loan = models.ForeignKey(to=Loan, on_delete=models.CASCADE, default=None)
     transaction = models.OneToOneField(Transaction, on_delete=models.CASCADE)
+
+    def get_absolute_url(self):
+        return reverse('loanrepayment-detail', args=[self.id])

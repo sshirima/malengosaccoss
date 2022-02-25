@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block title %}
+    Loan Create
+{% endblock title %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/loans/main.css'%}">
+{% endblock extra_css %}
+
+
+{% block pageheader %}
+
+  <!-- Content Header (Page header) -->
+  <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">Loan</h1>
+          </div><!-- /.col -->
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+                <li class="breadcrumb-item"><a href="{% url 'shares-list'%}">Loans</a></li>
+                <li class="breadcrumb-item active">Select Member</li>
+            </ol>
+          </div><!-- /.col -->
+      </div><!-- /.row -->
+    </div><!-- /.container-fluid -->
+  </div>
+  
+{% endblock pageheader %}
+  
+
+
+{% block content %}
+
+<div class="row" >
+    <div class="col-md-12">
+      {% include "partials/_messages.html" %}
+
+    <div class="card card-info">
+        <div class="card-header">
+          <h3 class="card-title">Creating new Loan Repayment</h3>
+        </div>
+        <form action="{% url 'loanrepayment-select-member' banktransaction.id %}" method="post">
+            {% csrf_token %}
+            <div class="card-body">
+                {% include "partials/_form_errors.html" %}
+                <div class="form-group row">
+                  <label for="duration" class="col-sm-2 col-form-label">Select member</label>
+                  <div class="col-sm-10">
+                    <select name="member" class="form-control" required>
+                      <option></option>
+                      {% for member in members %}
+                      <option value="{{member.id}}">{{member.get_full_name}}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+                <div class="card-footer">
+                 <div class="row">
+                  <div class="col-sm-6">
+                    <a href="{% url 'loanrepayment-list' %}" class="btn btn-outline-danger">Go To LoanRepaments</a>
+                  
+                  </div>
+                  <div class="col-sm-6">
+                    <button type="submit" class="btn btn-outline-info mr-2 float-sm-right"><i class="fas fa-arrow-circle-right"></i> Next</button>
+                  
+                  </div>
+                 </div>
+                  
+                </div>
+      
+            </div>
+        </form>
+        <!-- /.card-body -->
+      </div>
+    </div>
+    
+</div>
+  
+{% endblock content %}

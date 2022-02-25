@@ -99,6 +99,9 @@ class LoanCreatorService():
         try:
             bankTransaction = BankTransaction.objects.get(id=data['transaction'])
 
+            if bankTransaction.status == 'assigned':
+                return 'Transaction already assigned', False, None
+
             #Member Id
             loan = Loan.objects.get(id=data['loan'])
 

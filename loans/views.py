@@ -12,7 +12,7 @@ from django_tables2 import RequestConfig
 from django.db.models import Sum
 
 from loans.models import Loan, LoanRepayment
-from loans.tables import LoanTable, LoanTableFilter
+from loans.tables import LoanTable, LoanTableFilter, LoanRepaymentTableFilter, LoanRepaymentTable
 from authentication.models import Member, User
 from loans.forms import LoanCreateFromBankTransactionForm, LoanRepaymentCreateForm, LoanRepaymentMemberSelectForm
 from loans.services import LoanCreatorService
@@ -110,6 +110,64 @@ class LoanDetailView(LoginRequiredMixin, DetailView):
 
         return Loan.objects.filter(id=self.kwargs['id'])
 
+    def get_context_data(self,*args, **kwargs):
+        context = super(LoanDetailView, self).get_context_data()
+        queryset = self.object.loanrepayment_set.all()
+        filter = LoanRepaymentTableFilter(self.request.GET, queryset=queryset)
+        table = LoanRepaymentTable(filter.qs)
+        RequestConfig(self.request, paginate={"per_page": 5}).configure(table)
+        total_repayment = queryset.aggregate(Sum('transaction__amount'))['transaction__amount__sum']
+        balance = self.object.get_total_loan_amount() - total_repayment 
+        context['total_loanrepayment'] = total_repayment
+        context['loan_balance'] = balance
+        context['filter']=filter
+        context['table']=table
+        return context
+
+class LoanRepaymentListView(LoginRequiredMixin, ListView):
+    template_name ='loans/loanrepayment_list.html'
+    model = LoanRepayment
+    
+    table_class = LoanRepaymentTable
+    table_data = LoanRepayment.objects.all()
+    filterset_class = LoanRepaymentTableFilter
+    context_filter_name = 'filter'
+
+    def get_context_data(self,*args, **kwargs):
+        context = super(LoanRepaymentListView, self).get_context_data()
+        queryset = self.get_queryset(**kwargs)
+        filter = LoanRepaymentTableFilter(self.request.GET, queryset=queryset)
+        table = LoanRepaymentTable(filter.qs)
+        RequestConfig(self.request, paginate={"per_page": 5}).configure(table)
+        context['filter']=filter
+        context['table']=table
+        context['loan_types']=l_models.LOAN_TYPE
+        context['loan_status']=l_models.LOAN_STATUS
+        context['total_payments'] = queryset.aggregate(Sum('transaction__amount'))['transaction__amount__sum']
+        # context['total_amount_issued'] = queryset.filter(status='issued').aggregate(Sum('amount_issued'))['amount_issued__sum']
+
+        return context
+
+
+class LoanRepaymentDetailView(LoginRequiredMixin, DetailView):
+    template_name = 'loans/loanrepayment_detail.html'
+    model = LoanRepayment
+    context_object_name = 'loan'
+    slug_field = 'id'
+    slug_url_kwarg = 'id'
+
+    def get_queryset(self):
+
+        # if self.request.user.is_admin:
+        #     return Loan.objects.filter(id=self.kwargs['id'])
+
+        # if self.request.user.is_authenticated:
+        #     return Loan.objects.filter( transaction__created_by=self.request.user)
+        # else:
+        #     return Loan.objects.none()
+
+        return LoanRepayment.objects.filter(id=self.kwargs['id'])
+
 class LoanRepaymentMemberSelectView(LoginRequiredMixin, View):
     template_name = 'loans/loanrepayment_select_member.html'
     model = LoanRepayment
@@ -136,7 +194,7 @@ class LoanRepaymentMemberSelectView(LoginRequiredMixin, View):
             context['form'] = form
             return render(request, self.template_name, context )
         
-        return redirect(reverse('loanrepayment-select-loan', args=[uuid, form.cleaned_data['member']]))
+        return redirect(reverse('loanrepayment-create', args=[uuid, form.cleaned_data['member']]))
 
     def get_context_data(self, uuid):
         context={}
@@ -148,18 +206,18 @@ class LoanRepaymentCreateView(LoginRequiredMixin, View):
     template_name = 'loans/loanrepayment_create.html'
     model = LoanRepayment
 
-    def get(self, request, transaction_id, member_id):
+    def get(self, request, uuid1, uuid2):
             
-        context = self.get_context_data(transaction_id)
+        context = self.get_context_data(uuid1, uuid2)
     
         return render(request, self.template_name, context)
 
-    def post(self, request, uuid):
+    def post(self, request, uuid1, uuid2):
 
         form = LoanRepaymentCreateForm(request.POST)
 
         if not form.is_valid():
-            context = self.get_context_data(uuid)
+            context = self.get_context_data(uuid1, uuid2)
             context['form'] = form
             return render(request, self.template_name, context )
 
@@ -169,7 +227,7 @@ class LoanRepaymentCreateView(LoginRequiredMixin, View):
         msg, created, loan = loancreateservice.create_loan_repaymet(form.cleaned_data, self.request.user)
         if not (created and loan is not None):
             messages.error(request, msg)
-            context = self.get_context_data(uuid)
+            context = self.get_context_data(uuid1, uuid2)
             context['form'] = form
             return render(request, self.template_name, context)
         
@@ -177,6 +235,7 @@ class LoanRepaymentCreateView(LoginRequiredMixin, View):
 
     def get_context_data(self, transaction_id, member_id):
         context={}
-        context['banktransaction'] = BankTransaction.objects.get(id=transaction_id).only('id')
+        context['banktransaction'] = transaction_id
+        context['member'] = member_id
         context['loans'] = Loan.objects.select_related('member').filter(member__id=member_id,member__is_active=True)
         return context

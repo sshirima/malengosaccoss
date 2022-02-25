@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% load humanize %}
+
+{% block title %}
+    Loan Detail
+{% endblock title %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/loans/main.css'%}">
+{% endblock extra_css %}
+
+
+{% block pageheader %}
+
+  <!-- Content Header (Page header) -->
+  <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">Loans</h1>
+          </div><!-- /.col -->
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+                <li class="breadcrumb-item"><a href="{% url 'loanrepayment-list'%}">Loan Repayments</a></li>
+                <li class="breadcrumb-item active">Details</li>
+            </ol>
+          </div><!-- /.col -->
+      </div><!-- /.row -->
+    </div><!-- /.container-fluid -->
+  </div>
+  
+{% endblock pageheader %}
+  
+
+
+{% block content %}
+
+<div class="row" >
+  <div class="col-md-12">
+    {% include "partials/_messages.html" %}
+
+    <div class="card card-info">
+      <div class="card-header">
+        <h3 class="card-title">Loan Details Information</h3>
+      </div>
+     
+      <div class="card-body">
+              {% include "partials/_form_errors.html" %}
+    
+              
+              
+              <div class="form-group row">
+                <label for="" class="col-sm-3 col-form-label">Loan Type</label>
+                <div class="col-sm-9">
+                  <input type="text" class="form-control" value="{{loan.type }}" disabled>
+                </div>
+              </div>
+              <div class="form-group row">
+                <label for="" class="col-sm-3 col-form-label">Principle(Tsh)</label>
+                <div class="col-sm-9">
+                  <input type="text" class="form-control" value="{{loan.principle|floatformat:0|intcomma }}" disabled>
+                </div>
+              </div>
+              <div class="form-group row">
+                <label for="" class="col-sm-3 col-form-label">Interest(%)</label>
+                <div class="col-sm-9">
+                  <input type="text" class="form-control" value="{{loan.interest_rate|floatformat:0|intcomma }}" disabled>
+                </div>
+              </div>
+              <div class="form-group row">
+                <label for="" class="col-sm-3 col-form-label">Duration(Months)</label>
+                <div class="col-sm-9">
+                  <input type="text" class="form-control" value="{{loan.duration|floatformat:0|intcomma }}" disabled>
+                </div>
+              </div>
+              <div class="form-group row">
+                <label for="" class="col-sm-3 col-form-label">Issued(Tsh)</label>
+                <div class="col-sm-9">
+                  <input type="text" class="form-control" value="{{loan.amount_issued|floatformat:0|intcomma }}" disabled>
+                </div>
+              </div>
+              <div class="form-group row">
+                <label for="" class="col-sm-3 col-form-label">Loan Fee(Tsh)</label>
+                <div class="col-sm-9">
+                  <input type="text" class="form-control" value="{{loan.loan_fee|floatformat:0|intcomma }}" disabled>
+                </div>
+              </div>
+              <div class="form-group row">
+                <label for="" class="col-sm-3 col-form-label">Insurance Fee(Tsh)</label>
+                <div class="col-sm-9">
+                  <input type="text" class="form-control" value="{{loan.insurance_fee|floatformat:0|intcomma }}" disabled>
+                </div>
+              </div>
+              <div class="form-group row">
+                <label for="" class="col-sm-3 col-form-label">Loan Form Fee(Tsh)</label>
+                <div class="col-sm-9">
+                  <input type="text" class="form-control" value="{{loan.form_fee|floatformat:0|intcomma }}" disabled>
+                </div>
+              </div>
+              <div class="form-group row">
+                <label for="" class="col-sm-3 col-form-label">Interest Amount(Tsh)</label>
+                <div class="col-sm-9">
+                  <input type="text" class="form-control" value="{{loan.interest_amount|floatformat:0|intcomma }}" disabled>
+                </div>
+              </div>
+              <div class="form-group row">
+                <label for="" class="col-sm-3 col-form-label">Installment Amount(Tsh)</label>
+                <div class="col-sm-9">
+                  <input type="text" class="form-control" value="{{loan.installment_amount|floatformat:0|intcomma }}" disabled>
+                </div>
+              </div>
+              <div class="form-group row">
+                <label for="" class="col-sm-3 col-form-label">Reference Transaction</label>
+                <div class="col-sm-9">
+                  <a href="{% url 'transaction-detail' loan.transaction.id %}">Transaction:({{loan.transaction.description}})</a>
+                </div>
+              </div>
+              <div class="card-footer">
+                <a href="{% url 'loans-list' %}" class="btn btn-outline-danger">Back</a>
+              </div>
+      </div>
+      <!-- /.card-body -->
+    </div>
+  </div>
+</div>  
+{% endblock content %}

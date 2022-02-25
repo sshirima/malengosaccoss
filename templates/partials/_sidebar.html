@@ -61,6 +61,15 @@
               </p>
             </a>
           </li>
+          {% url 'loanrepayment-list' as url %}
+          <li class="nav-item {% if request.path == url %}menu-open{% endif %}">
+            <a href="{% url 'loanrepayment-list'%}" class="nav-link">
+              <i class="nav-icon far fa-money-bill-alt"></i>
+              <p>
+                Loan Repayments
+              </p>
+            </a>
+          </li>
           {% url 'expenses-list' as url %}
           <li class="nav-item {% if request.path == url %}menu-open{% endif %}">
             <a href="{% url 'expenses-list'%}" class="nav-link">

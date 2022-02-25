@@ -6,7 +6,7 @@ from django.db.models import Q
 from django_tables2.utils import A  # alias for Accessor
 from django.urls.base import reverse
 
-from .models import Loan
+from .models import Loan, LoanRepayment
 
 class StatusColumn(django_tables2.Column):
     def render(self, value):
@@ -15,6 +15,71 @@ class StatusColumn(django_tables2.Column):
 
         else :
             return mark_safe('<span class="badge badge-warning">{}</span>'.format(value))
+
+class LoanRepaymentTable(django_tables2.Table):
+    
+    amount = django_tables2.Column(accessor='transaction__amount', verbose_name='Paid Amount')
+    principle = django_tables2.Column(accessor='loan__principle', verbose_name='Principle')
+    interest_amount = django_tables2.Column(accessor='loan__interest_amount', verbose_name = "Interest Amount")
+    duration = django_tables2.Column(accessor='loan__duration', verbose_name='Duration(m)')
+    member = django_tables2.Column(accessor='loan__member', verbose_name = "Member")
+    
+    # status = StatusColumn(accessor='status', verbose_name = "Status")
+    # type = django_tables2.Column(accessor='type', verbose_name = "Type")
+    
+
+    class Meta:
+        model = LoanRepayment
+        attrs = {'class': 'table'}
+        template_name = 'django_tables2/bootstrap.html'
+        fields = ('amount',)
+        sequence = ('amount','principle','interest_amount','duration','member')
+    
+    def render_amount(self,record):
+        return mark_safe('<a href="{}">{}</a>'.format(reverse("loanrepayment-detail", args=[record.id]), '{:0,.0f}'.format(record.transaction.amount)))
+    
+    def render_principle(self,record):
+        return '{:0,.0f}'.format(record.loan.principle)
+
+    def render_interest_amount(self,record):
+        return '{:0,.0f}'.format(record.loan.interest_amount)
+
+    def render_member(self,record):
+        return record.loan.member.get_full_name()
+
+
+class LoanRepaymentTableFilter(django_filters.FilterSet):
+    # member = django_filters.CharFilter(label='Member', method='search_member')
+    # start_date = django_filters.CharFilter(label='Start Date', method='search_start_date')
+    # end_date = django_filters.CharFilter(label='End Date', method='search_end_date')
+    # type = django_filters.CharFilter(label='Type', method='search_type')
+    # status = django_filters.CharFilter(label='Status', method='search_status')
+
+    # def search_member(self, qs, name, value):
+    #     return qs.filter(
+    #         Q(member__first_name__icontains=value)|
+    #         Q(member__middle_name__icontains=value)|
+    #         Q(member__last_name__icontains=value)
+            
+    #         )
+
+    # def search_start_date(self, qs, name, value):
+    #     return qs.filter(Q(transaction__reference__date_trans__gte=value))
+
+    # def search_end_date(self, qs, name, value):
+    #     return qs.filter(Q(transaction__reference__date_trans__lte=value))
+
+    # def search_type(self, qs, name, value):
+    #     return qs.filter(Q(type__iexact=value))
+
+    # def search_status(self, qs, name, value):
+    #     return qs.filter(Q(status__iexact=value))
+
+    
+
+    class Meta:
+        model = LoanRepayment
+        fields = ['loan'] 
 
 class LoanTable(django_tables2.Table):
     
