@@ -4,7 +4,7 @@ from django.views.generic import View
 
 from shares.models import Share
 from transactions.models import Transaction, BankTransaction
-from authentication.models import User
+from members.models import Member
 from savings.models import Saving
 from expenses.models import Expense
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -30,7 +30,7 @@ class DashboardView(LoginRequiredMixin, View):
         context['expense_amount_sum']  = Expense.objects.all().aggregate(Sum('transaction__amount'))['transaction__amount__sum']
         
         #Total members
-        context['member_all_count'] = User.objects.all().count()
+        context['member_all_count'] = Member.objects.all().count()
         #Loan balance
 
         #Total Pending Loans

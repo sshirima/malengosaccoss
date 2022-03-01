@@ -1,6 +1,6 @@
 import traceback
 from django.core.exceptions import ObjectDoesNotExist
-from authentication.models import Member
+from members.models import Member
 
 from transactions.models import BankTransaction, Transaction
 import transactions.models as t_models

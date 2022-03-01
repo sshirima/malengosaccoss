@@ -9,7 +9,8 @@ from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.contrib.auth import update_session_auth_hash
 from django.conf import settings # import the settings file
 
-from .models import Member, User, UserManager
+from members.models import Member
+from .models import User, UserManager
 from .emails import ActivationEmailSender
 from .utils import token_generator
 
@@ -23,9 +24,6 @@ class RegistrationService():
         try:
             user = User.objects.create(
                 email=UserManager.normalize_email(data['email']),
-                first_name=data['first_name'],
-                last_name=data['last_name'],
-                mobile_number=data['mobile_number'],
             )
             user.set_password(data['password1'])
             user.is_active = False

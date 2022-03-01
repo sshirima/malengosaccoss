@@ -49,22 +49,22 @@
             <div class="card-body">
                 {% include "partials/_form_errors.html" %}
                 
-                <div class="input-group mb-3">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                <div class="form-group row">
+                  <label for="description" class="col-sm-2 col-form-label">Description</label>
+                  <div class="col-sm-10">
+                    <input type="text" class="form-control" name="description" placeholder="Description">
                   </div>
-                  <input type="text" class="form-control" name="description" placeholder="Description">
                 </div>
-                <div class="input-group mb-3">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="fas fa-user"></i></span>
+                <div class="form-group row">
+                  <label for="description" class="col-sm-2 col-form-label">Member</label>
+                  <div class="col-sm-10">
+                    <select name="owner" class="form-control" required>
+                      <option></option>
+                      {% for owner in owners %}
+                      <option value="{{owner.id}}">{{owner.first_name}} {{owner.last_name}}</option>
+                      {% endfor %}
+                    </select>
                   </div>
-                  <select name="owner" class="form-control">
-                    <option>Select Owner</option>
-                    {% for owner in owners %}
-                    <option value="{{owner.email}}">{{owner.email}}</option>
-                    {% endfor %}
-                  </select>
                 </div>
 
                 <div class="form-group row mt-5">

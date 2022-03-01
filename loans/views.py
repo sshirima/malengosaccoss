@@ -13,7 +13,8 @@ from django.db.models import Sum
 
 from loans.models import Loan, LoanRepayment
 from loans.tables import LoanTable, LoanTableFilter, LoanRepaymentTableFilter, LoanRepaymentTable
-from authentication.models import Member, User
+from authentication.models import User
+from members.models import Member
 from loans.forms import LoanCreateFromBankTransactionForm, LoanRepaymentCreateForm, LoanRepaymentMemberSelectForm
 from loans.services import LoanCreatorService
 import loans.models as l_models
@@ -117,7 +118,11 @@ class LoanDetailView(LoginRequiredMixin, DetailView):
         table = LoanRepaymentTable(filter.qs)
         RequestConfig(self.request, paginate={"per_page": 5}).configure(table)
         total_repayment = queryset.aggregate(Sum('transaction__amount'))['transaction__amount__sum']
-        balance = self.object.get_total_loan_amount() - total_repayment 
+        if total_repayment:
+            balance = self.object.get_total_loan_amount() - total_repayment 
+        else:
+            total_repayment = 0
+            balance = self.object.get_total_loan_amount() - total_repayment
         context['total_loanrepayment'] = total_repayment
         context['loan_balance'] = balance
         context['filter']=filter

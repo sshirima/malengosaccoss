@@ -1,4 +1,5 @@
 from django import forms
+from members.models import Member
 import shares.models as share_models
 from .models import Share
 from authentication.models import User
@@ -34,10 +35,10 @@ class ShareCreateForm(forms.ModelForm):
         return reference
 
     def clean_owner(self):
-        email = self.cleaned_data['owner']
-        if not User.objects.filter(email=email).exists():
-            raise forms.ValidationError("Owner does not exists: "+email)
-        return email
+        id = self.cleaned_data['owner']
+        if not Member.objects.filter(id=id).exists():
+            raise forms.ValidationError("Owner does not exists: "+id)
+        return id
 
 class ShareUpdateForm(forms.ModelForm):
     description = forms.CharField(max_length=255,required=False)

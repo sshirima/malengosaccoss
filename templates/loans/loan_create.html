@@ -2,6 +2,8 @@
 
 {% load static %}
 
+{% load humanize %}
+
 {% block title %}
     Loan Create
 {% endblock title %}
@@ -49,6 +51,18 @@
             <div class="card-body">
                 {% include "partials/_form_errors.html" %}
                 <input type="hidden" name="transaction_id" value="{{banktransaction.id}}">
+                <div class="form-group row">
+                  <label for="duration" class="col-sm-2 col-form-label">Amount</label>
+                  <div class="col-sm-10">
+                    <input type="text" class="form-control" id="amount" value="{{banktransaction.amount|floatformat:0|intcomma }}" disabled>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label for="duration" class="col-sm-2 col-form-label">Description</label>
+                  <div class="col-sm-10">
+                    <input type="text" class="form-control" id="amount" value="{{banktransaction.description }}" disabled>
+                  </div>
+                </div>
                 <div class="form-group row">
                   <label for="duration" class="col-sm-2 col-form-label">Duration(months)</label>
                   <div class="col-sm-10">

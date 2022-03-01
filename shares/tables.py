@@ -25,8 +25,8 @@ class ShareTable(django_tables2.Table):
     description = django_tables2.Column(accessor='description', verbose_name='Description')
     reference = django_tables2.Column(accessor='transaction.description', verbose_name='Reference Transaction')
     status = StatusColumn(accessor='status', verbose_name = "Status")
-    owner = django_tables2.Column(accessor='owner.email', verbose_name='Owned By')
-    date_created = django_tables2.Column(accessor='date_created', verbose_name = "Date Created")
+    owner = django_tables2.Column(accessor='owner', verbose_name='Owned By')
+    # date_created = django_tables2.Column(accessor='date_created', verbose_name = "Date Created")
     edit_delete = django_tables2.TemplateColumn(template_name ='partials/_btn_update_delete.html')
     
 
@@ -34,8 +34,11 @@ class ShareTable(django_tables2.Table):
         model = Share
         attrs = {'class': 'table '}
         template_name = 'django_tables2/bootstrap.html'
-        fields = ('date_created',)
-        sequence = ('amount', 'description','reference','status','owner','date_created','edit_delete')
+        fields = ('amount',)
+        sequence = ('amount', 'description','reference','status','owner','edit_delete')
+
+    def render_owner(self,record):
+        return '{} {}'.format(record.owner.first_name, record.owner.last_name)
     
     def render_amount(self,record):
         return mark_safe('<a href="{}">{}</a>'.format(reverse("share-detail", args=[record.id]), record.transaction.amount))

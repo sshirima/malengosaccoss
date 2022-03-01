@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% load humanize %}
+
+{% load render_table from django_tables2 %}
+
+
+{% block title %}
+    Member Detail
+{% endblock title %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/authentication/main.css'%}">
+{% endblock extra_css %}
+
+
+{% block pageheader %}
+
+  <!-- Content Header (Page header) -->
+  <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">Members</h1>
+          </div><!-- /.col -->
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+                <li class="breadcrumb-item"><a href="{% url 'members-list'%}">Members</a></li>
+                <li class="breadcrumb-item active">Details</li>
+            </ol>
+          </div><!-- /.col -->
+      </div><!-- /.row -->
+    </div><!-- /.container-fluid -->
+  </div>
+  
+{% endblock pageheader %}
+  
+
+
+{% block content %}
+
+<div class="card card-primary card-outline card-outline-tabs">
+  <div class="card-header p-0 border-bottom-0">
+    <ul class="nav nav-tabs" id="custom-tabs-four-tab" role="tablist">
+      <li class="nav-item">
+      <a class="nav-link active" id="tab-one-id" data-toggle="pill" href="#tab-one" role="tab" aria-controls="tab-one" aria-selected="true">Member Details</a>
+      </li>
+      <li class="nav-item">
+      <a class="nav-link" id="tab-two-id" data-toggle="pill" href="#tab-two" role="tab" aria-controls="tab-two" aria-selected="false">Shares List</a>
+      </li>
+      <li class="nav-item">
+      <a class="nav-link" id="tab-three-id" data-toggle="pill" href="#tab-three" role="tab" aria-controls="tab-three" aria-selected="false">Loans List</a>
+      </li>
+      <li class="nav-item">
+      <a class="nav-link" id="tab-four-id" data-toggle="pill" href="#tab-four" role="tab" aria-controls="tab-four" aria-selected="false">Savings List</a>
+      </li>
+      </li>
+      <li class="nav-item">
+      <a class="nav-link" id="tab-five-id" data-toggle="pill" href="#tab-five" role="tab" aria-controls="tab-five" aria-selected="false">Loan Repayments</a>
+      </li>
+      
+    </ul>
+  </div>
+  <div class="card-body">
+    <div class="tab-content" id="custom-tab-for-tab-content">
+      <div class="row tab-pane fade show active" id="tab-one" role="tabpanel" aria-labelledby="tab-one-id">
+        <div class="col-md-12">
+          {% include "partials/_messages.html" %}
+      
+          {% include "partials/_form_errors.html" %}
+
+          <div class="row">
+            <div class="col-lg-3">
+              <div class="info-box bg-success">
+                <span class="info-box-icon"><i class="far fa-bookmark"></i></span>
+              
+                <div class="info-box-content">
+                  <span class="info-box-text"><h4>Shares</h4></span>
+                  <span class="info-box-number">{{total_shares|floatformat:0|intcomma }} Tsh</span>      
+                </div>
+                <!-- /.info-box-content -->
+              </div>
+            
+            </div>
+            <div class="col-lg-3">
+              <div class="info-box bg-success">
+                <span class="info-box-icon"><i class="far fa-bookmark"></i></span>
+              
+                <div class="info-box-content">
+                  <span class="info-box-text"><h4>Savings</h4></span>
+                  <span class="info-box-number">{{total_saving|floatformat:0|intcomma }} Tsh</span>      
+                </div>
+                <!-- /.info-box-content -->
+              </div>
+            
+            </div>
+            <div class="col-lg-3">
+              <div class="info-box bg-success">
+                <span class="info-box-icon"><i class="far fa-bookmark"></i></span>
+              
+                <div class="info-box-content">
+                  <span class="info-box-text"><h4>Repayments</h4></span>
+                  <span class="info-box-number">{{total_loanrepayments|floatformat:0|intcomma }} Tsh</span>      
+                </div>
+                <!-- /.info-box-content -->
+              </div>
+            
+            </div>
+            <div class="col-lg-3">
+              <div class="info-box bg-danger">
+                <span class="info-box-icon"><i class="far fa-bookmark"></i></span>
+              
+                <div class="info-box-content">
+                  <span class="info-box-text"><h4>Loans</h4></span>
+                  <span class="info-box-number">{{total_loan|floatformat:0|intcomma }} Tsh</span>      
+                </div>
+                <!-- /.info-box-content -->
+              </div>
+            
+            </div>
+          </div>
+          
+          <div class="form-group row">
+            <label for="" class="col-sm-3 col-form-label">First Name</label>
+            <div class="col-sm-9">
+              <input type="text" class="form-control" value="{{member.first_name }}" disabled>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="" class="col-sm-3 col-form-label">Middle Name</label>
+            <div class="col-sm-9">
+              <input type="text" class="form-control" value="{{member.middle_name }}" disabled>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="" class="col-sm-3 col-form-label">Last Name</label>
+            <div class="col-sm-9">
+              <input type="text" class="form-control" value="{{member.last_name }}" disabled>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="" class="col-sm-3 col-form-label">Phone Number</label>
+            <div class="col-sm-9">
+              <input type="text" class="form-control" value="{{member.mobile_number }}" disabled>
+            </div>
+          </div>
+
+          <div class="form-group row">
+            <label for="" class="col-sm-3 col-form-label">Is Active</label>
+            <div class="col-sm-9">
+              
+              {% if  member.is_active %}
+              <small class="text-success mr-1"><i class="fas fa-check-circle"></i></i></small>
+              {% else%}
+              <small class="text-danger mr-1"><i class="fas fa-times-circle"></i></i></small>
+              {% endif %}
+                
+            </div>
+          </div>
+          <div class="form-group row">
+            <div class="col-sm-3 p-1">
+              <a href="{% url 'members-list' %}" class="btn btn-outline-danger"><i class="fas fa-arrow-circle-left"></i>Member List</a>
+            </div>
+            <div class="col-sm-9 p-1">
+              
+              {% if not member.is_active %}
+                <a href="{% url 'member-send-activation-link' member.id %}" class="btn btn-outline-info ">Send Activation Link</a>
+              {% endif %}
+                
+            </div>
+          </div>
+          
+          
+          
+        </div>
+      </div>
+  
+      <div class="tab-pane fade show" id="tab-two" role="tabpanel" aria-labelledby="tab-two-id">
+        <div class="row">
+          <div class="col-md-12">
+            {% render_table shares_table 'partials/_table.html'%}
+          </div>
+        </div> 
+      </div>
+      <div class="tab-pane fade show" id="tab-three" role="tabpanel" aria-labelledby="tab-three-id">
+        <div class="row">
+          <div class="col-md-12">
+            {% render_table loan_table 'partials/_table.html'%}
+          </div>
+        </div> 
+      </div>
+      <div class="tab-pane fade show" id="tab-four" role="tabpanel" aria-labelledby="tab-four-id">
+        <div class="row">
+          <div class="col-md-12">
+            {% render_table saving_table 'partials/_table.html'%}
+          </div>
+        </div> 
+      </div>
+      <div class="tab-pane fade show" id="tab-five" role="tabpanel" aria-labelledby="tab-five-id">
+        <div class="row">
+          <div class="col-md-12">
+            {% render_table loanrepayment_table 'partials/_table.html'%}
+          </div>
+        </div> 
+      </div>
+    </div>
+    
+
+  </div>
+
+
+  
+{% endblock content %}

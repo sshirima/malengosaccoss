@@ -1,5 +1,5 @@
 from django import forms
-from authentication.models import Member
+from members.models import Member
 
 from loans.models import Loan, LoanLimits
 import loans.models as l_models

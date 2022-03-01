@@ -1,6 +1,6 @@
 from django.urls.base import reverse
 from django.db import models
-from authentication.models import User
+from members.models import Member
 import uuid
 
 
@@ -16,7 +16,7 @@ class Saving(models.Model):
     id = models.UUIDField(primary_key = True,default = uuid.uuid4, editable = False)
     description = models.CharField(max_length=255, blank=True, null=True)
     status = models.CharField(max_length=20, choices=SAVING_STATUS, default='pending')
-    owner = models.ForeignKey(User,blank=True, null=True, on_delete=models.DO_NOTHING)
+    owner = models.ForeignKey(Member,blank=True, null=True, on_delete=models.DO_NOTHING)
     transaction = models.OneToOneField(Transaction, on_delete=models.CASCADE)
     date_updated = models.DateTimeField(auto_now=True)
     date_created = models.DateTimeField(auto_now_add=True)

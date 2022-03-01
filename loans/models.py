@@ -2,7 +2,8 @@ from tabnanny import verbose
 from django.db import models
 from django.urls.base import reverse
 import uuid
-from authentication.models import Member, User
+from authentication.models import User
+from members.models import Member
 from transactions.models import Transaction
 
 # Create your models here.

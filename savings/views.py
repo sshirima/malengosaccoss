@@ -6,6 +6,7 @@ from django_tables2 import RequestConfig
 from django.db.models import Sum
 from django.urls.base import reverse_lazy
 from django.http import HttpResponseRedirect
+from members.models import Member
 from savings.forms import SavingCreateForm, SavingUpdateForm
 from django.contrib import messages
 
@@ -77,7 +78,7 @@ class SavingCreateView(LoginRequiredMixin, CreateView):
 
     def get_context_data(self,uuid):
         context = {}
-        context['owners'] = User.objects.all()
+        context['owners'] = Member.objects.all()
         context['bank_transaction'] = BankTransaction.objects.get(id=uuid)
         return context
 

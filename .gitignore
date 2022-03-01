@@ -61,6 +61,7 @@ cover/
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
+:wq
 
 # Flask stuff:
 instance/
@@ -111,6 +112,7 @@ celerybeat.pid
 
 # SageMath parsed files
 *.sage.py
+Procfile*
 
 # Environments
 .env

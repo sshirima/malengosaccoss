@@ -1,3 +1,4 @@
+from members.models import Member
 from transactions.models import BankTransaction, Transaction
 from authentication.models import User
 from savings.models import Saving
@@ -38,7 +39,7 @@ class SavingCrudService():
                     created_by = created_by
             )
 
-            owner = User.objects.get(email=owner)
+            owner = Member.objects.get(id=owner)
             #Creating Share
 
             #Default Description

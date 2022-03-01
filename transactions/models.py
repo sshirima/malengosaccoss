@@ -4,6 +4,8 @@ import traceback
 
 from authentication.models import User
 import uuid
+
+from members.models import Member
 # Create your models here.
 TRANSACTION_STATUS = (
     ('pending', 'Pending' ),

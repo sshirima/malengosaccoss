@@ -8,6 +8,7 @@ from django.shortcuts import redirect, reverse
 from django_tables2 import RequestConfig
 from django.shortcuts import render
 from django.contrib import messages
+from members.models import Member
 import shares.models as share_models
 from shares.services import ShareCrudService
 
@@ -84,7 +85,7 @@ class ShareCreateView(LoginRequiredMixin, CreateView):
 
     def get_context_data(self,uuid):
         context = {}
-        context['owners'] = User.objects.all()
+        context['owners'] = Member.objects.all()
         context['bank_transaction'] = BankTransaction.objects.get(id=uuid)
         return context
         

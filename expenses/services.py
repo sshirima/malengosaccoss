@@ -1,5 +1,5 @@
 from transactions.models import BankTransaction, Transaction
-from authentication.models import User
+from members.models import Member
 from expenses.models import Expense
 import transactions.models as t_models
 import expenses.models as e_models
@@ -39,7 +39,7 @@ class ExpenseCrudService():
             )
 
             if not owner =="":
-                owner = User.objects.get(email=owner)
+                owner = Member.objects.get(email=owner)
             else:
                 owner = None
 

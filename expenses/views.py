@@ -12,6 +12,7 @@ from expenses.forms import ExpenseCreateForm, ExpenseUpdateForm
 from expenses.models import Expense
 from expenses.tables import ExpenseTable, ExpenseTableFilter
 from expenses.services import ExpenseCrudService
+from members.models import Member
 from transactions.models import BankTransaction
 
 # Create your views here.
@@ -77,7 +78,7 @@ class ExpenseCreateView(LoginRequiredMixin, CreateView):
 
     def get_context_data(self,uuid):
         context = {}
-        context['owners'] = User.objects.all()
+        context['owners'] = Member.objects.all()
         context['bank_transaction'] = BankTransaction.objects.get(id=uuid)
         return context
 
@@ -115,7 +116,7 @@ class ExpenseCreateMultipleView(LoginRequiredMixin, View):
 
     def get_context_data(self,uuid):
         context = {}
-        context['owners'] = User.objects.all()
+        context['owners'] = Member.objects.all()
         context['bank_transaction'] = BankTransaction.objects.get(id=uuid)
         return context
 
