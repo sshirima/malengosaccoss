@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block title %}
+    Transaction Edit
+{% endblock title %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/transactions/main.css'%}">
+{% endblock extra_css %}
+
+
+{% block pageheader %}
+
+  <!-- Content Header (Page header) -->
+  <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">403 Error Page</h1>
+          </div><!-- /.col -->
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+                <li class="breadcrumb-item"><a href="{% url 'homepage'%}">Home</a></li>
+                <li class="breadcrumb-item active">403 Error Page</li>
+            </ol>
+          </div><!-- /.col -->
+        </div><!-- /.row -->
+      </div><!-- /.container-fluid -->
+  </div>
+  
+{% endblock pageheader %}
+  
+
+
+{% block content %}
+<section class="content">
+    <div class="error-page">
+        <h2 class="headline text-warning"> 403</h2>
+        <div class="error-content text-center">
+            <h3><i class="fas fa-exclamation-triangle text-warning"></i> Oops! Request not authorized.</h3>
+            
+            403 Forbidden, not authorized to perform this operation<br>
+            Meanwhile, you may <a href="{% url 'homepage' %}">return to homepage</a> or contact system administrator
+            </p>
+            
+        </div>
+        
+    </div>
+    
+</section>
+{% endblock content %}

@@ -19,34 +19,27 @@ from django.db.models import Sum
 from .forms import ShareCreateForm, ShareUpdateForm, ShareAuthorizationForm
 from .models import Share
 from .tables import ShareTable, ShareTableFilter
+from authentication.permissions import BaseListView, BaseDetailView, BaseUpdateView
 # Create your views here.
 
 
-class ShareListView(LoginRequiredMixin, ListView):
+class ShareListView(LoginRequiredMixin, BaseListView):
     template_name ='shares/list.html'
     model = Share
-    
     table_class = ShareTable
-    table_data = Share.objects.all()
-    paginate_by = 5
     filterset_class = ShareTableFilter
     context_filter_name = 'filter'
+    context_table_name = 'table'
+    paginate_by = 5
 
     def get_queryset(self, *args, **kwargs):
-        qs = Share.objects.filter(transaction__created_by = self.request.user)
-        self.filter = self.filterset_class(self.request.GET, queryset=qs)
-        return self.filter.qs
+        kwargs['owner__user'] = self.request.user
+        return super(ShareListView, self).get_queryset(**kwargs)
 
     def get_context_data(self,*args, **kwargs):
-        context = super(ShareListView, self).get_context_data()
         queryset = self.get_queryset(**kwargs)
-        filter = ShareTableFilter(self.request.GET, queryset=queryset)
-        table = ShareTable(filter.qs)
-        RequestConfig(self.request, paginate={"per_page": 5}).configure(table)
-        context['filter']=filter
-        context['table']=table
-        context['total_amount'] = queryset.aggregate(Sum('transaction__amount'))['transaction__amount__sum']
-
+        context = super(ShareListView, self).get_context_data(queryset)
+        context['total_share'] = queryset.aggregate(Sum('transaction__amount'))['transaction__amount__sum']
         return context
     
 
@@ -90,7 +83,7 @@ class ShareCreateView(LoginRequiredMixin, CreateView):
         return context
         
 
-class ShareDetailView(LoginRequiredMixin, DetailView):
+class ShareDetailView(LoginRequiredMixin, BaseDetailView):
     template_name = 'shares/detail.html'
     model = Share
     context_object_name = 'share'
@@ -98,17 +91,11 @@ class ShareDetailView(LoginRequiredMixin, DetailView):
     slug_url_kwarg = 'id'
 
     def get_queryset(self):
-
-        if self.request.user.is_admin:
-            return Share.objects.filter(id=self.kwargs['id'])
-
-        if self.request.user.is_authenticated:
-            return Share.objects.filter( transaction__created_by=self.request.user)
-        else:
-            return Share.objects.none()
+        return super(ShareDetailView, self).get_queryset(id=self.kwargs['id'], owner__user=self.request.user)
+        
 
 
-class ShareUpdateView(LoginRequiredMixin, UpdateView):
+class ShareUpdateView(LoginRequiredMixin, BaseUpdateView):
     template_name ='shares/update.html'
     model = Share
     context_object_name = 'share'
@@ -117,25 +104,28 @@ class ShareUpdateView(LoginRequiredMixin, UpdateView):
     slug_field = 'id'
     slug_url_kwarg = 'id'
 
+    def get_queryset(self):
+        return super(ShareUpdateView, self).get_queryset(id=self.kwargs['id'], owner__user=self.request.user)
+
+
     def form_valid(self, form):
        
         #Create transaction first
+        sharecrudservice = ShareCrudService(self.request)
+        data_kwargs = form.cleaned_data
+        data_kwargs['id'] = self.kwargs['id']
 
-        share = Share.objects.get(id=self.kwargs['id'])
+        msg, updated, share = sharecrudservice.update_share(**data_kwargs)
+        
+        if not updated and share is None:
+            messages.error(self.request, msg)
+            return super.form_invalid()
 
-        if share:
-            share.description = form.cleaned_data['description']
-            share.save()
-            
-            return HttpResponseRedirect(share.get_absolute_url())
+        return HttpResponseRedirect(share.get_absolute_url())
 
-        return super.form_invalid()
+        
 
-    def get_queryset(self):
-        if self.request.user.is_authenticated:
-            return Share.objects.filter(transaction__created_by=self.request.user)
-        else:
-            return Share.objects.none()
+    
 
     def get_form_kwargs(self, *args, **kwargs):
         kwargs = super(ShareUpdateView, self).get_form_kwargs(*args, **kwargs)

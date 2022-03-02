@@ -45,6 +45,7 @@ class LoanListView(LoginRequiredMixin, ListView):
 
         return context
 
+
 class LoanCreateFromBankTransactionView(LoginRequiredMixin, View):
     template_name = 'loans/loan_create.html'
 

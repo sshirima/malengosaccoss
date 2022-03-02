@@ -182,7 +182,7 @@ class LogoutView(LoginRequiredMixin,View):
         messages.info(request, 'You have been logged out')
         return redirect('login')
 
-#Require login Mixin    
+   
 class PasswordChangeChangeView(LoginRequiredMixin, View):
 
     template_name = 'authentication/change_password.html'

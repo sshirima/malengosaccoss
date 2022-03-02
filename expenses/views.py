@@ -14,9 +14,10 @@ from expenses.tables import ExpenseTable, ExpenseTableFilter
 from expenses.services import ExpenseCrudService
 from members.models import Member
 from transactions.models import BankTransaction
+from authentication.permissions import BaseUserPassesTestMixin
 
 # Create your views here.
-class ExpenseListView(LoginRequiredMixin, ListView):
+class ExpenseListView(LoginRequiredMixin,BaseUserPassesTestMixin, ListView):
     template_name ='expenses/expense-list.html'
     model = Expense
     
@@ -43,7 +44,7 @@ class ExpenseListView(LoginRequiredMixin, ListView):
         return context
 
 
-class ExpenseCreateView(LoginRequiredMixin, CreateView):
+class ExpenseCreateView(LoginRequiredMixin,BaseUserPassesTestMixin, CreateView):
     template_name ='expenses/expense_create.html'
     form_class = ExpenseCreateForm
     context_object_name = 'expense'
@@ -82,7 +83,8 @@ class ExpenseCreateView(LoginRequiredMixin, CreateView):
         context['bank_transaction'] = BankTransaction.objects.get(id=uuid)
         return context
 
-class ExpenseCreateMultipleView(LoginRequiredMixin, View):
+
+class ExpenseCreateMultipleView(LoginRequiredMixin,BaseUserPassesTestMixin, View):
     template_name ='expenses/expense_create_multiple.html'
     form_class = ExpenseCreateForm
     success_url = reverse_lazy('expense-list')
@@ -120,7 +122,8 @@ class ExpenseCreateMultipleView(LoginRequiredMixin, View):
         context['bank_transaction'] = BankTransaction.objects.get(id=uuid)
         return context
 
-class ExpenseDetailView(LoginRequiredMixin, DetailView):
+
+class ExpenseDetailView(LoginRequiredMixin,BaseUserPassesTestMixin, DetailView):
     template_name = 'expenses/expense_detail.html'
     model = Expense
     context_object_name = 'expense'
@@ -138,7 +141,7 @@ class ExpenseDetailView(LoginRequiredMixin, DetailView):
             return Expense.objects.none()
 
 
-class ExpenseUpdateView(LoginRequiredMixin, UpdateView):
+class ExpenseUpdateView(LoginRequiredMixin,BaseUserPassesTestMixin, UpdateView):
     template_name ='expenses/expense_update.html'
     model = Expense
     context_object_name = 'expense'
@@ -175,9 +178,7 @@ class ExpenseUpdateView(LoginRequiredMixin, UpdateView):
         return kwargs
 
 
-
-
-class ExpenseDeleteView(LoginRequiredMixin, DeleteView):
+class ExpenseDeleteView(LoginRequiredMixin,BaseUserPassesTestMixin, DeleteView):
     template_name ='expenses/expense_delete.html'
     model = Expense
 

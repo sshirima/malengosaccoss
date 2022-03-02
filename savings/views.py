@@ -14,32 +14,25 @@ from savings.models import Saving
 from savings.tables import SavingTable, SavingTableFilter
 from savings.services import SavingCrudService
 from transactions.models import BankTransaction
+from authentication.permissions import BaseListView, BaseDetailView
 
 # Create your views here.
-class SavingListView(LoginRequiredMixin, ListView):
+class SavingListView(LoginRequiredMixin, BaseListView):
     template_name ='savings/saving-list.html'
     model = Saving
-    
     table_class = SavingTable
-    table_data = Saving.objects.all()
     filterset_class = SavingTableFilter
     context_filter_name = 'filter'
+    context_table_name = 'table'
 
     def get_queryset(self, *args, **kwargs):
-        qs = Saving.objects.filter(transaction__created_by = self.request.user)
-        self.filter = self.filterset_class(self.request.GET, queryset=qs)
-        return self.filter.qs
+        kwargs['owner__user'] = self.request.user
+        return super(SavingListView, self).get_queryset(**kwargs)
 
     def get_context_data(self,*args, **kwargs):
-        context = super(SavingListView, self).get_context_data()
         queryset = self.get_queryset(**kwargs)
-        filter = SavingTableFilter(self.request.GET, queryset=queryset)
-        table = SavingTable(filter.qs)
-        RequestConfig(self.request, paginate={"per_page": 10}).configure(table)
-        context['filter']=filter
-        context['table']=table
-        context['total_amount'] = queryset.aggregate(Sum('transaction__amount'))['transaction__amount__sum']
-
+        context = super(SavingListView, self).get_context_data(queryset)
+        context['total_saving'] = queryset.aggregate(Sum('transaction__amount'))['transaction__amount__sum']
         return context
 
 
@@ -83,7 +76,7 @@ class SavingCreateView(LoginRequiredMixin, CreateView):
         return context
 
 
-class SavingDetailView(LoginRequiredMixin, DetailView):
+class SavingDetailView(LoginRequiredMixin, BaseDetailView):
     template_name = 'savings/saving_detail.html'
     model = Saving
     context_object_name = 'saving'
@@ -91,14 +84,7 @@ class SavingDetailView(LoginRequiredMixin, DetailView):
     slug_url_kwarg = 'id'
 
     def get_queryset(self):
-
-        if self.request.user.is_admin:
-            return Saving.objects.filter(id=self.kwargs['id'])
-
-        if self.request.user.is_authenticated:
-            return Saving.objects.filter( transaction__created_by=self.request.user)
-        else:
-            return Saving.objects.none()
+        return super(SavingDetailView, self).get_queryset(id=self.kwargs['id'], owner__user=self.request.user)
 
 
 class SavingUpdateView(LoginRequiredMixin, UpdateView):

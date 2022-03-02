@@ -6,6 +6,8 @@
 
 {% load bootstrap3 %}
 
+{% load humanize %}
+
 {% block title %}
     Shares
 {% endblock title %}
@@ -42,8 +44,14 @@
       <span class="info-box-icon"><i class="far fa-bookmark"></i></span>
   
       <div class="info-box-content">
-        <span class="info-box-text">Total Share Amount</span>
-        <span class="info-box-number">{{total_amount}}</span>      
+        <span class="info-box-text">Shares</span>
+        <span class="info-box-number">
+        {% if total_share is not None %}
+          {{total_share|floatformat:0|intcomma  }}
+        {% else %}
+          0
+        {% endif %}
+           Tsh</span>      
       </div>
       <!-- /.info-box-content -->
     </div>

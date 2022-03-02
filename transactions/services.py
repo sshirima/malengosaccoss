@@ -115,40 +115,38 @@ class BankStatementParserService():
         transactions = []
 
         try:
-            if user.is_staff:
 
-                with transaction.atomic():
+            with transaction.atomic():
 
-                    for index, row in data.iterrows():
+                for index, row in data.iterrows():
 
-                        type, amount_valid, amount = self._get_row_amount(row, column_names)
+                    type, amount_valid, amount = self._get_row_amount(row, column_names)
 
-                        if not amount_valid:
-                            continue
+                    if not amount_valid:
+                        continue
 
-                        banktransaction, created = tr_models.BankTransaction.objects.get_or_create(
-                            amount = amount,
-                            date_trans = row[column_names[0]],
-                            date_value = row[column_names[1]],
-                            description = row[column_names[2]],
-                            balance = row[column_names[6]],
-                            defaults={
-                                'instrument_id' : row[column_names[3]],
-                                'type' : type,
-                                'status' : tr_models.BANK_TRANSACTION_STATUS[0][0],
-                                'created_by' : user,
-                            }
-                            
-                        )
+                    banktransaction, created = tr_models.BankTransaction.objects.get_or_create(
+                        amount = amount,
+                        date_trans = row[column_names[0]],
+                        date_value = row[column_names[1]],
+                        description = row[column_names[2]],
+                        balance = row[column_names[6]],
+                        defaults={
+                            'instrument_id' : row[column_names[3]],
+                            'type' : type,
+                            'status' : tr_models.BANK_TRANSACTION_STATUS[0][0],
+                            'created_by' : user,
+                        }
+                        
+                    )
 
-                        if not created:
-                            print('Bank transaction already exists')
+                    if not created:
+                        print('Bank transaction already exists')
 
-                        transactions.append(banktransaction)
+                    transactions.append(banktransaction)
 
-                return '',True,transactions
+            return '',True,transactions
 
-            return 'User permission fails', False, []
         except Exception as e:
             print('ERROR, saving bank statement transaction to db: {}'.format(str(e)))
             return ('Error saving bank statement transaction to db ', False, [])

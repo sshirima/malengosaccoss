@@ -74,6 +74,23 @@ class ShareCrudService():
             print('ERROR, creating share: {}'.format(str(e)))
             return ('Error creating share', False, None)
 
+    def update_share(self, **kwargs):
+        try:
+            share = Share.objects.get(id=kwargs['id'])
+
+            share.description = kwargs['description']
+            share.save()
+
+            return '', True, share
+
+        except Share.DoesNotExist as e:
+            print('ERROR, object does not exist: {}'.format(str(e)))
+            return ('Error updating share', False, None)
+
+        except Exception as e:
+            print('ERROR, updating share: {}'.format(str(e)))
+            return ('Error updating share', False, None)
+
 
     def delete_share(self, share):
         try:

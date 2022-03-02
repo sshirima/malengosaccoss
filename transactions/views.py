@@ -16,10 +16,11 @@ from transactions.models import BankTransaction, Transaction
 import transactions.models as tr_models
 from transactions.services import BankStatementParserService, TransactionCRUDService
 from transactions.tables import BankTransactionTable, BankTransactionTableFilter,TransactionTable,TransactionTableFilter
+from authentication.permissions import BaseUserPassesTestMixin
 # Create your views here.
 
 
-class TransactionListView(LoginRequiredMixin, ListView):
+class TransactionListView(LoginRequiredMixin,BaseUserPassesTestMixin, ListView):
     template_name ='transactions/list.html'
     model = Transaction
     
@@ -43,7 +44,7 @@ class TransactionListView(LoginRequiredMixin, ListView):
         return context
     
 
-class TransactionCreateView(LoginRequiredMixin, CreateView):
+class TransactionCreateView(LoginRequiredMixin,BaseUserPassesTestMixin, CreateView):
     template_name ='transactions/create.html'
     form_class = TransactionCreateForm
     context_object_name = 'transaction'
@@ -60,7 +61,8 @@ class TransactionCreateView(LoginRequiredMixin, CreateView):
         kwargs['user'] = self.request.user
         return kwargs
 
-class TransactionDetailView(LoginRequiredMixin, DetailView):
+
+class TransactionDetailView(LoginRequiredMixin,BaseUserPassesTestMixin, DetailView):
     template_name = 'transactions/detail.html'
     model = Transaction
     context_object_name = 'transaction'
@@ -74,7 +76,7 @@ class TransactionDetailView(LoginRequiredMixin, DetailView):
             return Transaction.objects.none()
 
 
-class TransactionUpdateView(LoginRequiredMixin, UpdateView):
+class TransactionUpdateView(LoginRequiredMixin,BaseUserPassesTestMixin, UpdateView):
     template_name ='transactions/update.html'
     model = Transaction
     context_object_name = 'transaction'
@@ -95,8 +97,7 @@ class TransactionUpdateView(LoginRequiredMixin, UpdateView):
         return kwargs
     
 
-
-class TransactionDeleteView(LoginRequiredMixin, DeleteView):
+class TransactionDeleteView(LoginRequiredMixin,BaseUserPassesTestMixin, DeleteView):
     template_name ='transactions/delete.html'
     model = Transaction
     slug_field = 'id'
@@ -139,15 +140,9 @@ class TransactionDeleteView(LoginRequiredMixin, DeleteView):
         return HttpResponseRedirect(reverse_lazy('transactions-list'))
 
 
-class BankTransactionListView(LoginRequiredMixin, ListView):
+class BankTransactionListView(LoginRequiredMixin,BaseUserPassesTestMixin, ListView):
     template_name ='transactions/bank_transaction_list.html'
-    model = BankTransaction
-    
-    table_class = BankTransactionTable
-    table_data = BankTransaction.objects.all()
-    paginate_by = 5
     filterset_class = BankTransactionTableFilter
-    context_filter_name = 'filter'
 
     def get_queryset(self, *args, **kwargs):
         qs = BankTransaction.objects.all()
@@ -171,7 +166,7 @@ class BankTransactionListView(LoginRequiredMixin, ListView):
         return context
 
 
-class BankTransactionDetailView(LoginRequiredMixin, DetailView):
+class BankTransactionDetailView(LoginRequiredMixin,BaseUserPassesTestMixin, DetailView):
     template_name = 'transactions/bank_transaction_detail.html'
     model = Transaction
     context_object_name = 'bank_transaction'
@@ -186,7 +181,7 @@ class BankTransactionDetailView(LoginRequiredMixin, DetailView):
         return BankTransaction.objects.filter(id = self.kwargs['id'])
 
 
-class BankTransactionImportView(LoginRequiredMixin, View):
+class BankTransactionImportView(LoginRequiredMixin,BaseUserPassesTestMixin, View):
     template_name = 'transactions/bank_transaction_import.html'
 
     def get(self, request):
@@ -221,7 +216,7 @@ class BankTransactionImportView(LoginRequiredMixin, View):
         return render(request, self.template_name,{'form':form})
 
 
-class BankTransactionAssignView(LoginRequiredMixin, View):
+class BankTransactionAssignView(LoginRequiredMixin,BaseUserPassesTestMixin, View):
     template_name = 'transactions/bank_transaction_assign.html'
 
     assign_scope = (
@@ -289,7 +284,7 @@ class BankTransactionAssignView(LoginRequiredMixin, View):
         return context
 
 
-class BankTransactionMultipleAssignView(LoginRequiredMixin, View):
+class BankTransactionMultipleAssignView(LoginRequiredMixin,BaseUserPassesTestMixin, View):
     template_name = 'transactions/bank_transaction_list.html'
 
     def post(self, request):

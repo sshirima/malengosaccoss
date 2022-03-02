@@ -24,8 +24,9 @@ from loans.tables import LoanRepaymentTable, LoanRepaymentTableFilter
 from .models import Member
 from .tables import MemberTable, MemberTableFilter
 from shares.tables import ShareTable, ShareTableFilter
+from authentication.permissions import BaseUserPassesTestMixin
 
-class MemberListView(LoginRequiredMixin, ListView):
+class MemberListView(LoginRequiredMixin,BaseUserPassesTestMixin, ListView):
     template_name ='members/member_list.html'
     model = Member
     
@@ -46,7 +47,8 @@ class MemberListView(LoginRequiredMixin, ListView):
 
         return context
 
-class MemberDetailView(LoginRequiredMixin, DetailView):
+
+class MemberDetailView(LoginRequiredMixin,BaseUserPassesTestMixin, DetailView):
     template_name = 'members/member_detail.html'
     model = Member
     context_object_name = 'member'
@@ -128,12 +130,8 @@ class MemberDetailView(LoginRequiredMixin, DetailView):
 
         return context
 
-        
 
-    
-
-
-class MemberSendActivationLinkView(View):
+class MemberSendActivationLinkView(LoginRequiredMixin,BaseUserPassesTestMixin,View):
 
     def get(self, request, id):
 
@@ -166,7 +164,7 @@ class MemberSendActivationLinkView(View):
         return redirect(reverse('member-detail', args=[member.id]))
 
 
-class MemberSendPasswordResetLinkView(View):
+class MemberSendPasswordResetLinkView(LoginRequiredMixin,BaseUserPassesTestMixin,View):
 
     def get(self, request, id):
 
