@@ -2,13 +2,13 @@ from django.test import TestCase, TransactionTestCase
 from django.urls.base import reverse
 
 from authentication.forms import RegistrationForm
-from authentication.models import Member
 from authentication.services import RegistrationService
 from loans.models import LoanFormFee, LoanInsuranceFee, LoanInterest, LoanLimits, LoanProcessingFee
 
-from loans.services import LoanCreatorService
+from loans.services import LoanCRUDService
 from transactions.services import BankStatementParserService
 from loans.forms import LoanCreateFromBankTransactionForm, LoanRepaymentCreateForm, LoanRepaymentMemberSelectForm
+from members.models import Member
 
 # Create your tests here.
 class LoanTestCase(TransactionTestCase):
@@ -45,7 +45,7 @@ class LoanTestCase(TransactionTestCase):
         banktransaction = qs[len(qs) -1]
 
         #Creating Loan
-        loanservice = LoanCreatorService()
+        loanservice = LoanCRUDService()
 
         #Set member active
         member = Member.objects.get(id=self.user.member.id)
@@ -96,7 +96,7 @@ class LoanTestCase(TransactionTestCase):
         print(valid_loan_create_form.errors)
         self.assertTrue(is_valid_form)
         
-        msg, created, loan = loanservice.create_loan_from_banktransaction(data=valid_loan_create_form.cleaned_data, creator=self.user)
+        msg, created, loan = loanservice.create_loan(data=valid_loan_create_form.cleaned_data, creator=self.user)
 
         self.assertTrue(created)
         self.assertIsNotNone(loan)

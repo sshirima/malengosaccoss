@@ -63,7 +63,7 @@ class ExpenseCreateView(LoginRequiredMixin,BaseUserPassesTestMixin, CreateView):
             context['form'] = form
             return render(request, self.template_name, context) 
 
-        service = ExpenseCrudService(self.request)
+        service = ExpenseCrudService()
         data = form.cleaned_data
         data['uuid'] = uuid
         msg, created, share = service.create_expense(data=data, created_by=self.request.user)
@@ -102,7 +102,7 @@ class ExpenseCreateMultipleView(LoginRequiredMixin,BaseUserPassesTestMixin, View
             context['form'] = form
             return render(request, self.template_name, context) 
 
-        service = ExpenseCrudService(self.request)
+        service = ExpenseCrudService()
         data = form.cleaned_data
         data['uuid'] = uuid
         msg, created, expense = service.create_expense(data=data, created_by=self.request.user)
@@ -196,7 +196,7 @@ class ExpenseDeleteView(LoginRequiredMixin,BaseUserPassesTestMixin, DeleteView):
 
     def form_valid(self, form):
         self.object = self.get_object()
-        service = ExpenseCrudService(self.request)
+        service = ExpenseCrudService()
         msg, deleted, trans = service.delete_expense(self.object)
 
         if deleted:

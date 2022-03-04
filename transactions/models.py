@@ -24,6 +24,51 @@ BANK_TRANSACTION_STATUS = (
     ('cancelled', 'Canceled'),
 )
 
+TRANSACTION_TYPE_ACTIONS = {
+    'debit':{
+        'actions':{
+            'assign_to_loans':'Assign to Loans',
+            'assign_to_expenses':'Assign to Expenses'
+        }
+    },
+    'credit':{
+        'actions':{
+            'assign_to_shares':'Assign to Shares',
+            'assign_to_savings':'Assign to Savings',
+            'assign_to_loanrepayments':'Assign to Loan Repayments'
+        }
+    },
+
+}
+
+def get_transaction_assignment_action_by_type(type, as_items=False):
+    try:
+        if as_items:
+            return TRANSACTION_TYPE_ACTIONS[type]['actions'].items()
+        return TRANSACTION_TYPE_ACTIONS[type]['actions']
+    except KeyError as e:
+        print('ERROR, get transaction assignment action by type: {}'.format(str(e)))
+        return {}
+
+def get_transaction_assignment_action_all(as_items=False):
+    actions = {}
+    try:
+        for key, value in TRANSACTION_TYPE_ACTIONS.items():
+            actions.update(TRANSACTION_TYPE_ACTIONS[key]['actions'])
+        
+        if as_items:
+            return actions.items()
+        return actions
+        
+    except KeyError as e:
+        print('ERROR, get transaction assignment action all: {}'.format(str(e)))
+        return {}
+
+def get_transaction_assignment_action_by_key(key):
+    all_assignment = get_transaction_assignment_action_all()
+    return (key, all_assignment[key])
+    
+
 class BaseTransaction(models.Model):
     id = models.UUIDField(primary_key = True,default = uuid.uuid4, editable = False)
     type = models.CharField(max_length=20,choices=TRANSACTION_TYPE)

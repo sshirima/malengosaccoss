@@ -30,7 +30,7 @@ class ShareListView(LoginRequiredMixin, BaseListView):
     filterset_class = ShareTableFilter
     context_filter_name = 'filter'
     context_table_name = 'table'
-    paginate_by = 5
+    paginate_by = 10
 
     def get_queryset(self, *args, **kwargs):
         kwargs['owner__user'] = self.request.user
@@ -62,7 +62,7 @@ class ShareCreateView(LoginRequiredMixin, CreateView):
             context['form'] = form
             return render(request, self.template_name, context) 
 
-        service = ShareCrudService(self.request)
+        service = ShareCrudService()
         data = form.cleaned_data
         data['uuid'] = uuid
         msg, created, share = service.create_share(data=data, created_by=self.request.user)
@@ -111,7 +111,7 @@ class ShareUpdateView(LoginRequiredMixin, BaseUpdateView):
     def form_valid(self, form):
        
         #Create transaction first
-        sharecrudservice = ShareCrudService(self.request)
+        sharecrudservice = ShareCrudService()
         data_kwargs = form.cleaned_data
         data_kwargs['id'] = self.kwargs['id']
 
@@ -151,7 +151,7 @@ class ShareDeleteView(LoginRequiredMixin, DeleteView):
 
     def form_valid(self, form):
         self.object = self.get_object()
-        service = ShareCrudService(self.request)
+        service = ShareCrudService()
         msg, deleted, trans = service.delete_share(self.object)
 
         if deleted:

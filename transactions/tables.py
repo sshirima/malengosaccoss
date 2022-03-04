@@ -62,6 +62,26 @@ class BankTransactionTable(django_tables2.Table):
         return mark_safe('<a href="{}">{}</a>'.format(reverse("bank-transaction-detail", args=[record.id]), '{:0,.0f}'.format(record.amount)))
 
 
+class BankTransactionFlatTable(django_tables2.Table):
+    
+    amount = django_tables2.Column(accessor='amount', verbose_name='Amount')
+    description = django_tables2.Column(accessor='description', verbose_name='Description')
+    type = TypeColumn(accessor='type', verbose_name='Type')
+    status = StatusColumn(accessor='status', verbose_name = "Status")
+    date_value = django_tables2.Column(accessor='date_value', verbose_name = "Value Date")
+    
+    class Meta:
+        model = BankTransaction
+        orderable = False
+        attrs = {'class': 'table '}
+        template_name = 'django_tables2/bootstrap.html'
+        fields = ('date_value',)
+        sequence = ('amount','description','status','type','date_value')
+    
+    def render_amount(self,record):
+        return mark_safe('<input type="hidden" name="selection" value="{}"/>{}'.format(record.id, '{:0,.0f}'.format(record.amount)))#'{:0,.0f}'.format(record.amount)
+
+
 class TransactionTable(django_tables2.Table):
     amount = django_tables2.Column(accessor='reference.amount', verbose_name='Amount(Tsh)')
     description = django_tables2.Column(accessor='description', verbose_name='Description')

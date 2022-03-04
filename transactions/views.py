@@ -1,6 +1,7 @@
 
 from audioop import reverse
 from email import message
+from multiprocessing import context
 from django.shortcuts import redirect, render
 from django.urls.base import reverse_lazy
 from django.views.generic import CreateView, ListView, UpdateView, DeleteView, DetailView, View
@@ -15,8 +16,9 @@ from transactions.forms import BankTransactionAssignForm, BankTransactionMultipl
 from transactions.models import BankTransaction, Transaction
 import transactions.models as tr_models
 from transactions.services import BankStatementParserService, TransactionCRUDService
-from transactions.tables import BankTransactionTable, BankTransactionTableFilter,TransactionTable,TransactionTableFilter
+from transactions.tables import BankTransactionFlatTable, BankTransactionTable, BankTransactionTableFilter,TransactionTable,TransactionTableFilter
 from authentication.permissions import BaseUserPassesTestMixin
+from authentication.permissions import BaseListView
 # Create your views here.
 
 
@@ -159,7 +161,12 @@ class BankTransactionListView(LoginRequiredMixin,BaseUserPassesTestMixin, ListVi
         context['table']=table
         context['transaction_types']=tr_models.TRANSACTION_TYPE
         context['transaction_statuses']=tr_models.BANK_TRANSACTION_STATUS
-        context['table_actions'] = (('assign_to_expense', 'Assign To Expenses'), ('assign_to_share', 'Assign To Share'),)
+
+        if not self.request.GET.get('type') :
+            context['table_actions'] = tr_models.get_transaction_assignment_action_all(as_items=True)
+        else:
+            context['table_actions'] = tr_models.get_transaction_assignment_action_by_type(self.request.GET.get('type'), as_items=True)
+
         context['total_credit'] = queryset.filter(type='credit').aggregate(Sum('amount'))['amount__sum']
         context['total_debit'] = queryset.filter(type='debit').aggregate(Sum('amount'))['amount__sum']
 
@@ -285,26 +292,52 @@ class BankTransactionAssignView(LoginRequiredMixin,BaseUserPassesTestMixin, View
 
 
 class BankTransactionMultipleAssignView(LoginRequiredMixin,BaseUserPassesTestMixin, View):
-    template_name = 'transactions/bank_transaction_list.html'
+    template_name = 'transactions/bank_transaction_assign_multiple.html'
+    model = BankTransaction
+    table_class = BankTransactionFlatTable
+    context_table_name = 'table'
+    paginate_by = 10
 
     def post(self, request):
 
         form = BankTransactionMultipleAssignForm(request.POST, request=request)
 
         if not form.is_valid():
-            error_string = get_error_string(form)
-            messages.error(request, error_string)
-            
+            self.get_error_messages_from_form(request, form)
             return redirect('bank-transaction-list')
 
+        selections = self.request.POST.getlist('selection')
+        action = form.cleaned_data['action']
+        context = self.get_context_data(action=action, selections=selections)
+
+        return render(request, self.template_name, context)
+
+    def get_queryset(self, *args, **kwargs):
+        self.object_list = BankTransaction.objects.filter(id__in=kwargs['selections'])
+        return self.object_list
+
+    def get_context_data(self, *args, **kwargs):
+        #Get Table
+        context = {}
+        queryset = self.get_queryset(selections=kwargs['selections'])
+        table = self.table_class(queryset)
+        # RequestConfig(self.request, paginate={"per_page": self.paginate_by}).configure(table)
+        context[self.context_table_name]=table
+        context['action']= tr_models.get_transaction_assignment_action_by_key(kwargs['action'])
+        return context
+
+    def get_error_messages_from_form(self, request, form):
+        if form.errors:
+            for field in form:
+                for error in field.errors:
+                    messages.error(request, '{} : {}'.format(field.label, error))
+
+
+class BankTransactionMultipleAssignConfirmView(LoginRequiredMixin,BaseUserPassesTestMixin, View):
+
+    def post(self, request):
+        selection = request.POST.getlist('selection')
+        action = request.POST.get('action')
+
+        
         return redirect('bank-transaction-list')
-
-
-def get_error_string(form):
-    error_string =''
-    if form.errors:
-        for field in form:
-            for error in field.errors:
-                error_string += field.label +': ' + error
-
-    return error_string

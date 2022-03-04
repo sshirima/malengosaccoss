@@ -1,6 +1,7 @@
 from django import forms
 from .models import BankTransaction, Transaction
 from django.core.validators import FileExtensionValidator
+import transactions.models as tr_model
 
 class TransactionCreateForm(forms.ModelForm):
    
@@ -52,6 +53,11 @@ class BankTransactionAssignForm(forms.Form):
 
         return assign_scope
 
+
+
+
+from django.utils.translation import gettext as _
+
 class BankTransactionMultipleAssignForm(forms.Form):
 
     action = forms.CharField(max_length=20, required=True)
@@ -64,26 +70,37 @@ class BankTransactionMultipleAssignForm(forms.Form):
     def clean_action(self):
         action = self.cleaned_data['action']
 
-        if not action in ['assign_to_share', 'assign_to_expense']:
+        if not action in [*tr_model.get_transaction_assignment_action_all()]:
            raise forms.ValidationError("Action not a valid selection")
 
         selections = self.request.POST.getlist('selection')
 
-        error_message = ''
+        if len(selections) > 10:
+            raise forms.ValidationError("Selection limit reached")
 
-        for transaction in BankTransaction.objects.filter(id__in=selections):
+        validation_errors = []
 
+        for transaction in BankTransaction.objects.filter(id__in=selections).only('id', 'status','type'):
+        
             if transaction.status == 'assigned':
-                error_message += "Transaction ({}) is already assinged, ".format(transaction, action)
-                
-            if transaction.type == 'debit' and action not in ['assign_to_expense', 'assign_to_loan']:
-                error_message += "Can not assign transaction ({}) to ({}), ".format(transaction.type, action)
+                # error_message += "Transaction ({}) is already assinged, ".format(transaction, action)
+                validation_errors.append(forms.ValidationError(_('%(object)s already assigned: '), code='error1', params={'object':transaction}))
+                continue
 
-            if transaction.type == 'credit' and action not in ['assign_to_share', 'assign_to_saving']:
-                error_message += "Can not assign transaction ({}) to ({}), ".format(transaction.type, action)
+            type = transaction.type
+            actions_by_type = [*tr_model.get_transaction_assignment_action_by_type(type)]
+            if action not in actions_by_type:
+                validation_errors.append(forms.ValidationError(
+                    _('%(object)s transaction type: %(type)s does not match assigments: %(action)s'), 
+                    code='error2',
+                    params={
+                        'object':transaction,
+                        'type':type,
+                        'action':action,
+                        }))
 
-        if not error_message == '':
-            raise forms.ValidationError(error_message)
+        if validation_errors :
+            raise forms.ValidationError(validation_errors)
 
         return action
     

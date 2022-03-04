@@ -8,11 +8,6 @@ import shares.models as s_models
 from django.core.exceptions import ObjectDoesNotExist
 
 class ShareCrudService():
-
-    
-    def __init__(self, request):
-        self.request = request
-    
     
     def create_share(self, data, created_by):
         #Retrieving data
@@ -71,6 +66,28 @@ class ShareCrudService():
             
         except Exception as e:
             self._delete_transaction(transaction)
+            print('ERROR, creating share: {}'.format(str(e)))
+            return ('Error creating share', False, None)
+
+
+    def create_share_from_banktransaction(self, transaction, **kwargs):
+        try:
+            owner = Member.objects.get(id=kwargs['owner'])
+            #Creating Share
+            description = kwargs['description']
+            if description == '':
+                description = 'Share:{}- {}'.format(owner.get_full_name(), transaction.description)
+                
+            share = s_models.Share.objects.create(
+                description = description,
+                status = s_models.SHARE_STATUS[1][0],
+                owner = owner,
+                transaction=transaction,
+            )
+
+            return '',True, share
+
+        except Exception as e:
             print('ERROR, creating share: {}'.format(str(e)))
             return ('Error creating share', False, None)
 

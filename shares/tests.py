@@ -55,7 +55,7 @@ class ShareFormsTest(TestCase):
         print(share_create_form.errors)
         self.assertTrue(is_valid)
 
-        share_crud = ShareCrudService(self.response.wsgi_request)
+        share_crud = ShareCrudService()
         msg, created, share = share_crud.create_share(share_create_form.cleaned_data, self.user)
         self.assertTrue(created)
         self.assertIsNotNone(share)

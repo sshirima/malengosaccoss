@@ -7,9 +7,6 @@ import expenses.models as e_models
 from django.core.exceptions import ObjectDoesNotExist
 
 class ExpenseCrudService():
-
-    def __init__(self, request):
-        self.request = request
     
     
     def create_expense(self, data, created_by):
@@ -74,6 +71,27 @@ class ExpenseCrudService():
             self._delete_transaction(transaction)
             print('ERROR, creating share: {}'.format(str(e)))
             return ('Error creating share', False, None)
+            
+
+    def create_expense_from_transaction(self, transaction, **kwargs):
+
+        try:
+            description = kwargs['description']
+            if description == '':
+                description = 'Expense: {}'.format(transaction.description)
+
+            expense = Expense.objects.create(
+                    description = description,
+                    status = e_models.EXPENSE_STATUS[1][0],
+                    owner = None,
+                    transaction=transaction,
+                )
+
+            return '',True, expense
+
+        except Exception as e:
+            print('ERROR, creating expense transaction: {}'.format(str(e)))
+            return ('ERROR, creating expense transaction: {}'.format(str(e)), False, None)
 
 
     def delete_expense(self, expense):
@@ -90,6 +108,7 @@ class ExpenseCrudService():
             return ('', True, None)
 
         except Exception as e:
+            print('ERROR, deleting expense transaction: {}'.format(str(e)))
             return ('ERROR, deleting expense transaction: {}'.format(str(e)),False, transaction)
 
 

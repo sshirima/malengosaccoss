@@ -68,9 +68,13 @@
 </div>
 
 {% if filter %}
+
+
+
+  
 <div class="row">
   <div class="col-lg-12">
-    <div class="card card-info card-outline collapsed-card filter-box">
+    <div class="card card-info card-outline {% if not 'type' in request.GET %}collapsed-card{% endif %} filter-box">
       <div class="card-header">
         <h3 class="card-title">Filters Criteria</h3>
         <div class="card-tools">
@@ -151,8 +155,8 @@
             <div class="input-group input-group-sm ">
               <select name="action" class="custom-select form-control form-control-sm" id="id_type" required>
                 <option ></option>
-                {% for action in table_actions %}
-                <option value="{{action.0}}">{{action.1}}</option>
+                {% for key, value in table_actions %}
+                <option value="{{key}}">{{value}}</option>
                 {% endfor %}
               </select>
               <div class="input-group-append">

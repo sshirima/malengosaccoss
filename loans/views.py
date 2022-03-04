@@ -16,7 +16,7 @@ from loans.tables import LoanTable, LoanTableFilter, LoanRepaymentTableFilter, L
 from authentication.models import User
 from members.models import Member
 from loans.forms import LoanCreateFromBankTransactionForm, LoanRepaymentCreateForm, LoanRepaymentMemberSelectForm
-from loans.services import LoanCreatorService
+from loans.services import LoanCRUDService
 import loans.models as l_models
 from transactions.models import BankTransaction
 
@@ -71,8 +71,8 @@ class LoanCreateFromBankTransactionView(LoginRequiredMixin, View):
             context['form'] = form
             return render(request, self.template_name, context)
 
-        loancreateservice = LoanCreatorService()
-        msg, created, loan = loancreateservice.create_loan_from_banktransaction(data=form.cleaned_data, creator=request.user)
+        loancreateservice = LoanCRUDService()
+        msg, created, loan = loancreateservice.create_loan(data=form.cleaned_data, creator=request.user)
 
         if not (created and loan is not None):
             messages.error(request, msg)
@@ -228,7 +228,7 @@ class LoanRepaymentCreateView(LoginRequiredMixin, View):
             return render(request, self.template_name, context )
 
         #Create LoanRepaymentModel
-        loancreateservice = LoanCreatorService()
+        loancreateservice = LoanCRUDService()
 
         msg, created, loan = loancreateservice.create_loan_repaymet(form.cleaned_data, self.request.user)
         if not (created and loan is not None):

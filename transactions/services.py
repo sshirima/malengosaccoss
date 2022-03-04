@@ -1,40 +1,80 @@
+from expenses.models import Expense
+from loans.models import Loan, LoanFormFee, LoanInsuranceFee, LoanInterest, LoanProcessingFee, LoanRepayment
+from loans.services import LoanCRUDService
+from members.models import Member
+from shares.services import ShareCrudService
 import transactions.models as tr_models
 import pandas as pd
 from django.db import transaction
+from expenses.services import ExpenseCrudService
+
 
 import transactions.models as t_models
+import expenses.models as ex_models
+import shares.models as sh_models
+import savings.models as sv_models
 
 
-class TransactionCRUDService():
+class BaseTransactionService():
 
-    def __init__(self, request):
-        self.request = request
+    def change_bank_transaction_status(self, bank_transaction, status):
+        if bank_transaction:
+            bank_transaction.status = status
+            bank_transaction.save()
+            return True
+        return False
+
+
+class TransactionCRUDService(BaseTransactionService):
+
+    def create_transaction_from_banktransaction(self, uuid, **kwargs):
+        
+        try:
+            banktransaction = tr_models.BankTransaction.objects.get(id=uuid)
+
+            transaction_crud = TransactionCRUDService()
+
+            msg, tr_created, transaction = transaction_crud.create_transaction(
+                banktransaction,
+                status= t_models.TRANSACTION_STATUS[1][0],
+                created_by = kwargs['created_by']
+            )
+
+            if not tr_created:
+                return (msg,False, None, None)
+
+            self.change_bank_transaction_status(banktransaction, t_models.BANK_TRANSACTION_STATUS[1][0])
+
+            return '', True, banktransaction, transaction
+
+        except Exception as e:
+            print('ERROR, creating transaction from bank transaction: {}'.format(str(e)))
+            return ('ERROR, creating transaction from bank transaction: ',False, None, None)
+
     
-    def create(self, data, user):
-        error_code = 'TR01'
+    def create_transaction(self, banktransaction, **kwargs):
         try:
             transaction = tr_models.Transaction.objects.create(
-                amount=data['amount'],
-                reference=data['reference'],
-                description=data['description'],
-                created_by= user,
+                amount= banktransaction.amount, 
+                description=banktransaction.description,
+                reference=banktransaction, 
+                type=banktransaction.type,
+                created_by = kwargs['created_by'],
+                status= kwargs['status'],
             )
 
             if transaction:
                 return ('', True, transaction)
             
         except Exception as e:
-            print('ERROR {}, creating transaction: {}'.format(error_code, str(e)))
+            print('ERROR, creating transaction: {}'.format(str(e)))
             return ()
 
         return ('', False, None)
 
     def delete_transaction(self, transaction):
         try:
-            banktransaction = transaction.reference
-
-            banktransaction.status = t_models.BANK_TRANSACTION_STATUS[0][0]
-            banktransaction.save()
+            self.change_bank_transaction_status(transaction.reference, t_models.BANK_TRANSACTION_STATUS[0][0])
 
             transaction.delete()
 
@@ -164,4 +204,185 @@ class BankStatementParserService():
 
         else:
             return ('', False, None)
-                        
+
+
+class BankTransactionAssignmentService(BaseTransactionService):
+
+    def assign_banktransaction_to_expense_multiple(self, uuids, **kwargs):
+        
+        try:
+            results = []
+            for uuid in uuids:
+                result = self.assign_banktransaction_to_expense(uuid, **kwargs)
+                results.append(result)
+
+            return '', True, results
+
+        except Exception as e:
+            print('ERROR, assign banktransaction to expense multiple: {}'.format(str(e)))
+            return ('ERROR,  assign banktransaction to expense multiple', False, None)
+
+    def assign_banktransaction_to_share_multiple(self, uuids, **kwargs):
+        
+        try:
+            results = []
+            for uuid in uuids:
+                result = self.assign_banktransaction_to_share(uuid, **kwargs)
+                results.append(result)
+
+            return '', True, results
+
+        except Exception as e:
+            print('ERROR, assign banktransaction to share multiple: {}'.format(str(e)))
+            return ('ERROR,  assign banktransaction to share multiple', False, None)
+        
+    
+    def assign_banktransaction_to_expense(self, uuid, **kwargs):
+
+        try:
+            transaction_crud = TransactionCRUDService()
+
+            msg, created, banktransaction, transaction = transaction_crud.create_transaction_from_banktransaction(uuid, **kwargs)
+
+            if not created:
+                return (msg, False, None)
+
+            if banktransaction.type == 'credit':
+                raise Exception('Cannot assign credit transaction to expense')
+
+            expense_crud = ExpenseCrudService()
+            msg, ex_created, expense = expense_crud.create_expense_from_transaction(transaction, **kwargs)
+
+            return msg, ex_created, expense
+
+        except Exception as e:
+            if transaction is not None:
+                transaction_crud.delete_transaction(transaction)
+
+            print('ERROR, creating expense: {}'.format(str(e)))
+            return ('Error creating expense', False, None)
+
+
+    def assign_banktransaction_to_share(self, uuid, **kwargs):
+        #Retrieving data
+        try:
+            transaction_crud = TransactionCRUDService()
+            
+            msg, created, banktransaction, transaction = transaction_crud.create_transaction_from_banktransaction(uuid, **kwargs)
+
+            if not created:
+                return (msg, False, None)
+
+            if banktransaction.type == 'debit':
+                raise Exception('Cannot assign debit transaction to shares')
+
+            share_crud = ShareCrudService()
+            msg, created, share = share_crud.create_share_from_banktransaction(transaction, **kwargs)
+
+            return (msg, created, share)
+
+            
+        except Exception as e:
+
+            if transaction is not None:
+                transaction_crud.delete_transaction(transaction)
+
+            print('ERROR, creating share: {}'.format(str(e)))
+            return ('Error creating share', False, None)
+
+
+
+    def assign_banktransaction_to_loanrepayment(self, uuid, **kwargs):
+        try:
+            transaction_crud = TransactionCRUDService()
+            
+            msg, created, banktransaction, transaction = transaction_crud.create_transaction_from_banktransaction(uuid, **kwargs)
+
+            if not created:
+                return (msg, False, None)
+
+            if banktransaction.type == 'credit':
+                raise Exception('Cannot assign credit transaction to loanrepayment')
+
+            loan_crud = LoanCRUDService()
+
+            msg, created, loanrepayment = loan_crud.create_loanrepayment_from_banktransaction(transaction, **kwargs)
+
+            return msg, created, loanrepayment
+
+        except Exception as e:
+            #Delete Transaction
+            if transaction:
+                transaction.delete()
+            return ('Error creating loan repayment', False, None)
+
+
+
+    def assign_banktransaction_to_loan(self, uuid, **kwargs):
+        try:
+            transaction_crud = TransactionCRUDService()
+            
+            msg, created, banktransaction, transaction = transaction_crud.create_transaction_from_banktransaction(uuid, **kwargs)
+
+            if not created:
+                return (msg, False, None)
+
+            if banktransaction.type == 'debit':
+                raise Exception('Cannot assign debit transaction to loan')
+
+            loan_crud = LoanCRUDService()
+
+            msg, created, loan = loan_crud.create_loan_from_transaction(transaction, **kwargs)            
+
+            return msg, created, loan 
+
+        except Exception as e:
+            #Delete Transaction
+            if transaction is not None:
+                transaction.delete()
+            return ('error creating loan from bank transaction', False, None)
+
+    def assign_banktransaction_to_saving(self, uuid, **kwargs):
+        #Retrieving data
+        try:
+            banktransaction = tr_models.BankTransaction.objects.get(id=uuid)
+
+            transaction_crud = TransactionCRUDService()
+
+            msg, tr_created, transaction = transaction_crud.create_transaction(
+                banktransaction,
+                status= t_models.TRANSACTION_STATUS[1][0],
+                created_by = kwargs['created_by']
+            )
+
+            if not tr_created:
+                return (msg, False, None)
+
+            if banktransaction.type == 'debit':
+                raise Exception('Cannot assign debit transaction to saving')
+
+            owner = Member.objects.get(id=kwargs['owner'])
+            #Creating Share
+
+            #Default Description
+            if description == '':
+                description = self._get_default_saving_description(owner, banktransaction)
+
+            saving = sv_models.Saving.objects.create(
+                description = description,
+                status = sv_models.SHARE_STATUS[1][0],
+                owner = owner,
+                transaction=transaction,
+            )
+
+            self._change_bank_transaction_status(banktransaction, t_models.BANK_TRANSACTION_STATUS[1][0])
+
+            return ('', True, saving)
+            
+        except Exception as e:
+            #Delete Transaction
+            if transaction:
+                transaction.delete()
+            return ('error creating saving from bank transaction', False, None)
+
+    
