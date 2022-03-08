@@ -7,11 +7,7 @@ import shares.models as s_models
 
 from django.core.exceptions import ObjectDoesNotExist
 
-class SavingCrudService():
-
-    def __init__(self, request):
-        self.request = request
-    
+class SavingCRUDService():
     
     def create_saving(self, data, created_by):
         #Retrieving data
@@ -75,6 +71,32 @@ class SavingCrudService():
             return ('Error creating share', False, None)
 
 
+    def create_saving_from_transaction(self, transaction, **kwargs):
+        #Retrieving data
+        try:
+            
+            owner = Member.objects.get(id=kwargs['owner'])
+            #Creating Share
+
+            #Default Description
+            description = kwargs['description']
+            if description == '':
+                description = 'Saving:{}-{}'.format(owner.get_full_name(), transaction.description)
+
+            saving = Saving.objects.create(
+                description = description,
+                status = s_models.SHARE_STATUS[1][0],
+                owner = owner,
+                transaction=transaction,
+            )
+
+            return ('', True, saving)
+     
+        except Exception as e:
+            print('ERROR, creating saving: {}'.format(str(e)))
+            return ('Error creating saving: {}'.format(str(e)), False, None)
+
+
     def delete_saving(self, saving):
         try:
             transaction = saving.transaction
@@ -105,6 +127,3 @@ class SavingCrudService():
             return True
 
         return False
-
-    def _get_default_saving_description(self, owner, bank_transaction):
-        return 'Saving: {}, {}'.format(owner.get_full_name(), bank_transaction.date_trans)

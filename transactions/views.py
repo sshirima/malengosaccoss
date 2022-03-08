@@ -1,22 +1,36 @@
 
-from audioop import reverse
-from email import message
-from multiprocessing import context
 from django.shortcuts import redirect, render
 from django.urls.base import reverse_lazy
 from django.views.generic import CreateView, ListView, UpdateView, DeleteView, DetailView, View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
 from django.contrib import messages
-from authentication.models import User
 from django_tables2 import RequestConfig
 from django.db.models import Sum
+from members.models import Member
 
-from transactions.forms import BankTransactionAssignForm, BankTransactionMultipleAssignForm, TransactionCreateForm, TransactionUpdateForm, BankStatementImportForm
+from transactions.forms import (
+    BankTransactionAssignForm,
+    BankTransactionMultipleAssignExpenseForm, 
+    BankTransactionMultipleAssignForm,
+    BankTransactionMultipleAssignLoanForm,
+    BankTransactionMultipleAssignLoanRepaymentForm,
+    BankTransactionMultipleAssignSavingForm, 
+    BankTransactionMultipleAssignShareForm, 
+    TransactionCreateForm, 
+    TransactionUpdateForm, 
+    BankStatementImportForm
+)
 from transactions.models import BankTransaction, Transaction
 import transactions.models as tr_models
-from transactions.services import BankStatementParserService, TransactionCRUDService
-from transactions.tables import BankTransactionFlatTable, BankTransactionTable, BankTransactionTableFilter,TransactionTable,TransactionTableFilter
+from transactions.services import BankStatementParserService, BankTransactionAssignmentService, TransactionCRUDService
+from transactions.tables import (
+    BankTransactionFlatTable, 
+    BankTransactionTable, 
+    BankTransactionTableFilter,
+    TransactionTable,
+    TransactionTableFilter
+)
 from authentication.permissions import BaseUserPassesTestMixin
 from authentication.permissions import BaseListView
 # Create your views here.
@@ -300,44 +314,121 @@ class BankTransactionMultipleAssignView(LoginRequiredMixin,BaseUserPassesTestMix
 
     def post(self, request):
 
-        form = BankTransactionMultipleAssignForm(request.POST, request=request)
+        form = BankTransactionMultipleAssignForm({
+            'action':self.request.POST['action'],
+            'selection':','.join(self.request.POST.getlist('selection'))
+        })
 
         if not form.is_valid():
-            self.get_error_messages_from_form(request, form)
+            form.get_error_messages_from_form(request, form)
             return redirect('bank-transaction-list')
 
-        selections = self.request.POST.getlist('selection')
-        action = form.cleaned_data['action']
-        context = self.get_context_data(action=action, selections=selections)
+        context = self.get_context_data(action=form.cleaned_data['action'], selections=form.cleaned_data['selection'])
 
         return render(request, self.template_name, context)
-
-    def get_queryset(self, *args, **kwargs):
-        self.object_list = BankTransaction.objects.filter(id__in=kwargs['selections'])
-        return self.object_list
 
     def get_context_data(self, *args, **kwargs):
         #Get Table
         context = {}
         queryset = self.get_queryset(selections=kwargs['selections'])
         table = self.table_class(queryset)
-        # RequestConfig(self.request, paginate={"per_page": self.paginate_by}).configure(table)
         context[self.context_table_name]=table
         context['action']= tr_models.get_transaction_assignment_action_by_key(kwargs['action'])
+        context['selections'] = kwargs['selections']
+
+        if kwargs['action'] == 'assign_to_shares':
+            context['owners'] = Member.objects.all().only('id','first_name','middle_name','last_name')
+
         return context
 
-    def get_error_messages_from_form(self, request, form):
-        if form.errors:
-            for field in form:
-                for error in field.errors:
-                    messages.error(request, '{} : {}'.format(field.label, error))
+    def get_queryset(self, *args, **kwargs):
+        self.object_list = BankTransaction.objects.filter(id__in=kwargs['selections'])
+        return self.object_list
 
 
 class BankTransactionMultipleAssignConfirmView(LoginRequiredMixin,BaseUserPassesTestMixin, View):
 
     def post(self, request):
-        selection = request.POST.getlist('selection')
-        action = request.POST.get('action')
+        is_valid, form = self.get_validated_form(request)
 
+        if not is_valid:
+
+            if form is not None:
+                form.get_error_messages_from_form(request, form)
+
+            return redirect('bank-transaction-list')
+
+        service = BankTransactionAssignmentService()
+        kwargs = form.cleaned_data
+        kwargs['created_by'] = request.user
+
+        results= service.assign_banktransactions_with_action(
+            form.cleaned_data['selection'],
+            **kwargs
+        )
+
+        for result in results:
+            if not result['created']:
+                messages.error(request, result['msg'])
+            else:
+                messages.success(request, 'Transaction assignment: {}'.format(result['object']))
         
         return redirect('bank-transaction-list')
+
+    def get_validated_form(self, request):
+
+        action = request.POST['action']
+
+        if action == 'assign_to_shares':
+
+            form = BankTransactionMultipleAssignShareForm({
+                'action':self.request.POST['action'],
+                'selection':','.join(self.request.POST.getlist('selection')),
+                'owner':self.request.POST['owner'],
+            })
+
+            return form.is_valid(), form
+
+        elif action == 'assign_to_savings':
+
+            form = BankTransactionMultipleAssignSavingForm({
+                'action':self.request.POST['action'],
+                'selection':','.join(self.request.POST.getlist('selection')),
+                'owner':self.request.POST['owner'],
+            })
+
+            return form.is_valid(), form
+
+        elif action == 'assign_to_loanrepayments':
+
+            form = BankTransactionMultipleAssignLoanRepaymentForm({
+                'action':self.request.POST['action'],
+                'selection':','.join(self.request.POST.getlist('selection')),
+                'owner':self.request.POST['owner'],
+            })
+
+            return form.is_valid(), form
+            
+        elif action == 'assign_to_loans':
+
+            form = BankTransactionMultipleAssignLoanForm({
+                'action':self.request.POST['action'],
+                'selection':','.join(self.request.POST.getlist('selection')),
+                'owner':self.request.POST['owner'],
+                'duration':self.request.POST['duration'],
+                'loan_type':self.request.POST['loan_type'],
+            })
+
+            return form.is_valid(), form
+
+        elif action == 'assign_to_expenses':
+
+            form = BankTransactionMultipleAssignExpenseForm(request.POST)
+
+            return form.is_valid(), form
+
+        else:
+            messages.error(request, 'Not a valid action')
+            return False, None
+
+            

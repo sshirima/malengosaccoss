@@ -28,6 +28,7 @@ class LoanCreateFromBankTransactionForm(forms.ModelForm):
         
         if not BankTransaction.objects.filter(id=transaction).exists():
             raise forms.ValidationError("BankTransaction does not exists: "+transaction)
+            
         return transaction
 
     def clean_loan_type(self):

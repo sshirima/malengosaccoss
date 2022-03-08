@@ -2,6 +2,7 @@ from expenses.models import Expense
 from loans.models import Loan, LoanFormFee, LoanInsuranceFee, LoanInterest, LoanProcessingFee, LoanRepayment
 from loans.services import LoanCRUDService
 from members.models import Member
+from savings.services import SavingCRUDService
 from shares.services import ShareCrudService
 import transactions.models as tr_models
 import pandas as pd
@@ -51,7 +52,6 @@ class TransactionCRUDService(BaseTransactionService):
             print('ERROR, creating transaction from bank transaction: {}'.format(str(e)))
             return ('ERROR, creating transaction from bank transaction: ',False, None, None)
 
-    
     def create_transaction(self, banktransaction, **kwargs):
         try:
             transaction = tr_models.Transaction.objects.create(
@@ -104,7 +104,6 @@ class BankStatementParserService():
         except Exception as e:
             print('ERROR, parsing xlsx file, {}: {}'.format(filename, str(e)))
             return pd.DataFrame()
-
 
     def parse_xlsx_sheet(self,xlsx_file, sheet, column_names):
 
@@ -191,7 +190,6 @@ class BankStatementParserService():
             print('ERROR, saving bank statement transaction to db: {}'.format(str(e)))
             return ('Error saving bank statement transaction to db ', False, [])
 
-    
     def _get_row_amount(self, row, column_names):
 
         if not pd.isnull(row[column_names[4]]):
@@ -208,35 +206,67 @@ class BankStatementParserService():
 
 class BankTransactionAssignmentService(BaseTransactionService):
 
-    def assign_banktransaction_to_expense_multiple(self, uuids, **kwargs):
+    def assign_banktransactions_with_action(self, uuids, **kwargs):
+
+        try:
+            if kwargs['action'] == 'assign_to_shares':
+                return self.assign_banktransactions_multiple(self.assign_banktransaction_to_share, uuids, **kwargs)
+
+            if kwargs['action'] == 'assign_to_expenses':
+                return self.assign_banktransactions_multiple(self.assign_banktransaction_to_expense, uuids, **kwargs)
+
+            if kwargs['action'] == 'assign_to_savings':
+                return self.assign_banktransactions_multiple(self.assign_banktransaction_to_saving, uuids, **kwargs)
+
+            if kwargs['action'] == 'assign_to_loanrepayments':
+                return self.assign_banktransactions_multiple(self.assign_banktransaction_to_loanrepayment, uuids, **kwargs)
+
+            else:
+                raise Exception('assigned action can not be executed:{}'.format(kwargs['action']))
+
+        except Exception as e:
+            print('Error, assigning banktransaction to multipe:{}'.format(str(e)))
+            return 'Error, assigning banktransaction to multipe:{}'.format(str(e)), False, []
+
+    def assign_banktransaction_single_with_action(self, action, uuid,  **kwargs):
+
+        try:
+            if action == 'assign_to_shares':
+                return self.assign_banktransaction_to_share(uuid, **kwargs)
+
+            if action == 'assign_to_expenses':
+                return self.assign_banktransaction_to_expense(uuid, **kwargs)
+
+            if action == 'assign_to_savings':
+                return self.assign_banktransaction_to_saving(uuid, **kwargs)
+
+            if action == 'assign_to_loanrepayments':
+                return self.assign_banktransaction_to_loanrepayment(uuid, **kwargs)
+
+            if action == 'assign_to_loans':
+                return self.assign_banktransaction_to_loan(uuid, **kwargs)
+
+            else:
+                raise Exception('assigned action can not be executed:{}'.format(action))
+
+        except Exception as e:
+            print('Error, assigning banktransaction to multiple:{}'.format(str(e)))
+            return 'Error, assigning banktransaction to multiple:{}'.format(str(e)), False, []
+
+    def assign_banktransactions_multiple(self, assign_func,  uuids, **kwargs):
         
         try:
             results = []
             for uuid in uuids:
-                result = self.assign_banktransaction_to_expense(uuid, **kwargs)
-                results.append(result)
-
-            return '', True, results
+                msg, created,object = assign_func(uuid, **kwargs)
+                results.append({'msg':msg, 'created':created, 'object':object})
+                
+            return results
 
         except Exception as e:
             print('ERROR, assign banktransaction to expense multiple: {}'.format(str(e)))
             return ('ERROR,  assign banktransaction to expense multiple', False, None)
-
-    def assign_banktransaction_to_share_multiple(self, uuids, **kwargs):
-        
-        try:
-            results = []
-            for uuid in uuids:
-                result = self.assign_banktransaction_to_share(uuid, **kwargs)
-                results.append(result)
-
-            return '', True, results
-
-        except Exception as e:
-            print('ERROR, assign banktransaction to share multiple: {}'.format(str(e)))
-            return ('ERROR,  assign banktransaction to share multiple', False, None)
-        
-    
+ 
     def assign_banktransaction_to_expense(self, uuid, **kwargs):
 
         try:
@@ -261,7 +291,6 @@ class BankTransactionAssignmentService(BaseTransactionService):
 
             print('ERROR, creating expense: {}'.format(str(e)))
             return ('Error creating expense', False, None)
-
 
     def assign_banktransaction_to_share(self, uuid, **kwargs):
         #Retrieving data
@@ -290,8 +319,6 @@ class BankTransactionAssignmentService(BaseTransactionService):
             print('ERROR, creating share: {}'.format(str(e)))
             return ('Error creating share', False, None)
 
-
-
     def assign_banktransaction_to_loanrepayment(self, uuid, **kwargs):
         try:
             transaction_crud = TransactionCRUDService()
@@ -301,12 +328,12 @@ class BankTransactionAssignmentService(BaseTransactionService):
             if not created:
                 return (msg, False, None)
 
-            if banktransaction.type == 'credit':
-                raise Exception('Cannot assign credit transaction to loanrepayment')
+            if transaction.type == 'debit':
+                raise Exception('Cannot assign debit transaction to loanrepayment')
 
             loan_crud = LoanCRUDService()
 
-            msg, created, loanrepayment = loan_crud.create_loanrepayment_from_banktransaction(transaction, **kwargs)
+            msg, created, loanrepayment = loan_crud.create_loanrepayment_from_transaction(transaction, **kwargs)
 
             return msg, created, loanrepayment
 
@@ -314,9 +341,7 @@ class BankTransactionAssignmentService(BaseTransactionService):
             #Delete Transaction
             if transaction:
                 transaction.delete()
-            return ('Error creating loan repayment', False, None)
-
-
+            return ('Error creating loan repayment:{}'.format(str(e)), False, None)
 
     def assign_banktransaction_to_loan(self, uuid, **kwargs):
         try:
@@ -327,8 +352,8 @@ class BankTransactionAssignmentService(BaseTransactionService):
             if not created:
                 return (msg, False, None)
 
-            if banktransaction.type == 'debit':
-                raise Exception('Cannot assign debit transaction to loan')
+            if banktransaction.type == 'credit':
+                raise Exception('Cannot assign credit transaction to loan')
 
             loan_crud = LoanCRUDService()
 
@@ -340,44 +365,25 @@ class BankTransactionAssignmentService(BaseTransactionService):
             #Delete Transaction
             if transaction is not None:
                 transaction.delete()
-            return ('error creating loan from bank transaction', False, None)
+            return ('error creating loan from bank transaction: {}'.format(str(e)), False, None)
 
     def assign_banktransaction_to_saving(self, uuid, **kwargs):
         #Retrieving data
         try:
-            banktransaction = tr_models.BankTransaction.objects.get(id=uuid)
-
             transaction_crud = TransactionCRUDService()
+            
+            msg, created, banktransaction, transaction = transaction_crud.create_transaction_from_banktransaction(uuid, **kwargs)
 
-            msg, tr_created, transaction = transaction_crud.create_transaction(
-                banktransaction,
-                status= t_models.TRANSACTION_STATUS[1][0],
-                created_by = kwargs['created_by']
-            )
-
-            if not tr_created:
+            if not created:
                 return (msg, False, None)
 
-            if banktransaction.type == 'debit':
+            if transaction.type == 'debit':
                 raise Exception('Cannot assign debit transaction to saving')
 
-            owner = Member.objects.get(id=kwargs['owner'])
-            #Creating Share
+            saving_crud = SavingCRUDService()
+            msg, created, saving = saving_crud.create_saving_from_transaction(transaction, **kwargs)
 
-            #Default Description
-            if description == '':
-                description = self._get_default_saving_description(owner, banktransaction)
-
-            saving = sv_models.Saving.objects.create(
-                description = description,
-                status = sv_models.SHARE_STATUS[1][0],
-                owner = owner,
-                transaction=transaction,
-            )
-
-            self._change_bank_transaction_status(banktransaction, t_models.BANK_TRANSACTION_STATUS[1][0])
-
-            return ('', True, saving)
+            return msg, created, saving
             
         except Exception as e:
             #Delete Transaction

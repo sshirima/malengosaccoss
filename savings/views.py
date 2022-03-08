@@ -12,7 +12,7 @@ from django.contrib import messages
 
 from savings.models import Saving
 from savings.tables import SavingTable, SavingTableFilter
-from savings.services import SavingCrudService
+from savings.services import SavingCRUDService
 from transactions.models import BankTransaction
 from authentication.permissions import BaseListView, BaseDetailView
 
@@ -55,7 +55,7 @@ class SavingCreateView(LoginRequiredMixin, CreateView):
             context['form'] = form
             return render(request, self.template_name, context) 
 
-        service = SavingCrudService(self.request)
+        service = SavingCRUDService()
         data = form.cleaned_data
         data['uuid'] = uuid
         msg, created, share = service.create_saving(data=data, created_by=self.request.user)
@@ -144,7 +144,7 @@ class SavingDeleteView(LoginRequiredMixin, DeleteView):
 
     def form_valid(self, form):
         self.object = self.get_object()
-        service = SavingCrudService(self.request)
+        service = SavingCRUDService()
         msg, deleted, trans = service.delete_saving(self.object)
 
         if deleted:

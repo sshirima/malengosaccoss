@@ -139,7 +139,7 @@ class LoanCRUDService():
                 transaction.delete()
             return ('Error creating loan repayment', False, None)
 
-    def create_loanrepayment_from_transaction(self, transaction, *kwargs):
+    def create_loanrepayment_from_transaction(self, transaction, **kwargs):
         try:
             #Member Id
             loan = Loan.objects.get(id=kwargs['loan'])
@@ -153,7 +153,7 @@ class LoanCRUDService():
             return '', True, loanrepayment
 
         except Exception as e:
-            print('Error creating loan repayment: {}'.format(str(e)))
+            print('Error creating loan repayment:{}'.format(str(e)))
             return ('Error creating loan repayment', False, None)
 
     def create_loan_from_transaction(self, transaction, **kwargs):
