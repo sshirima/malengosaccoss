@@ -159,7 +159,7 @@ class LoanCRUDService():
     def create_loan_from_transaction(self, transaction, **kwargs):
         try:
             #Member Id
-            member = Member.objects.get(id=kwargs['member'])
+            member = Member.objects.get(id=kwargs['owner'])
 
             #Get FormFee
             form_fee = LoanFormFee.objects.filter(status='active', type=kwargs['loan_type']).latest('date_created')

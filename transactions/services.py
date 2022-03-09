@@ -209,24 +209,28 @@ class BankTransactionAssignmentService(BaseTransactionService):
     def assign_banktransactions_with_action(self, uuids, **kwargs):
 
         try:
-            if kwargs['action'] == 'assign_to_shares':
+            action = kwargs['action']
+            if action == 'assign_to_shares':
                 return self.assign_banktransactions_multiple(self.assign_banktransaction_to_share, uuids, **kwargs)
 
-            if kwargs['action'] == 'assign_to_expenses':
+            if action == 'assign_to_expenses':
                 return self.assign_banktransactions_multiple(self.assign_banktransaction_to_expense, uuids, **kwargs)
 
-            if kwargs['action'] == 'assign_to_savings':
+            if kwargs['action'] == 'assign_to_loans':
+                return self.assign_banktransactions_multiple(self.assign_banktransaction_to_loan, uuids, **kwargs)
+
+            if action == 'assign_to_savings':
                 return self.assign_banktransactions_multiple(self.assign_banktransaction_to_saving, uuids, **kwargs)
 
-            if kwargs['action'] == 'assign_to_loanrepayments':
+            if action == 'assign_to_loanrepayments':
                 return self.assign_banktransactions_multiple(self.assign_banktransaction_to_loanrepayment, uuids, **kwargs)
 
             else:
-                raise Exception('assigned action can not be executed:{}'.format(kwargs['action']))
+                return [{'msg':'Not a valid action: '.format(action), 'created':False, 'object':None}]
 
         except Exception as e:
             print('Error, assigning banktransaction to multipe:{}'.format(str(e)))
-            return 'Error, assigning banktransaction to multipe:{}'.format(str(e)), False, []
+            return [{'msg':'Error, assigning banktransaction to multipe:{}'.format(str(e)), 'created':False, 'object':None}]
 
     def assign_banktransaction_single_with_action(self, action, uuid,  **kwargs):
 
@@ -283,6 +287,9 @@ class BankTransactionAssignmentService(BaseTransactionService):
             expense_crud = ExpenseCrudService()
             msg, ex_created, expense = expense_crud.create_expense_from_transaction(transaction, **kwargs)
 
+            if not created:
+                transaction_crud.delete_transaction(transaction)
+
             return msg, ex_created, expense
 
         except Exception as e:
@@ -307,6 +314,9 @@ class BankTransactionAssignmentService(BaseTransactionService):
 
             share_crud = ShareCrudService()
             msg, created, share = share_crud.create_share_from_banktransaction(transaction, **kwargs)
+
+            if not created:
+                transaction_crud.delete_transaction(transaction) 
 
             return (msg, created, share)
 
@@ -335,6 +345,9 @@ class BankTransactionAssignmentService(BaseTransactionService):
 
             msg, created, loanrepayment = loan_crud.create_loanrepayment_from_transaction(transaction, **kwargs)
 
+            if not created:
+                transaction_crud.delete_transaction(transaction)   
+
             return msg, created, loanrepayment
 
         except Exception as e:
@@ -357,7 +370,10 @@ class BankTransactionAssignmentService(BaseTransactionService):
 
             loan_crud = LoanCRUDService()
 
-            msg, created, loan = loan_crud.create_loan_from_transaction(transaction, **kwargs)            
+            msg, created, loan = loan_crud.create_loan_from_transaction(transaction, **kwargs)
+
+            if not created:
+                transaction_crud.delete_transaction(transaction)              
 
             return msg, created, loan 
 
@@ -382,6 +398,9 @@ class BankTransactionAssignmentService(BaseTransactionService):
 
             saving_crud = SavingCRUDService()
             msg, created, saving = saving_crud.create_saving_from_transaction(transaction, **kwargs)
+
+            if not created:
+                transaction_crud.delete_transaction(transaction)    
 
             return msg, created, saving
             

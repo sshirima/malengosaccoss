@@ -61,6 +61,11 @@ class BankTransactionTable(django_tables2.Table):
     def render_amount(self,record):
         return mark_safe('<a href="{}">{}</a>'.format(reverse("bank-transaction-detail", args=[record.id]), '{:0,.0f}'.format(record.amount)))
 
+    def render_selection(self, record):
+        if record.status == 'imported':
+            return mark_safe('<input type="checkbox" name="selection" value="{}">'.format(record.id))
+        return ''
+
 
 class BankTransactionFlatTable(django_tables2.Table):
     
@@ -79,7 +84,8 @@ class BankTransactionFlatTable(django_tables2.Table):
         sequence = ('amount','description','status','type','date_value')
     
     def render_amount(self,record):
-        return mark_safe('<input type="hidden" name="selection" value="{}"/>{}'.format(record.id, '{:0,.0f}'.format(record.amount)))#'{:0,.0f}'.format(record.amount)
+        
+        return mark_safe('<input type="hidden" onclick="toggle(this)" name="selection" value="{}"/>{}'.format(record.id, '{:0,.0f}'.format(record.amount)))#'{:0,.0f}'.format(record.amount)
 
 
 class TransactionTable(django_tables2.Table):

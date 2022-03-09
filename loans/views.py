@@ -10,6 +10,8 @@ from django.contrib import messages
 
 from django_tables2 import RequestConfig
 from django.db.models import Sum
+import json
+from django.http import JsonResponse
 
 from loans.models import Loan, LoanRepayment
 from loans.tables import LoanTable, LoanTableFilter, LoanRepaymentTableFilter, LoanRepaymentTable
@@ -44,7 +46,6 @@ class LoanListView(LoginRequiredMixin, ListView):
         context['total_amount_issued'] = queryset.filter(status='issued').aggregate(Sum('amount_issued'))['amount_issued__sum']
 
         return context
-
 
 class LoanCreateFromBankTransactionView(LoginRequiredMixin, View):
     template_name = 'loans/loan_create.html'
@@ -90,9 +91,6 @@ class LoanCreateFromBankTransactionView(LoginRequiredMixin, View):
         context['members'] = Member.objects.filter(is_active=True)
         return context
     
-
-
-
 class LoanDetailView(LoginRequiredMixin, DetailView):
     template_name = 'loans/loan_detail.html'
     model = Loan
@@ -154,7 +152,6 @@ class LoanRepaymentListView(LoginRequiredMixin, ListView):
 
         return context
 
-
 class LoanRepaymentDetailView(LoginRequiredMixin, DetailView):
     template_name = 'loans/loanrepayment_detail.html'
     model = LoanRepayment
@@ -206,7 +203,6 @@ class LoanRepaymentMemberSelectView(LoginRequiredMixin, View):
         context={}
         context['members'] = Member.objects.filter(is_active=True).only('id','first_name', 'last_name')
         return context
-
 
 class LoanRepaymentCreateView(LoginRequiredMixin, View):
     template_name = 'loans/loanrepayment_create.html'

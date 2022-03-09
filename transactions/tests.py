@@ -96,10 +96,9 @@ class TransactionTestCase(TestCase):
             owner=self.user.member.id
         )
 
-        # self.assertTrue(created)
+        self.assertTrue(created)
         self.assertEquals(3, len(shares))
-
-
+    
     def test_assign_banktransaction_to_savings_multiple(self):
         banktransactions = self.banktransaction_qs[:3]#qs[len(qs) -5]
         uuids = []
@@ -127,7 +126,6 @@ class TransactionTestCase(TestCase):
         banktransaction = self.banktransaction_qs[1]#qs[len(qs) -5]
         msg, created, share = service.assign_banktransaction_single_with_action('assign_to_shares', banktransaction.id, created_by=self.user, description='', owner=self.user.member.id)
         self.assertTrue(created)
-
 
     def test_assign_banktransaction_to_loan(self):
         banktransaction = self.banktransaction_qs[len(self.banktransaction_qs) -1]#qs[len(qs) -5]
@@ -169,7 +167,7 @@ class TransactionTestCase(TestCase):
             banktransaction.id, 
             created_by=self.user, 
             description='', 
-            member=self.user.member.id,
+            owner=self.user.member.id,
             status='avtive',
             loan_type = 'normal',
             duration = 6
@@ -194,7 +192,7 @@ class TransactionTestCase(TestCase):
             banktransaction.id, 
             created_by=self.user, 
             description='', 
-            member=self.user.member.id,
+            owner=self.user.member.id,
             status='avtive',
             loan_type = 'emergence',
             duration = 1
@@ -236,10 +234,9 @@ class TransactionTestCase(TestCase):
         )
         self.assertTrue(created)
 
-
     def test_get_transaction_assignment_action_by_type(self):
         type = 'credit'
         import transactions.models as m
         assignment_actions_by_type = m.get_transaction_assignment_action_by_type(type)
         assignment_actions_all = m.get_transaction_assignment_action_all()
-        
+        print(*assignment_actions_all)

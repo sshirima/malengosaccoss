@@ -69,26 +69,32 @@ class BankTransactionAssignForm(forms.Form):
 
 class BankTransactionMultipleAssignForm(forms.Form):
 
-    action = forms.CharField(max_length=20, required=True)
+    action = forms.CharField(max_length=50, required=True)
     selection = forms.CharField(required=True)
 
     def clean_action(self):
         action = self.cleaned_data['action']
+        available_actions = tr_model.get_transaction_assignment_action_all()
 
-        if not action in [*tr_model.get_transaction_assignment_action_all()]:
+        if not action in [*available_actions]:
            raise forms.ValidationError("Action not a valid selection")
 
         return action
 
     def clean_selection(self):
-        selections = self.cleaned_data['selection'].split(',')
+        
+        selections = self.cleaned_data.get('selection').split(',')
 
-        action = self.cleaned_data['action']
+        action = self.cleaned_data.get('action')
 
-        if len(selections) > 1 and action=='assign_to_loans':
+
+        if action == 'assign_to_loans' and len(selections) > 1:
             raise forms.ValidationError("Can not assign more than 1 bank transaction to loans")
 
-        if len(selections) > 5:
+        if action in ['assign_to_shares','assign_to_savings','assign_to_loanrepayments'] and len(selections) > 2:
+            raise forms.ValidationError("Selection limit reached")
+
+        if action in ['assign_to_expenses'] and len(selections) > 5:
             raise forms.ValidationError("Selection limit reached")
 
         validation_errors = []
@@ -166,16 +172,17 @@ class BankTransactionMultipleAssignLoanRepaymentForm(BankTransactionMultipleAssi
         if not member:
             raise forms.ValidationError("Owner does not exists")
 
-        if hasattr(member.first(), 'loan'):
+        if hasattr(member, 'loan'):
             raise forms.ValidationError("No loan exist for selected member")
 
         return owner
 
+
     def clean_loan(self):
-        owner = self.cleaned_data['owner']
-        if not Loan.objects.filter(id=owner).exists():
+        loan = self.cleaned_data['loan']
+        if not Loan.objects.filter(id=loan).exists():
             raise forms.ValidationError("Selected owner not exist")
-        return owner
+        return loan
 
 
 class BankTransactionMultipleAssignLoanForm(BankTransactionMultipleAssignForm):
