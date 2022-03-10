@@ -14,6 +14,7 @@ from .models import (
 class LoanFormFeeAdmin(admin.ModelAdmin):
     list_display = ('amount', 'status', 'created_by')
     search_fields = ('amount', )
+    
 
 @admin.register(LoanRepayment)
 class LoanRepaymentAdmin(admin.ModelAdmin):

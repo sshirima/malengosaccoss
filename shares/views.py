@@ -19,7 +19,7 @@ from django.db.models import Sum
 from .forms import ShareCreateForm, ShareUpdateForm, ShareAuthorizationForm
 from .models import Share
 from .tables import ShareTable, ShareTableFilter
-from authentication.permissions import BaseListView, BaseDetailView, BaseUpdateView
+from core.views.generic import BaseListView, BaseDetailView, BaseUpdateView
 # Create your views here.
 
 
@@ -33,8 +33,9 @@ class ShareListView(LoginRequiredMixin, BaseListView):
     paginate_by = 10
 
     def get_queryset(self, *args, **kwargs):
-        kwargs['owner__user'] = self.request.user
-        return super(ShareListView, self).get_queryset(**kwargs)
+        filters = {}
+        filters['owner__user'] = self.request.user
+        return super(ShareListView, self).get_queryset(**filters)
 
     def get_context_data(self,*args, **kwargs):
         queryset = self.get_queryset(**kwargs)

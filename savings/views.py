@@ -14,7 +14,7 @@ from savings.models import Saving
 from savings.tables import SavingTable, SavingTableFilter
 from savings.services import SavingCRUDService
 from transactions.models import BankTransaction
-from authentication.permissions import BaseListView, BaseDetailView
+from core.views.generic import BaseListView, BaseDetailView
 
 # Create your views here.
 class SavingListView(LoginRequiredMixin, BaseListView):
