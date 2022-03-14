@@ -7,14 +7,14 @@ from django.views.generic import CreateView, ListView, UpdateView, DeleteView, D
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
 from django.contrib import messages
-
+from core.views.generic import BaseListView
 from django_tables2 import RequestConfig
 from django.db.models import Sum
 import json
 from django.http import JsonResponse
 
-from loans.models import Loan, LoanRepayment
-from loans.tables import LoanTable, LoanTableFilter, LoanRepaymentTableFilter, LoanRepaymentTable
+from loans.models import LOAN_TYPE, LOAN_STATUS, Loan, LoanRepayment
+from loans.tables import LoanRepaymentTableExport, LoanTable, LoanTableExport, LoanTableFilter, LoanRepaymentTableFilter, LoanRepaymentTable
 from authentication.models import User
 from members.models import Member
 from loans.forms import LoanCreateFromBankTransactionForm, LoanRepaymentCreateForm, LoanRepaymentMemberSelectForm
@@ -23,28 +23,28 @@ import loans.models as l_models
 from transactions.models import BankTransaction
 
 # Create your views here.
-class LoanListView(LoginRequiredMixin, ListView):
-    template_name ='loans/list.html'
+class LoanListView(LoginRequiredMixin, BaseListView):
+
+    template_name ='loans/loan_list.html'
     model = Loan
-    
     table_class = LoanTable
-    table_data = Loan.objects.all()
     filterset_class = LoanTableFilter
-    context_filter_name = 'filter'
+
+    #Export options
+    table_class_export = LoanTableExport
+    export_filename = 'loans'
+
+
+    def get_queryset(self, *args, **kwargs):
+        filters = {}
+        filters['member__user'] = self.request.user
+        return super(LoanListView, self).get_queryset(**filters)
 
     def get_context_data(self,*args, **kwargs):
-        context = super(LoanListView, self).get_context_data()
         queryset = self.get_queryset(**kwargs)
-        filter = LoanTableFilter(self.request.GET, queryset=queryset)
-        table = LoanTable(filter.qs)
-        RequestConfig(self.request, paginate={"per_page": 5}).configure(table)
-        context['filter']=filter
-        context['table']=table
-        context['loan_types']=l_models.LOAN_TYPE
-        context['loan_status']=l_models.LOAN_STATUS
-        context['total_principle'] = queryset.filter(status='issued').aggregate(Sum('principle'))['principle__sum']
-        context['total_amount_issued'] = queryset.filter(status='issued').aggregate(Sum('amount_issued'))['amount_issued__sum']
-
+        context = super(LoanListView, self).get_context_data(queryset)
+        context['loan_types']= LOAN_TYPE
+        context['loan_status']= LOAN_STATUS
         return context
 
 class LoanCreateFromBankTransactionView(LoginRequiredMixin, View):
@@ -128,27 +128,25 @@ class LoanDetailView(LoginRequiredMixin, DetailView):
         context['table']=table
         return context
 
-class LoanRepaymentListView(LoginRequiredMixin, ListView):
+class LoanRepaymentListView(LoginRequiredMixin, BaseListView):
+
     template_name ='loans/loanrepayment_list.html'
     model = LoanRepayment
-    
     table_class = LoanRepaymentTable
-    table_data = LoanRepayment.objects.all()
     filterset_class = LoanRepaymentTableFilter
-    context_filter_name = 'filter'
+
+    #Export options
+    table_class_export = LoanRepaymentTableExport
+    export_filename = 'loanrepayments'
+
+    def get_queryset(self, *args, **kwargs):
+        filters = {}
+        filters['loan__member__user'] = self.request.user
+        return super(LoanRepaymentListView, self).get_queryset(**filters)
 
     def get_context_data(self,*args, **kwargs):
-        context = super(LoanRepaymentListView, self).get_context_data()
         queryset = self.get_queryset(**kwargs)
-        filter = LoanRepaymentTableFilter(self.request.GET, queryset=queryset)
-        table = LoanRepaymentTable(filter.qs)
-        RequestConfig(self.request, paginate={"per_page": 5}).configure(table)
-        context['filter']=filter
-        context['table']=table
-        context['loan_types']=l_models.LOAN_TYPE
-        context['loan_status']=l_models.LOAN_STATUS
-        context['total_payments'] = queryset.aggregate(Sum('transaction__amount'))['transaction__amount__sum']
-        # context['total_amount_issued'] = queryset.filter(status='issued').aggregate(Sum('amount_issued'))['amount_issued__sum']
+        context = super(LoanRepaymentListView, self).get_context_data(queryset)
 
         return context
 

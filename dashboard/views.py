@@ -62,4 +62,4 @@ def get_savings(request):
             # loans = shares.values('id','principle', 'type')
             return JsonResponse(list(saving), safe=False)
             
-        # return JsonResponse(list({}), safe=False)     
+        # return JsonResponse(list({}), safe=False)

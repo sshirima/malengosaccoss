@@ -38,40 +38,46 @@
   
 {% block content %}
 
-<div class="row" >
-  <div class="col-md-12">
-    <div class="info-box bg-info">
-      <span class="info-box-icon"><i class="far fa-bookmark"></i></span>
-  
-      <div class="info-box-content">
-        <span class="info-box-text">Shares</span>
-        <span class="info-box-number">
-        {% if total_share is not None %}
-          {{total_share|floatformat:0|intcomma  }}
-        {% else %}
-          0
-        {% endif %}
-           Tsh</span>      
-      </div>
-      <!-- /.info-box-content -->
-    </div>
-  </div>
-</div>
 
 {% if filter %}
 <div class="row">
   <div class="col-lg-12">
-    <div class="card card-info card-outline filter-box">
+    <div class="card card-info card-outline  {% if not 'description' in request.GET %}collapsed-card{% endif %}  filter-box">
       <div class="card-header">
         <h3 class="card-title">Filters Criteria</h3>
+        <div class="card-tools">
+          <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i>
+          </button>
+        </div>
       </div>
       <div class="card-body">
         <form action="" method="get" class="form">
             <div class="row">
-              <div class="col-md-3">
+              <div class="col-md-6">
                 <div class="form-group">
                   <label for="id_description">Description</label>
-                  <input type="text" name="description" class="form-control" value="{{request.GET.description}}" placeholder="Description" title="" id="id_description">
+                  <input type="text" name="description" class="form-control  form-control-sm" value="{{request.GET.description}}" placeholder="Owner Names, Description" title="" id="id_description">
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div  class="form-group">
+                  <label for="id_start_date">Start Date</label>
+                  <input type="date" name="start_date" class="form-control form-control-sm" value="{{request.GET.start_date}}"  placeholder="Start Date" title="" id="id_start_date">
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div  class="form-group">
+                  <div  class="form-group mb-3">
+                    <label for="id_end_date">End Date</label>
+                    <div class="input-group input-group-sm ">
+                      <input type="date" name="end_date" class="form-control form-control-sm" value="{{request.GET.end_date}}" placeholder="End Date" title="" id="id_end_date">
+                      <div class="input-group-append">
+                          <button type="submit" class="btn btn-lg btn-info">
+                            <i class="fa fa-search"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
           </div>
@@ -84,6 +90,21 @@
 {% endif %}
 
 <div class="row">
+  <div class="col-sm-12 mb-1">
+    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+      Page size
+      </button>
+      <div class="dropdown-menu" >
+        <a class="dropdown-item" href="{% url 'shares-list'%}?page={{request.GET.page}}&description={{request.GET.description}}&start_date={{request.GET.start_date}}&end_date={{request.GET.end_date}}&pagination=10">10</a>
+        <a class="dropdown-item" href="{% url 'shares-list'%}?page={{request.GET.page}}&description={{request.GET.description}}&start_date={{request.GET.start_date}}&end_date={{request.GET.end_date}}&pagination=20">20</a>
+        <a class="dropdown-item" href="{% url 'shares-list'%}?page={{request.GET.page}}&description={{request.GET.description}}&start_date={{request.GET.start_date}}&end_date={{request.GET.end_date}}&pagination=50">50</a>
+        <a class="dropdown-item" href="{% url 'shares-list'%}?page={{request.GET.page}}&description={{request.GET.description}}&start_date={{request.GET.start_date}}&end_date={{request.GET.end_date}}&pagination=100">100</a>
+      </div>
+    <div class="dt-buttons btn-group flex-wrap float-right">
+      <a href="{% url 'shares-list'%}?page={{request.GET.page}}&description={{request.GET.description}}&start_date={{request.GET.start_date}}&end_date={{request.GET.end_date}}&pagination={{request.GET.pagination}}&_export=xlsx" class="btn btn-default "><span>Excel</span></a> 
+      <a href="{% url 'shares-list'%}?page={{request.GET.page}}&description={{request.GET.description}}&start_date={{request.GET.start_date}}&end_date={{request.GET.end_date}}&pagination={{request.GET.pagination}}&_export=csv" class="btn btn-default "><span>CSV</span></a> 
+    </div>
+  </div>
   <div class="col-md-12">
     {% include "partials/_messages.html" %}
     {% render_table table 'partials/_table.html'%}

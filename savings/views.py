@@ -11,19 +11,21 @@ from savings.forms import SavingCreateForm, SavingUpdateForm
 from django.contrib import messages
 
 from savings.models import Saving
-from savings.tables import SavingTable, SavingTableFilter
+from savings.tables import SavingTable, SavingTableExport, SavingTableFilter
 from savings.services import SavingCRUDService
 from transactions.models import BankTransaction
 from core.views.generic import BaseListView, BaseDetailView
 
 # Create your views here.
 class SavingListView(LoginRequiredMixin, BaseListView):
-    template_name ='savings/saving-list.html'
+    template_name ='savings/saving_list.html'
     model = Saving
     table_class = SavingTable
     filterset_class = SavingTableFilter
-    context_filter_name = 'filter'
-    context_table_name = 'table'
+
+    #Export options
+    table_class_export = SavingTableExport
+    export_filename = 'savings'
 
     def get_queryset(self, *args, **kwargs):
         kwargs['owner__user'] = self.request.user
@@ -32,7 +34,6 @@ class SavingListView(LoginRequiredMixin, BaseListView):
     def get_context_data(self,*args, **kwargs):
         queryset = self.get_queryset(**kwargs)
         context = super(SavingListView, self).get_context_data(queryset)
-        context['total_saving'] = queryset.aggregate(Sum('transaction__amount'))['transaction__amount__sum']
         return context
 
 
@@ -75,7 +76,6 @@ class SavingCreateView(LoginRequiredMixin, CreateView):
         context['bank_transaction'] = BankTransaction.objects.get(id=uuid)
         return context
 
-
 class SavingDetailView(LoginRequiredMixin, BaseDetailView):
     template_name = 'savings/saving_detail.html'
     model = Saving
@@ -85,7 +85,6 @@ class SavingDetailView(LoginRequiredMixin, BaseDetailView):
 
     def get_queryset(self):
         return super(SavingDetailView, self).get_queryset(id=self.kwargs['id'], owner__user=self.request.user)
-
 
 class SavingUpdateView(LoginRequiredMixin, UpdateView):
     template_name ='savings/saving_update.html'
@@ -122,9 +121,6 @@ class SavingUpdateView(LoginRequiredMixin, UpdateView):
         kwargs = super(SavingUpdateView, self).get_form_kwargs(*args, **kwargs)
         kwargs['user'] = self.request.user
         return kwargs
-
-
-
 
 class SavingDeleteView(LoginRequiredMixin, DeleteView):
     template_name ='savings/saving_delete.html'

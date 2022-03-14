@@ -36,36 +36,57 @@
   
 {% block content %}
 
-<div class="row" >
-  <div class="col-md-12">
-    <div class="info-box bg-info">
-      <span class="info-box-icon"><i class="far fa-bookmark"></i></span>
-  
-      <div class="info-box-content">
-        <span class="info-box-text">Total Members</span>
-        <span class="info-box-number">{{total_members}}</span>      
-      </div>
-      <!-- /.info-box-content -->
-    </div>
-  </div>
-</div>
-
 {% if filter %}
 <div class="row">
   <div class="col-lg-12">
-    <div class="card card-info card-outline filter-box">
+    <div class="card card-info card-outline {% if not 'name' in request.GET %}collapsed-card{% endif %}  filter-box">
       <div class="card-header">
         <h3 class="card-title">Filters Criteria</h3>
+        <div class="card-tools">
+          <button gender="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i>
+          </button>
+        </div>
       </div>
       <div class="card-body">
         <form action="" method="get" class="form">
             <div class="row">
-              <div class="col-md-3">
+              <div class="col-md-6">
                 <div class="form-group">
-                  <label for="id_description">Email</label>
-                  <input type="text" name="email" class="form-control" value="{{request.GET.email}}" placeholder="Email" title="" id="id_description">
+                  <label for="id_name">Names</label>
+                  <input gender="text" name="name" class="form-control form-control-sm" value="{{request.GET.name}}" placeholder="Names, Email, Phone number" title="" id="id_name">
                 </div>
               </div>
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label for="id_gender">Gender</label>
+                  <select name="gender" class="form-control form-control-sm" id="id_gender">
+                    <option ></option>
+                    {% for gender in genders %}
+                    <option value="{{gender.0}}" {% if request.GET.gender == gender.0 %} selected {% endif %}>{{gender.1}}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label for="id_status">Status</label>
+                  <div class="input-group input-group-sm ">
+                    <select name="status" class="form-control form-control-sm" id="id_status">
+                      <option ></option>
+                      {% for status in member_status %}
+                      <option value="{{status.0}}" {% if request.GET.status == status.0 %} selected {% endif %}>{{status.1}}</option>
+                      {% endfor %}
+                    </select>
+                    <div class="input-group-append ml-2">
+                      <button gender="submit" class="btn btn-lg btn-info">
+                        <i class="fa fa-search"></i> Search
+                    </button>
+                  </div>
+                  </div>
+                  
+                </div>
+              </div>
+              
           </div>
         </form>
       </div>
@@ -75,8 +96,22 @@
 {% endif %}
 
 <div class="row">
+  <div class="col-sm-12 mb-1">
+    <button gender="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+      Page size
+      </button>
+      <div class="dropdown-menu" >
+        <a class="dropdown-item" href="{% url 'members-list'%}?page={{request.GET.page}}&name={{request.GET.name}}&gender={{request.GET.gender}}&status={{request.GET.status}}&pagination=10">10</a>
+        <a class="dropdown-item" href="{% url 'members-list'%}?page={{request.GET.page}}&name={{request.GET.name}}&gender={{request.GET.gender}}&status={{request.GET.status}}&pagination=20">20</a>
+        <a class="dropdown-item" href="{% url 'members-list'%}?page={{request.GET.page}}&name={{request.GET.name}}&gender={{request.GET.gender}}&status={{request.GET.status}}&pagination=50">50</a>
+        <a class="dropdown-item" href="{% url 'members-list'%}?page={{request.GET.page}}&name={{request.GET.name}}&gender={{request.GET.gender}}&status={{request.GET.status}}&pagination=100">100</a>
+      </div>
+    <div class="dt-buttons btn-group flex-wrap float-right">
+      <a href="{% url 'members-list'%}?page={{request.GET.page}}&name={{request.GET.name}}&gender={{request.GET.gender}}&status={{request.GET.status}}&pagination={{request.GET.pagination}}&_export=xlsx" class="btn btn-default "><span>Excel</span></a> 
+      <a href="{% url 'members-list'%}?page={{request.GET.page}}&name={{request.GET.name}}&gender={{request.GET.gender}}&status={{request.GET.status}}&pagination={{request.GET.pagination}}&_export=csv" class="btn btn-default "><span>CSV</span></a> 
+    </div>
+  </div>
   <div class="col md-12">
-     
     {% include "partials/_messages.html" %}
     {% render_table table 'partials/_table.html'%}
   </div>

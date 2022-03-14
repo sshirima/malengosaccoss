@@ -25,7 +25,15 @@ from transactions.forms import (
     TransactionUpdateForm, 
     BankStatementImportForm
 )
-from transactions.models import BankTransaction, Transaction
+from transactions.models import (
+    BANK_TRANSACTION_STATUS,
+    TRANSACTION_STATUS,
+    TRANSACTION_TYPE,
+    get_transaction_assignment_action_by_type, 
+    get_transaction_assignment_action_all,
+    BankTransaction, 
+    Transaction,
+)
 import transactions.models as tr_models
 from loans.models import Loan, LOAN_TYPE
 from transactions.services import BankStatementParserService, BankTransactionAssignmentService, TransactionCRUDService
@@ -35,6 +43,7 @@ from transactions.tables import (
     BankTransactionTableExport, 
     BankTransactionTableFilter,
     TransactionTable,
+    TransactionTableExport,
     TransactionTableFilter
 )
 from authentication.permissions import BaseUserPassesTestMixin
@@ -42,30 +51,26 @@ from core.views.generic import BaseListView
 # Create your views here.
 
 
-class TransactionListView(LoginRequiredMixin,BaseUserPassesTestMixin, ListView):
+class TransactionListView(LoginRequiredMixin,BaseUserPassesTestMixin, BaseListView):
+    
     template_name ='transactions/list.html'
     model = Transaction
-    
     table_class = TransactionTable
-    table_data = Transaction.objects.all()
-    paginate_by = 5
     filterset_class = TransactionTableFilter
-    context_filter_name = 'filter'
+    
+    #Export options
+    table_class_export = TransactionTableExport
+    export_filename = None
+
 
     def get_context_data(self,*args, **kwargs):
-        context = super(TransactionListView, self).get_context_data()
         queryset = self.get_queryset(**kwargs)
-        filter = TransactionTableFilter(self.request.GET, queryset=queryset)
-        table = TransactionTable(filter.qs)
-        RequestConfig(self.request, paginate={"per_page": 5}).configure(table)
-        context['filter']=filter
-        context['table']=table
-        context['total_credit'] = queryset.filter(type='credit').aggregate(Sum('amount'))['amount__sum']
-        context['total_debit'] = queryset.filter(type='debit').aggregate(Sum('amount'))['amount__sum']
+        context = super(TransactionListView, self).get_context_data(queryset)
+        context['transaction_types']=TRANSACTION_TYPE
+        context['transaction_statuses']=TRANSACTION_STATUS
 
         return context
     
-
 class TransactionCreateView(LoginRequiredMixin,BaseUserPassesTestMixin, CreateView):
     template_name ='transactions/create.html'
     form_class = TransactionCreateForm
@@ -83,7 +88,6 @@ class TransactionCreateView(LoginRequiredMixin,BaseUserPassesTestMixin, CreateVi
         kwargs['user'] = self.request.user
         return kwargs
 
-
 class TransactionDetailView(LoginRequiredMixin,BaseUserPassesTestMixin, DetailView):
     template_name = 'transactions/detail.html'
     model = Transaction
@@ -96,7 +100,6 @@ class TransactionDetailView(LoginRequiredMixin,BaseUserPassesTestMixin, DetailVi
             return Transaction.objects.filter(created_by=self.request.user)
         else:
             return Transaction.objects.none()
-
 
 class TransactionUpdateView(LoginRequiredMixin,BaseUserPassesTestMixin, UpdateView):
     template_name ='transactions/update.html'
@@ -118,7 +121,6 @@ class TransactionUpdateView(LoginRequiredMixin,BaseUserPassesTestMixin, UpdateVi
         kwargs['user'] = self.request.user
         return kwargs
     
-
 class TransactionDeleteView(LoginRequiredMixin,BaseUserPassesTestMixin, DeleteView):
     template_name ='transactions/delete.html'
     model = Transaction
@@ -161,48 +163,25 @@ class TransactionDeleteView(LoginRequiredMixin,BaseUserPassesTestMixin, DeleteVi
         messages.error(self.request, msg)
         return HttpResponseRedirect(reverse_lazy('transactions-list'))
 
-
 class BankTransactionListView(LoginRequiredMixin,BaseUserPassesTestMixin, BaseListView):
     template_name ='transactions/bank_transaction_list.html'
     model = BankTransaction
     table_class = BankTransactionTable
     filterset_class = BankTransactionTableFilter
-    context_filter_name = 'filter'
-    context_table_name = 'table'
-    paginate_by = 10
 
+    #Export options
     table_class_export = BankTransactionTableExport
     export_filename = None
-
-    def get(self, request,*args, **kwargs):
-        self.object_list = self.get_queryset(*args, **kwargs)
-        context = self.get_context_data(*args, **kwargs)
-
-        #Exporting to csv
-        exported, response = self.get_export_response(request)
-        if exported:
-            return response
-
-        return render(request, self.template_name, context)
-
-    def get_queryset(self, *args, **kwargs):
-        filters = {}
-        return super(BankTransactionListView, self).get_queryset(**filters)
 
     def get_context_data(self,*args, **kwargs):
         queryset = self.get_queryset(**kwargs)
         context = super(BankTransactionListView, self).get_context_data(queryset)
-        context['transaction_types']=tr_models.TRANSACTION_TYPE
-        context['transaction_statuses']=tr_models.BANK_TRANSACTION_STATUS
-        if not self.request.GET.get('type') :
-            context['table_actions'] = tr_models.get_transaction_assignment_action_all(as_items=True)
-        else:
-            context['table_actions'] = tr_models.get_transaction_assignment_action_by_type(self.request.GET.get('type'), as_items=True)
-
-        context['total_credit'] = queryset.filter(type='credit').aggregate(Sum('amount'))['amount__sum']
-        context['total_debit'] = queryset.filter(type='debit').aggregate(Sum('amount'))['amount__sum']
+        context['transaction_types']=TRANSACTION_TYPE
+        context['transaction_statuses']=BANK_TRANSACTION_STATUS
+        type_get = self.request.GET.get('type')
+        context['table_actions'] = get_transaction_assignment_action_by_type(type_get, as_items=True) if type_get else get_transaction_assignment_action_all(as_items=True)
+        
         return context
-
 
 class BankTransactionDetailView(LoginRequiredMixin,BaseUserPassesTestMixin, DetailView):
     template_name = 'transactions/bank_transaction_detail.html'
@@ -217,7 +196,6 @@ class BankTransactionDetailView(LoginRequiredMixin,BaseUserPassesTestMixin, Deta
         # else:
         #     return BankTransaction.objects.none()
         return BankTransaction.objects.filter(id = self.kwargs['id'])
-
 
 class BankTransactionImportView(LoginRequiredMixin,BaseUserPassesTestMixin, View):
     template_name = 'transactions/bank_transaction_import.html'
@@ -251,7 +229,6 @@ class BankTransactionImportView(LoginRequiredMixin,BaseUserPassesTestMixin, View
 
         messages.error(request, 'Something wrong with the input fields')
         return render(request, self.template_name,{'form':form})
-
 
 class BankTransactionAssignView(LoginRequiredMixin,BaseUserPassesTestMixin, View):
     template_name = 'transactions/bank_transaction_assign.html'
@@ -320,7 +297,6 @@ class BankTransactionAssignView(LoginRequiredMixin,BaseUserPassesTestMixin, View
         }
         return context
 
-
 class BankTransactionMultipleAssignView(LoginRequiredMixin,BaseUserPassesTestMixin, View):
     template_name = 'transactions/bank_transaction_assign_multiple.html'
     model = BankTransaction
@@ -363,7 +339,6 @@ class BankTransactionMultipleAssignView(LoginRequiredMixin,BaseUserPassesTestMix
     def get_queryset(self, *args, **kwargs):
         self.object_list = BankTransaction.objects.filter(id__in=kwargs['selections'])
         return self.object_list
-
 
 class BankTransactionMultipleAssignConfirmView(LoginRequiredMixin,BaseUserPassesTestMixin, View):
 

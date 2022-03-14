@@ -77,43 +77,47 @@
             </a>
           </li>
           
-          {% url 'expenses-list' as url %}
-            <li class="nav-item {% if request.path == url %}menu-open{% endif %}">
-              <a href="{% url 'expenses-list'%}" class="nav-link">
-                <i class="nav-icon far fa-money-bill-alt"></i>
-                <p>
-                  Expenses
-                </p>
-              </a>
-            </li>
-            {% url 'transactions-list' as url %}
-            <li class="nav-item {% if request.path == url %}menu-open{% endif %}">
-              <a href="{% url 'transactions-list'%}" class="nav-link">
-                <i class="nav-icon far fa-list-alt"></i>
-                <p>
-                  Transactions
-                </p>
-              </a>
-            </li>
+          
+          {% if request.user.is_staff %}
+              {% url 'expenses-list' as url %}
+              <li class="nav-item {% if request.path == url %}menu-open{% endif %}">
+                  <a href="{% url 'expenses-list'%}" class="nav-link">
+                    <i class="nav-icon far fa-money-bill-alt"></i>
+                    <p>
+                      Expenses
+                    </p>
+                  </a>
+              </li>
+              {% url 'transactions-list' as url %}
+              <li class="nav-item {% if request.path == url %}menu-open{% endif %}">
+                  <a href="{% url 'transactions-list'%}" class="nav-link">
+                    <i class="nav-icon far fa-list-alt"></i>
+                    <p>
+                      Transactions
+                    </p>
+                  </a>
+              </li>
 
-            {% url 'bank-transaction-list' as url %}
-            <li class="nav-item {% if request.path == url %}menu-open{% endif %}">
-              <a href="{% url 'bank-transaction-list'%}" class="nav-link">
-                <i class="nav-icon far fa-list-alt"></i>
-                <p>
-                  Bank Transactions
-                </p>
-              </a>
-            </li>
-            {% url 'members-list' as url %}
-            <li class="nav-item">
-              <a href="{% url 'members-list' %}" class="nav-link">
-                <i class="nav-icon fas fa-users"></i>
-                <p>
-                  Members
-                </p>
-              </a>
-            </li>
+              {% url 'bank-transaction-list' as url %}
+              <li class="nav-item {% if request.path == url %}menu-open{% endif %}">
+                  <a href="{% url 'bank-transaction-list'%}" class="nav-link">
+                    <i class="nav-icon far fa-list-alt"></i>
+                    <p>
+                      Bank Transactions
+                    </p>
+                  </a>
+              </li>
+              {% url 'members-list' as url %}
+              <li class="nav-item">
+                  <a href="{% url 'members-list' %}" class="nav-link">
+                    <i class="nav-icon fas fa-users"></i>
+                    <p>
+                      Members
+                    </p>
+                  </a>
+              </li>
+          {% endif %}
+            
             
         </ul>
       </nav>

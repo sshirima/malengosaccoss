@@ -39,7 +39,6 @@ class ExpenseListView(LoginRequiredMixin,BaseUserPassesTestMixin, ListView):
         RequestConfig(self.request, paginate={"per_page": 10}).configure(table)
         context['filter']=filter
         context['table']=table
-        context['total_amount'] = queryset.aggregate(Sum('transaction__amount'))['transaction__amount__sum']
 
         return context
 

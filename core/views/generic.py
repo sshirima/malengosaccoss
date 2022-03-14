@@ -1,11 +1,29 @@
 from django.views.generic import ListView, DetailView, UpdateView
 from django_tables2 import RequestConfig
 from django_tables2.export.export import TableExport
+from django.shortcuts import  render
 
 from core.utils import get_filename_with_timestamps
 
 class BaseListView(ListView):
-    export_filename = None
+
+    context_filter_name = 'filter'
+    context_table_name = 'table'
+    paginate_by = 10
+
+    #Export file
+    export_filename = 'file'
+
+    def get(self, request,*args, **kwargs):
+        self.object_list = self.get_queryset(*args, **kwargs)
+        context = self.get_context_data(*args, **kwargs)
+
+        #Exporting to csv
+        exported, response = self.get_export_response(request)
+        if exported:
+            return response
+
+        return render(request, self.template_name, context)
 
     def get_queryset(self, *args, **kwargs):
 

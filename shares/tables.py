@@ -19,40 +19,63 @@ class StatusColumn(django_tables2.Column):
         else :
             return mark_safe('<span class="badge badge-success">{}</span>'.format(value))
 
-
 class ShareTable(django_tables2.Table):
     amount = django_tables2.Column(accessor='transaction.amount', verbose_name='Amount')
     description = django_tables2.Column(accessor='description', verbose_name='Description')
-    reference = django_tables2.Column(accessor='transaction.description', verbose_name='Reference Transaction')
     status = StatusColumn(accessor='status', verbose_name = "Status")
     owner = django_tables2.Column(accessor='owner', verbose_name='Owned By')
-    # date_created = django_tables2.Column(accessor='date_created', verbose_name = "Date Created")
-    edit_delete = django_tables2.TemplateColumn(template_name ='partials/_btn_update_delete.html')
-    
+    date_created = django_tables2.Column(accessor='date_created', verbose_name = "Date Created")
 
     class Meta:
         model = Share
         attrs = {'class': 'table '}
         template_name = 'django_tables2/bootstrap.html'
         fields = ('amount',)
-        sequence = ('amount', 'description','reference','status','owner','edit_delete')
+        sequence = ('amount','owner', 'description','status','date_created')
 
     def render_owner(self,record):
         return '{} {}'.format(record.owner.first_name, record.owner.last_name)
+
+    def render_description(self,record):
+        return record.description[:20]+'...'
     
     def render_amount(self,record):
-        return mark_safe('<a href="{}">{}</a>'.format(reverse("share-detail", args=[record.id]), record.transaction.amount))
-
-    def render_reference(self,record):
-        return mark_safe('<a href="{}">{}</a>'.format(reverse("transaction-detail", args=[record.transaction.id]), record.transaction.description))
+        return mark_safe('<a href="{}">{}</a>'.format(reverse("share-detail", args=[record.id]),  '{:0,.0f}'.format(record.transaction.amount)))
 
 
-class ShareTableFilter(django_filters.FilterSet):
-    description = django_filters.CharFilter(label='Description', method='search_description')
-
-    def search_description(self, qs, name, value):
-        return qs.filter(Q(description__icontains=value))
+class ShareTableExport(django_tables2.Table):
+    amount = django_tables2.Column(accessor='transaction.amount', verbose_name='Amount')
+    description = django_tables2.Column(accessor='description', verbose_name='Description')
+    status = django_tables2.Column(accessor='status', verbose_name = "Status")
+    owner = django_tables2.Column(accessor='owner', verbose_name='Owner')
+    date_created = django_tables2.Column(accessor='date_created', verbose_name = "Date Created")
 
     class Meta:
         model = Share
-        fields = ['description']
+        fields = ('amount',)
+        sequence = ('amount','owner', 'description','status','date_created')
+
+    def value_owner(self,record):
+        return record.owner.get_full_name()
+
+    def value_date_created(self,record):
+        return record.date_created.replace(tzinfo=None)
+
+class ShareTableFilter(django_filters.FilterSet):
+    description = django_filters.CharFilter(label='Description', method='search_description')
+    start_date = django_filters.CharFilter(label='Start Date', method='search_start_date')
+    end_date = django_filters.CharFilter(label='End Date', method='search_end_date')
+
+    def search_description(self, qs, name, value):
+        return qs.filter(
+            Q(description__icontains=value)|
+            Q(owner__first_name__icontains=value)|
+            Q(owner__middle_name__icontains=value)|
+            Q(owner__last_name__icontains=value)
+            )
+
+    def search_start_date(self, qs, name, value):
+        return qs.filter(Q(date_created__gte=value))
+
+    def search_end_date(self, qs, name, value):
+        return qs.filter(Q(date_created__lte=value))

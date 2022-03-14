@@ -74,7 +74,6 @@ class BankTransactionTable(django_tables2.Table):
             return mark_safe('<input type="checkbox" name="selection" value="{}">'.format(record.id))
         return ''
 
-
 class BankTransactionTableExport(django_tables2.Table):
     
     amount = CommaSeparatedNumberColumn(accessor='amount', verbose_name='Amount')
@@ -114,26 +113,6 @@ class BankTransactionFlatTable(django_tables2.Table):
         
         return mark_safe('<input type="hidden" onclick="toggle(this)" name="selection" value="{}"/>{}'.format(record.id, '{:0,.0f}'.format(record.amount)))#'{:0,.0f}'.format(record.amount)
 
-class TransactionTable(django_tables2.Table):
-    amount = django_tables2.Column(accessor='reference.amount', verbose_name='Amount(Tsh)')
-    description = django_tables2.Column(accessor='description', verbose_name='Description')
-    type = StatusColumn(accessor='type', verbose_name='Type')
-    status = StatusColumn(accessor='status', verbose_name = "Status")
-    created_by = django_tables2.Column(accessor='created_by.email', verbose_name = "Created By")
-    date_created = django_tables2.Column(accessor='date_updated', verbose_name = "Date Updated")
-    #edit_delete = django_tables2.TemplateColumn(template_name ='partials/_update_delete.html')
-    
-
-    class Meta:
-        model = Transaction
-        attrs = {'class': 'table '}
-        template_name = 'django_tables2/bootstrap.html'
-        fields = ('amount',)
-        sequence = ('amount','description','status','type','created_by','date_created')
-    
-    def render_amount(self,record):
-        return mark_safe('<a href="{}">{}</a>'.format(reverse("transaction-detail", args=[record.id]), '{:0,.0f}'.format(record.amount)))
-
 class BankTransactionTableFilter(django_filters.FilterSet):
     description = django_filters.CharFilter(label='Description', method='search_description')
     start_date = django_filters.CharFilter(label='Start Date', method='search_start_date')
@@ -142,7 +121,7 @@ class BankTransactionTableFilter(django_filters.FilterSet):
     status = django_filters.CharFilter(label='Status', method='search_status')
 
     def search_description(self, qs, name, value):
-        return qs.filter(Q(description__icontains=value))
+        return qs.filter(Q(description__icontains=value)|Q(amount__icontains=value))
 
     def search_start_date(self, qs, name, value):
         return qs.filter(Q(date_trans__gte=value))
@@ -160,12 +139,64 @@ class BankTransactionTableFilter(django_filters.FilterSet):
         model = BankTransaction
         fields = ['description', 'start_date', 'end_date', 'type','status']
 
-class TransactionTableFilter(django_filters.FilterSet):
-    description = django_filters.CharFilter(label='Description', method='search_description')
-
-    def search_description(self, qs, name, value):
-        return qs.filter(Q(description__icontains=value))
+class TransactionTable(django_tables2.Table):
+    amount = django_tables2.Column(accessor='reference__amount', verbose_name='Amount')
+    description = django_tables2.Column(accessor='description', verbose_name='Description')
+    type = StatusColumn(accessor='type', verbose_name='Type')
+    status = StatusColumn(accessor='status', verbose_name = "Status")
+    created_by = django_tables2.Column(accessor='created_by.email', verbose_name = "Created By")
+    date_created = django_tables2.Column(accessor='date_created', verbose_name = "Date Created ")
+    
 
     class Meta:
         model = Transaction
-        fields = ['description']
+        attrs = {'class': 'table '}
+        template_name = 'django_tables2/bootstrap.html'
+        fields = ('amount',)
+        sequence = ('amount','description','status','type','created_by','date_created')
+    
+    def render_amount(self,record):
+        return mark_safe('<a href="{}">{}</a>'.format(reverse("transaction-detail", args=[record.id]), '{:0,.0f}'.format(record.amount)))
+
+class TransactionTableExport(django_tables2.Table):
+    amount = django_tables2.Column(accessor='reference.amount', verbose_name='Amount')
+    description = django_tables2.Column(accessor='description', verbose_name='Description')
+    type = django_tables2.Column(accessor='type', verbose_name='Type')
+    status = django_tables2.Column(accessor='status', verbose_name = "Status")
+    created_by = django_tables2.Column(accessor='created_by.email', verbose_name = "Created By")
+    date_created = django_tables2.Column(accessor='date_created', verbose_name = "Date Created")
+    
+
+    class Meta:
+        model = Transaction
+        fields = ('amount','description','status','type','created_by','date_created')
+        sequence = ('amount','description','status','type','created_by','date_created')
+
+    def value_created_by(self,record):
+        return record.created_by.email
+
+    def value_date_created(self,record):
+        return record.date_created.replace(tzinfo=None)
+
+class TransactionTableFilter(django_filters.FilterSet):
+
+    description = django_filters.CharFilter(label='Description', method='search_description')
+    start_date = django_filters.CharFilter(label='Start Date', method='search_start_date')
+    end_date = django_filters.CharFilter(label='End Date', method='search_end_date')
+    type = django_filters.CharFilter(label='Type', method='search_type')
+    status = django_filters.CharFilter(label='Status', method='search_status')
+
+    def search_description(self, qs, name, value):
+        return qs.filter(Q(description__icontains=value)|Q(reference__amount__icontains=value))
+
+    def search_start_date(self, qs, name, value):
+        return qs.filter(Q(date_created__gte=value))
+
+    def search_end_date(self, qs, name, value):
+        return qs.filter(Q(date_created__lte=value))
+
+    def search_type(self, qs, name, value):
+        return qs.filter(Q(type__iexact=value))
+
+    def search_status(self, qs, name, value):
+        return qs.filter(Q(status__iexact=value))

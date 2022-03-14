@@ -8,6 +8,7 @@ from django.contrib import messages
 from django.contrib import auth
 from django.contrib.auth.forms import PasswordChangeForm
 from authentication.models import User
+from core.views.generic import BaseListView
 from django_tables2 import RequestConfig
 from django.db.models import Sum
 from django.views.generic import CreateView, ListView, DetailView
@@ -21,32 +22,33 @@ from shares.models import Share
 from savings.models import Saving
 from savings.tables import SavingTable, SavingTableFilter
 from loans.tables import LoanRepaymentTable, LoanRepaymentTableFilter
-from .models import Member
-from .tables import MemberTable, MemberTableFilter
+from .models import Member, GENDER_STATUS
+from .tables import MemberTable, MemberTableExport, MemberTableFilter
 from shares.tables import ShareTable, ShareTableFilter
 from authentication.permissions import BaseUserPassesTestMixin
 
-class MemberListView(LoginRequiredMixin,BaseUserPassesTestMixin, ListView):
+class MemberListView(LoginRequiredMixin,BaseUserPassesTestMixin, BaseListView):
     template_name ='members/member_list.html'
     model = Member
-    
     table_class = MemberTable
-    table_data = Member.objects.all()
     filterset_class = MemberTableFilter
     context_filter_name = 'filter'
+    context_table_name = 'table'
+    paginate_by = 10
+
+    table_class_export = MemberTableExport
+    export_filename = 'Members'
+
+    def get_queryset(self, *args, **kwargs):
+        filters = {}
+        return super(MemberListView, self).get_queryset(**filters)
 
     def get_context_data(self,*args, **kwargs):
-        context = super(MemberListView, self).get_context_data()
         queryset = self.get_queryset(**kwargs)
-        filter = MemberTableFilter(self.request.GET, queryset=queryset)
-        table = MemberTable(filter.qs)
-        RequestConfig(self.request, paginate={"per_page": 10}).configure(table)
-        context['filter']=filter
-        context['table']=table
-        context['total_members'] = queryset.count()
-
+        context = super(MemberListView, self).get_context_data(queryset)
+        context['genders']= GENDER_STATUS
+        context['member_status'] = (('active', 'Active'),('inactive', 'Inactive'))
         return context
-
 
 class MemberDetailView(LoginRequiredMixin,BaseUserPassesTestMixin, DetailView):
     template_name = 'members/member_detail.html'
@@ -130,7 +132,6 @@ class MemberDetailView(LoginRequiredMixin,BaseUserPassesTestMixin, DetailView):
 
         return context
 
-
 class MemberSendActivationLinkView(LoginRequiredMixin,BaseUserPassesTestMixin,View):
 
     def get(self, request, id):
@@ -163,7 +164,6 @@ class MemberSendActivationLinkView(LoginRequiredMixin,BaseUserPassesTestMixin,Vi
         messages.success(request, 'Account activation has been sent to: {}'.format(user.email))
         return redirect(reverse('member-detail', args=[member.id]))
 
-
 class MemberSendPasswordResetLinkView(LoginRequiredMixin,BaseUserPassesTestMixin,View):
 
     def get(self, request, id):
@@ -195,16 +195,3 @@ class MemberSendPasswordResetLinkView(LoginRequiredMixin,BaseUserPassesTestMixin
         
         messages.success(request, 'Password reset link has been sent')
         return redirect(reverse('member-detail', args=[member.id]))
-
-        # registrationService = RegistrationService(request)
-
-        # activation_url = registrationService.create_activation_url(user)
-
-        # activation_link_sent = registrationService.send_activation_email(user, activation_url)
-        
-        # if not activation_link_sent:
-        #     messages.error(request, 'Fails to send activation link, Please try agail later')
-        #     return redirect(reverse('member-detail', member.id))
-
-        # messages.success(request, 'Account activation has been sent to: {}'.format(user.email))
-        # return redirect(reverse('member-detail', args=[member.id]))

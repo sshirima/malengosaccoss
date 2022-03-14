@@ -53,7 +53,6 @@ class LoanCreateFromBankTransactionForm(forms.ModelForm):
 
         return duration
 
-
 class LoanRepaymentMemberSelectForm(forms.Form):
 
     member = forms.CharField(max_length=50,required=True)
@@ -69,8 +68,6 @@ class LoanRepaymentMemberSelectForm(forms.Form):
             raise forms.ValidationError("No loan exist for member: "+member_id)
 
         return member_id
-
-
 
 class LoanRepaymentCreateForm(forms.Form):
 

@@ -26,7 +26,7 @@ function onChangeMember() {
           loanarea.innerHTML = `
           <label for="loan" class="col-sm-2 col-form-label">Select Loan </label>
           <div class="col-sm-10" id="loanarea">
-            <select name="loan" class="form-control" required> 
+            <select name="loan" class="form-control" required > 
               ${options}
             </select>
           </div>  

@@ -122,11 +122,10 @@
     <div class="col-sm-12 col-md-">
       {% include "partials/_form_errors.html" %}
       <div class="form-group row">
-        <label for="id_type" class="col-sm-1">Actions</label>
-      
+        <label for="id_action" class="col-sm-2">Actions</label>
         <div class="form-group col-sm-10 mb-10">
           <div class="input-group input-group-sm ">
-            <select name="action" class="custom-select form-control form-control-sm" id="id_type" required>
+            <select name="action" class="custom-select form-control form-control-sm" id="id_action" required>
               <option ></option>
               {% for key, value in table_actions %}
               <option value="{{key}}">{{value}}</option>

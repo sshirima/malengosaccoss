@@ -18,7 +18,7 @@ from django.db.models import Sum
 
 from .forms import ShareCreateForm, ShareUpdateForm, ShareAuthorizationForm
 from .models import Share
-from .tables import ShareTable, ShareTableFilter
+from .tables import ShareTable, ShareTableExport, ShareTableFilter
 from core.views.generic import BaseListView, BaseDetailView, BaseUpdateView
 # Create your views here.
 
@@ -28,9 +28,11 @@ class ShareListView(LoginRequiredMixin, BaseListView):
     model = Share
     table_class = ShareTable
     filterset_class = ShareTableFilter
-    context_filter_name = 'filter'
-    context_table_name = 'table'
-    paginate_by = 10
+
+    #Export options
+    table_class_export = ShareTableExport
+    export_filename = 'shares'
+
 
     def get_queryset(self, *args, **kwargs):
         filters = {}
@@ -40,7 +42,7 @@ class ShareListView(LoginRequiredMixin, BaseListView):
     def get_context_data(self,*args, **kwargs):
         queryset = self.get_queryset(**kwargs)
         context = super(ShareListView, self).get_context_data(queryset)
-        context['total_share'] = queryset.aggregate(Sum('transaction__amount'))['transaction__amount__sum']
+        # context['total_share'] = queryset.aggregate(Sum('transaction__amount'))['transaction__amount__sum']
         return context
     
 

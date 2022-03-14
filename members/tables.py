@@ -39,13 +39,45 @@ class MemberTable(django_tables2.Table):
     def render_fullname(self,record):
         return mark_safe('<a href="{}">{}</a>'.format(reverse("member-detail", args=[record.id]), record.get_full_name()))
 
-
-class MemberTableFilter(django_filters.FilterSet):
-    email = django_filters.CharFilter(label='Email', method='search_email')
-
-    def search_email(self, qs, name, value):
-        return qs.filter(Q(user__email__icontains=value))
+class MemberTableExport(django_tables2.Table):
+    first_name = django_tables2.Column(accessor='first_name', verbose_name='First Name')
+    middle_name = django_tables2.Column(accessor='middle_name', verbose_name='Middle Name')
+    last_name = django_tables2.Column(accessor='last_name', verbose_name='Last Name')
+    gender = django_tables2.Column(accessor='gender', verbose_name='Gender')
+    mobile_number = django_tables2.Column( accessor='mobile_number', verbose_name='Mobile Number')
+    is_active = django_tables2.Column( accessor='is_active', verbose_name='Is Active', )
+    is_staff = django_tables2.Column( accessor='user__is_staff', verbose_name='Is Staff')
+    email = django_tables2.Column(accessor='user__email', verbose_name = "Email")
+    
 
     class Meta:
         model = Member
-        fields = ['email']
+        fields = ('first_name', 'middle_name','last_name','gender','mobile_number','is_active','is_staff','email')
+        sequence = ('first_name', 'middle_name','last_name','gender','mobile_number','is_active','is_staff','email')
+
+
+class MemberTableFilter(django_filters.FilterSet):
+    name = django_filters.CharFilter(label='Name', method='search_names')
+    gender = django_filters.CharFilter(label='Gender', method='search_gender')
+    status = django_filters.CharFilter(label='Status', method='search_status')
+
+
+    def search_names(self, qs, name, value):
+        return qs.filter(
+            Q(first_name__icontains=value)|
+            Q(middle_name__icontains=value)|
+            Q(last_name__icontains=value)|
+            Q(user__email__icontains=value)|
+            Q(mobile_number__icontains=value)
+            )
+
+    def search_gender(self, qs, name, value):
+        return qs.filter(Q(gender__exact=value))
+
+    def search_status(self, qs, name, value):
+        isActive = True if value == 'active' else False
+        return qs.filter(Q(is_active__exact=isActive))
+
+    class Meta:
+        model = Member
+        fields = ['name','gender','status']

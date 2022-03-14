@@ -27,7 +27,6 @@ class TransactionCreateForm(forms.ModelForm):
             raise forms.ValidationError("Transaction exists with same reference")
         return reference
     
-
 class TransactionUpdateForm(forms.ModelForm):
    
 
@@ -41,7 +40,6 @@ class TransactionUpdateForm(forms.ModelForm):
 
 class BankStatementImportForm(forms.Form):
     import_file = forms.FileField(validators=[FileExtensionValidator(['xlsx'])])
-
 
 class BankTransactionAssignForm(forms.Form):
 
@@ -131,7 +129,6 @@ class BankTransactionMultipleAssignForm(forms.Form):
                 for error in field.errors:
                     messages.error(request, '{} : {}'.format(field.label, error))
 
-
 class BankTransactionMultipleAssignShareForm(BankTransactionMultipleAssignForm):
 
     owner = forms.CharField(required=True)
@@ -143,7 +140,6 @@ class BankTransactionMultipleAssignShareForm(BankTransactionMultipleAssignForm):
             raise forms.ValidationError("Owner does not exists")
         return owner
 
-
 class BankTransactionMultipleAssignSavingForm(BankTransactionMultipleAssignForm):
 
     owner = forms.CharField(required=True)
@@ -154,7 +150,6 @@ class BankTransactionMultipleAssignSavingForm(BankTransactionMultipleAssignForm)
         if not Member.objects.filter(id=owner).exists():
             raise forms.ValidationError("Owner does not exists")
         return owner
-
 
 class BankTransactionMultipleAssignLoanRepaymentForm(BankTransactionMultipleAssignForm):
 
@@ -183,7 +178,6 @@ class BankTransactionMultipleAssignLoanRepaymentForm(BankTransactionMultipleAssi
         if not Loan.objects.filter(id=loan).exists():
             raise forms.ValidationError("Selected owner not exist")
         return loan
-
 
 class BankTransactionMultipleAssignLoanForm(BankTransactionMultipleAssignForm):
 
@@ -220,7 +214,6 @@ class BankTransactionMultipleAssignLoanForm(BankTransactionMultipleAssignForm):
             raise forms.ValidationError("Greater than max limit: {}".format(duration))
 
         return duration
-
 
 class BankTransactionMultipleAssignExpenseForm(BankTransactionMultipleAssignForm):
 

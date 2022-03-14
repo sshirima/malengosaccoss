@@ -18,31 +18,46 @@ class StatusColumn(django_tables2.Column):
         else :
             return mark_safe('<span class="badge badge-success">{}</span>'.format(value))
 
-
 class SavingTable(django_tables2.Table):
     amount = django_tables2.Column(accessor='transaction.amount', verbose_name='Amount')
     description = django_tables2.Column(accessor='description', verbose_name='Description')
-    reference = django_tables2.Column(accessor='transaction.description', verbose_name='Reference Transaction')
     status = StatusColumn(accessor='status', verbose_name = "Status")
     owner = django_tables2.Column(accessor='owner', verbose_name='Owned By')
-    edit_delete = django_tables2.TemplateColumn(template_name ='partials/_btn_update_delete_saving.html')
-    
+    date_created = django_tables2.Column(accessor='date_created', verbose_name = "Date Created")
 
     class Meta:
         model = Saving
         attrs = {'class': 'table '}
         template_name = 'django_tables2/bootstrap.html'
         fields = ('amount',)
-        sequence = ('amount', 'description','reference','owner','status','edit_delete')
-    
-    def render_amount(self,record):
-        return mark_safe('<a href="{}">{}</a>'.format(reverse("saving-detail", args=[record.id]), record.transaction.amount))
+        sequence = ('amount','owner', 'description','status','date_created')
 
     def render_owner(self,record):
         return '{} {}'.format(record.owner.first_name, record.owner.last_name)
 
-    def render_reference(self,record):
-        return mark_safe('<a href="{}">{}</a>'.format(reverse("transaction-detail", args=[record.transaction.id]), record.transaction.description))
+    def render_description(self,record):
+        return record.description[:20]+'...'
+    
+    def render_amount(self,record):
+        return mark_safe('<a href="{}">{}</a>'.format(reverse("saving-detail", args=[record.id]),  '{:0,.0f}'.format(record.transaction.amount)))
+
+class SavingTableExport(django_tables2.Table):
+    amount = django_tables2.Column(accessor='transaction.amount', verbose_name='Amount')
+    description = django_tables2.Column(accessor='description', verbose_name='Description')
+    status = django_tables2.Column(accessor='status', verbose_name = "Status")
+    owner = django_tables2.Column(accessor='owner', verbose_name='Owner')
+    date_created = django_tables2.Column(accessor='date_created', verbose_name = "Date Created")
+
+    class Meta:
+        model = Saving
+        fields = ('amount',)
+        sequence = ('amount','owner', 'description','status','date_created')
+
+    def value_owner(self,record):
+        return record.owner.get_full_name()
+
+    def value_date_created(self,record):
+        return record.date_created.replace(tzinfo=None)
 
 
 class SavingTableFilter(django_filters.FilterSet):
