@@ -2,44 +2,33 @@ from django.shortcuts import render
 from django.views.generic import CreateView, ListView, UpdateView, DeleteView, DetailView, View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from authentication.models import User
-from django_tables2 import RequestConfig
-from django.db.models import Sum
+from core.views.generic import BaseListView
 from django.urls.base import reverse_lazy
 from django.http import HttpResponseRedirect
 from django.contrib import messages
 
 from expenses.forms import ExpenseCreateForm, ExpenseUpdateForm
 from expenses.models import Expense
-from expenses.tables import ExpenseTable, ExpenseTableFilter
+from expenses.tables import ExpenseTable, ExpenseTableExport, ExpenseTableFilter
 from expenses.services import ExpenseCrudService
 from members.models import Member
 from transactions.models import BankTransaction
 from authentication.permissions import BaseUserPassesTestMixin
 
 # Create your views here.
-class ExpenseListView(LoginRequiredMixin,BaseUserPassesTestMixin, ListView):
-    template_name ='expenses/expense-list.html'
+class ExpenseListView(LoginRequiredMixin,BaseUserPassesTestMixin, BaseListView):
+    template_name ='expenses/expense_list.html'
     model = Expense
-    
     table_class = ExpenseTable
-    table_data = Expense.objects.all()
     filterset_class = ExpenseTableFilter
-    context_filter_name = 'filter'
 
-    def get_queryset(self, *args, **kwargs):
-        qs = Expense.objects.filter(transaction__created_by = self.request.user)
-        self.filter = self.filterset_class(self.request.GET, queryset=qs)
-        return self.filter.qs
+    #Export options
+    table_class_export = ExpenseTableExport
+    export_filename = 'expenses'
 
     def get_context_data(self,*args, **kwargs):
-        context = super(ExpenseListView, self).get_context_data()
         queryset = self.get_queryset(**kwargs)
-        filter = ExpenseTableFilter(self.request.GET, queryset=queryset)
-        table = ExpenseTable(filter.qs)
-        RequestConfig(self.request, paginate={"per_page": 10}).configure(table)
-        context['filter']=filter
-        context['table']=table
-
+        context = super(ExpenseListView, self).get_context_data(queryset)
         return context
 
 

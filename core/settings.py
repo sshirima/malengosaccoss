@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'bootstrap3',
     'django.contrib.humanize',
     'members',
+    'reports'
 ]
 
 MIDDLEWARE = [

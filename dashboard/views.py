@@ -46,7 +46,7 @@ def get_shares(request):
     if request.method == "GET":
         # if request.user.is_authenticated:
             # member_id = json.loads(request.body).get('owner_id')
-            shares = Share.objects.values(month = F('transaction__reference__date_trans__day')).annotate(sum=Sum('transaction__amount'))
+            shares = Share.objects.values(month = F('transaction__reference__date_trans__month')).annotate(sum=Sum('transaction__amount'))
             # loans = shares.values('id','principle', 'type')
             return JsonResponse(list(shares), safe=False)
             
@@ -58,7 +58,7 @@ def get_savings(request):
     if request.method == "GET":
         # if request.user.is_authenticated:
             # member_id = json.loads(request.body).get('owner_id')
-            saving = Saving.objects.values(month = F('transaction__reference__date_trans__day')).annotate(sum=Sum('transaction__amount'))
+            saving = Saving.objects.values(month = F('transaction__reference__date_trans__month')).annotate(sum=Sum('transaction__amount'))
             # loans = shares.values('id','principle', 'type')
             return JsonResponse(list(saving), safe=False)
             

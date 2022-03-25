@@ -20,9 +20,8 @@ class LoanTable(django_tables2.Table):
     
     principle = django_tables2.Column(accessor='principle', verbose_name='Principle')
     duration = django_tables2.Column(accessor='duration', verbose_name='Duration')
-    interest = django_tables2.Column(accessor='interest_amount', verbose_name='Interest')
+    date_trans = django_tables2.Column(accessor='transaction.reference.date_trans', verbose_name = "Date Trans")
     member = django_tables2.Column(accessor='status', verbose_name = "Belongs To")
-    amount_issued = django_tables2.Column(accessor='amount_issued', verbose_name = "Issued Amount")
     installment_amount = django_tables2.Column(accessor='installment_amount', verbose_name = "Installment Amount")
     status = StatusColumn(accessor='status', verbose_name = "Status")
     type = django_tables2.Column(accessor='type', verbose_name = "Type")
@@ -32,8 +31,8 @@ class LoanTable(django_tables2.Table):
         model = Loan
         attrs = {'class': 'table '}
         template_name = 'django_tables2/bootstrap.html'
-        fields = ('principle',)
-        sequence = ('principle','interest','amount_issued','installment_amount','duration','member','status','type')
+        fields = ('principle','installment_amount','duration','member','date_trans','status','type')
+        sequence = ('principle','installment_amount','member','date_trans','duration','status','type')
     
     def render_principle(self,record):
         return mark_safe('<a href="{}">{}</a>'.format(reverse("loan-detail", args=[record.id]), '{:0,.0f}'.format(record.principle)))

@@ -25,7 +25,7 @@ class Share(models.Model):
         return str(self.transaction.amount)
 
     class Meta:
-        ordering = ['-date_created']
+        ordering = ['-transaction__reference__date_trans']
 
     def get_absolute_url(self):
         return reverse('share-detail', args=[self.id])

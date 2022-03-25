@@ -1,7 +1,9 @@
 from django.test import TestCase
+from members.models import Member
 from shares.services import ShareCrudService
 
 from transactions.models import BankTransaction
+from transactions.services import BankTransactionAssignmentService
 from .forms import ShareAuthorizationForm, ShareCreateForm
 from authentication.models import User
 from django.urls.base import reverse
@@ -22,6 +24,9 @@ class ShareFormsTest(TestCase):
             'email':'email@domain.com',
             'password1':'jimaya792',
             'password2':'jimaya792',
+            'gender':'male',
+            'mobile_number': '255754710618',
+            'middle_name':'Stephen'
         })
         self.valid_registration_form.is_valid()
         registration_service = RegistrationService(self.response.wsgi_request)
@@ -33,6 +38,10 @@ class ShareFormsTest(TestCase):
         self.user = user
 
     def test_share_create_success(self):
+        member = Member.objects.get(id=self.user.member.id)
+        member.is_active = True
+        member.save()
+
         bank_transaction = BankTransaction.objects.create(
             amount=20000,
             description = 'Description',
@@ -49,13 +58,18 @@ class ShareFormsTest(TestCase):
             'status':'approved',
             'description':'Share description',
             'reference':bank_transaction.id,
-            'owner':self.user.email
+            'owner':member.id
         })
         is_valid = share_create_form.is_valid()
         print(share_create_form.errors)
         self.assertTrue(is_valid)
-
-        share_crud = ShareCrudService()
-        msg, created, share = share_crud.create_share(share_create_form.cleaned_data, self.user)
+        
+        service = BankTransactionAssignmentService()
+        msg, created, saving = service.assign_banktransaction_to_share(
+            bank_transaction.id, 
+            created_by=self.user, 
+            description='', 
+            owner=member.id
+        )
         self.assertTrue(created)
-        self.assertIsNotNone(share)
+        self.assertIsNotNone(saving)

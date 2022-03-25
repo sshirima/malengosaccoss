@@ -1,9 +1,10 @@
 from django.views.generic import ListView, DetailView, UpdateView
 from django_tables2 import RequestConfig
 from django_tables2.export.export import TableExport
-from django.shortcuts import  render
+from django.shortcuts import render
 
 from core.utils import get_filename_with_timestamps
+
 
 class BaseListView(ListView):
 
@@ -11,14 +12,14 @@ class BaseListView(ListView):
     context_table_name = 'table'
     paginate_by = 10
 
-    #Export file
+    # Export file
     export_filename = 'file'
 
-    def get(self, request,*args, **kwargs):
+    def get(self, request, *args, **kwargs):
         self.object_list = self.get_queryset(*args, **kwargs)
         context = self.get_context_data(*args, **kwargs)
 
-        #Exporting to csv
+        # Exporting to csv
         exported, response = self.get_export_response(request)
         if exported:
             return response
@@ -40,9 +41,10 @@ class BaseListView(ListView):
         context = super(BaseListView, self).get_context_data()
         filter = self.filterset_class(self.request.GET, queryset=queryset)
         table = self.table_class(filter.qs)
-        RequestConfig(self.request, paginate={"per_page": self.get_pagination()}).configure(table)
-        context[self.context_filter_name]=filter
-        context[self.context_table_name]=table
+        RequestConfig(self.request, paginate={
+                      "per_page": self.get_pagination()}).configure(table)
+        context[self.context_filter_name] = filter
+        context[self.context_table_name] = table
         return context
 
     def get_pagination(self):
@@ -51,12 +53,12 @@ class BaseListView(ListView):
             return int(pagination)
         return self.paginate_by
 
-
     def get_export_response(self, request, **kwargs):
         try:
             export_format = request.GET.get("_export", None)
             if TableExport.is_valid_format(export_format):
-                filter = self.filterset_class(request.GET, queryset=self.object_list)
+                filter = self.filterset_class(
+                    request.GET, queryset=self.object_list)
                 export_table = self.table_class_export(filter.qs)
                 exporter = TableExport(export_format, export_table)
                 filename = get_filename_with_timestamps(self.export_filename)

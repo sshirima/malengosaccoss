@@ -32,9 +32,6 @@ class MemberListView(LoginRequiredMixin,BaseUserPassesTestMixin, BaseListView):
     model = Member
     table_class = MemberTable
     filterset_class = MemberTableFilter
-    context_filter_name = 'filter'
-    context_table_name = 'table'
-    paginate_by = 10
 
     table_class_export = MemberTableExport
     export_filename = 'Members'

@@ -1,14 +1,17 @@
 import traceback
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import Sum, Count
 from members.models import Member
 
 from transactions.models import BankTransaction, Transaction
 import transactions.models as t_models
-from loans.models import Loan, LoanFormFee, LoanInsuranceFee, LoanInterest, LoanProcessingFee, LoanRepayment
+from loans.models import Loan, LoanFormFee, LoanInsuranceFee, LoanInterest, LoanProcessingFee, LoanRepayment, RepaymentsInterest
+from shares.models import Share
+from savings.models import Saving
 
 
+class LoanCRUDService(): 
 
-class LoanCRUDService():
 
     def create_loan(self, data, creator):
         try:
@@ -213,6 +216,11 @@ class LoanCRUDService():
         except Exception as e:
             print('Error creating loan : {}'.format(str(e)))
             return ('Error creating loan', False, None)
+
+
+    def calculate_interest_amount(self, p, r, t):
+        return (p*(1+ (r*t)))/100
+
     def _change_bank_transaction_status(self, bank_transaction, status):
 
         if bank_transaction:
@@ -221,4 +229,232 @@ class LoanCRUDService():
             return True
 
         return False
+
+
+class LoanObject():
+    principle = None
+    rate = None
+    time = None
+    member = None
+    amount_issued = None
+    form_fee = None
+    insurance_fee = None
+    processing_fee = None
+    date_issued = None
+    interest_amount = None
+    installment_amount = None
+    type = None
+    transaction = None
+
+    def __init__(self, id = None):
+
+        if id is not None:
+            loan = Loan.objects.select_related('member', 'transaction__reference').get(id=id)
+
+            if loan:
+                self.load(loan)
+
+    def load(self, loan):
+        try:
+            self.principle = loan.principle
+            self.rate = loan.interest_rate
+            self.time = loan.duration
+            self.member = loan.member
+            self.date_issued = loan.transaction.reference.date_trans
+            self.amount_issued = loan.amount_issued
+            self.type = loan.type
+            self.insurance_fee = loan.insurance_fee
+            self.form_fee = loan.form_fee
+            self.processing_fee = loan.loan_fee
+            self.transaction = loan.transaction
+
+        except Exception as e:
+            msg = 'Error, loading loan from loan model: {}, {}'.format(e.__traceback__.tb_lineno, str(e))
+            print(msg)
+
+
+
+    def create_new_loan_from_request(self, **kwargs):
+        try:
+            self.principle = kwargs.pop('principle', None)
+            self.time = kwargs.pop('time', None)
+            self.type = kwargs.pop('type', None)
+            member_id = kwargs.pop('member', None)
+            self.rate = self.get_current_interest_rate()
+            #Configured values
+            processing_rate = self.get_current_processing_rate()
+            insurance_rate = self.get_current_insurance_rate()
+            
+
+            #Calculted values
+            self.processing_fee = self.calculate_processing_fee(processing_rate)
+            self.insurance_fee = self.calculate_insurance_fee(insurance_rate)
+            self.interest_amount = self.calculate_interest_amount()
+            self.form_fee = self.get_current_form_fee()
+            self.member = self.get_member(member_id)
+            self.installment_amount = self.calculate_installment_amount()
+            self.amount_issued = self.calculate_amount_issued()
+
+        except Exception as e:
+            msg = 'Error, creating new loan from request: line {}, {}'.format(e.__traceback__.tb_lineno, str(e))
+            print(msg)
+
+    def create_new_loan_from_amount_issued(self, **kwargs):
+        try:
+            self.amount_issued = kwargs.pop('amount_issued', None)
+            self.time = kwargs.pop('time', None)
+            self.type = kwargs.pop('type', None)
+            member_id = kwargs.pop('member', None)
+            self.form_fee = self.get_current_form_fee()
+            self.rate = self.get_current_interest_rate()
+            self.principle = self.calculate_principle_from_issued_amount()
+            #Configured values
+            
+            processing_rate = self.get_current_processing_rate()
+            insurance_rate = self.get_current_insurance_rate()
+
+            #Calculted values
+            self.processing_fee = self.calculate_processing_fee(processing_rate)
+            self.insurance_fee = self.calculate_insurance_fee(insurance_rate)
+            self.interest_amount = self.calculate_interest_amount()
+            self.member = self.get_member(member_id)
+            self.installment_amount = self.calculate_installment_amount()
+            self.amount_issued = self.calculate_amount_issued()
+
+        except Exception as e:
+            msg = 'Error, creating new loan from amount issued,file {}, line {}: {}'.format(e.__traceback__.tb_frame.f_code.co_filename, e.__traceback__.tb_lineno, str(e))
+            print(msg)
+
+    def save_loan_details(self, **kwargs):
+        try:
+            loan = Loan.objects.create(
+                type = self.type,
+                principle = self.principle,
+                duration = self.time,
+                interest_rate = self.rate,
+                status = 'issued',
+                member = self.member,
+                amount_issued = self.amount_issued,
+                loan_fee = self.processing_fee,
+                insurance_fee = self.insurance_fee,
+                form_fee = self.form_fee,
+                interest_amount = self.interest_amount,
+                transaction = self.transaction,
+                installment_amount = self.installment_amount,
+                created_by = kwargs['created_by']
+            )
+
+            return '', True, loan
+
+        except Exception as e:
+            msg = 'Error, saving loan details: {}, {}'.format(e.__traceback__.tb_lineno, str(e))
+            print(msg)
+            return msg, False, None
+
+    def calculate_amount_issued(self):
+        return self.principle - self.form_fee - self.insurance_fee - self.processing_fee
+
+    def calculate_principle_from_issued_amount(self):
+        return ((self.amount_issued + self.form_fee)*100)/98
+
+    def calculate_interest_amount(self):
         
+        return (self.principle*(1+ (self.rate*self.time)))/100
+
+    def calculate_insurance_fee(self, insurance_rate):
+        return self.principle * (insurance_rate/100)
+
+    def calculate_processing_fee(self, processing_rate):
+        return self.principle * (processing_rate/100)
+
+    def calculate_installment_amount(self):
+        return (self.principle + self.interest_amount)/self.time
+
+    def get_member(self, id):
+        return Member.objects.get(id=id)
+
+    def get_current_interest_rate(self):
+        return LoanInterest.objects.filter(status='active', type=self.type).latest('date_created').percentage
+
+    def get_current_form_fee(self):
+        return LoanFormFee.objects.filter(status='active', type=self.type).latest('date_created').amount
+
+    def get_current_processing_rate(self):
+        return LoanProcessingFee.objects.filter(status='active').latest('date_created').percentage
+
+    def get_current_insurance_rate(self):
+        return LoanInsuranceFee.objects.filter(status='active').latest('date_created').percentage
+
+
+class LoanManager():
+    loan = None
+    SAVINGS_LOAN_FACTOR = 3
+    SHARES_LOAN_FACTOR = 10
+
+    def __init__(self, loan) -> None:
+        self.loan = loan
+
+    def get_loan(self):
+        return self.loan
+
+    def qualify_member_loan(self):
+        try:
+            total_shares = Share.objects.filter(owner=self.loan.member).aggregate(total=Sum('transaction__reference__amount'))['total']
+            total_saving = Saving.objects.filter(owner=self.loan.member).aggregate(total=Sum('transaction__reference__amount'))['total']
+
+            total_shares = 0 if total_shares is None else total_shares
+            total_saving = 0 if total_saving is None else total_saving
+            
+            required_savings = total_saving * self.SAVINGS_LOAN_FACTOR
+            required_shares = total_shares * self.SHARES_LOAN_FACTOR
+
+            if self.loan.principle > required_savings or self.loan.principle > required_shares:
+                return False
+
+            return True
+
+        except Exception as e:
+            msg = 'Error,  Qualifying member loan: {}, {}'.format(e.__traceback__.tb_lineno, str(e))
+            print(msg)
+            return msg, False
+
+
+class LoanRepaymentManager():
+    loanmanager = None
+
+    def __init__(self, loanmanager) -> None:
+        self.loanmanager = loanmanager
+
+    def receive_loan_repayment_transaction(self, transaction):
+        #Calculate interest payment
+        interest_pay = self.calculate_interest_pay(self.loanmanager.loan)
+        principle_pay = self.calculate_principle_pay(interest_pay, transaction.reference.amount)
+        self.save_repayment_details(interest_pay, principle_pay, transaction=transaction)
+
+    def calculate_interest_pay(self, loan):
+        return loan.interest_amount/loan.time
+
+    def calculate_principle_pay(self, interest_pay, total_payment):
+        return total_payment-interest_pay if total_payment-interest_pay > 0 else 0
+
+    def save_repayment_details(self, interest_pay, principle_pay, **kwargs):
+        try:
+            interest_pay = RepaymentsInterest.objects.create(
+                amount = interest_pay,
+                loan = self.loanmanager.loan,
+                transaction = kwargs['transaction'],
+            )
+
+            principle_pay = RepaymentsInterest.objects.create(
+                amount = principle_pay,
+                loan = self.loanmanager.loan,
+                transaction = kwargs['transaction'],
+            )
+
+            return '', False , principle_pay, interest_pay
+
+        except Exception as e:
+            msg = 'Error, saving loan repayment details: {}, {}'.format(e.__traceback__.tb_lineno, str(e))
+            print(msg)
+            return msg, False , None, None
+    

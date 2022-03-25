@@ -15,10 +15,6 @@ class ShareCreateForm(forms.ModelForm):
         fields = []
         model = Share
 
-    def __init__(self, uuid, *args, **kwargs):
-        self.uuid = uuid
-        super(ShareCreateForm, self).__init__(*args, **kwargs)
-
 
     def clean_reference(self):
         reference = self.cleaned_data['reference']

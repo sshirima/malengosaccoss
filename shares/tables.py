@@ -24,14 +24,14 @@ class ShareTable(django_tables2.Table):
     description = django_tables2.Column(accessor='description', verbose_name='Description')
     status = StatusColumn(accessor='status', verbose_name = "Status")
     owner = django_tables2.Column(accessor='owner', verbose_name='Owned By')
-    date_created = django_tables2.Column(accessor='date_created', verbose_name = "Date Created")
+    date_trans = django_tables2.Column(accessor='transaction.reference.date_trans', verbose_name = "Date Trans")
 
     class Meta:
         model = Share
         attrs = {'class': 'table '}
         template_name = 'django_tables2/bootstrap.html'
-        fields = ('amount',)
-        sequence = ('amount','owner', 'description','status','date_created')
+        fields = ('amount','description','owner','date_trans','status',)
+        sequence = ('amount','description','owner','date_trans','status',)
 
     def render_owner(self,record):
         return '{} {}'.format(record.owner.first_name, record.owner.last_name)

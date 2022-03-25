@@ -53,8 +53,8 @@ class BankTransactionTable(django_tables2.Table):
     description = django_tables2.Column(accessor='description', verbose_name='Description')
     type = TypeColumn(accessor='type', verbose_name='Type')
     status = StatusColumn(accessor='status', verbose_name = "Status")
-    date_value = django_tables2.Column(accessor='date_value', verbose_name = "Value Date")
-    assign = django_tables2.TemplateColumn(template_name ='partials/_btn_assign.html')
+    date_trans = django_tables2.Column(accessor='date_trans', verbose_name = "Tran Date")
+    assign = django_tables2.TemplateColumn(template_name ='partials/_btn_assign.html', orderable=False)
     #date_updated = django_tables2.Column(accessor='date_updated', verbose_name = "Date Updated")
     #edit_delete = django_tables2.TemplateColumn(template_name ='partials/_update_delete.html')
     
@@ -63,8 +63,8 @@ class BankTransactionTable(django_tables2.Table):
         model = BankTransaction
         attrs = {'class': 'table '}
         template_name = 'django_tables2/bootstrap.html'
-        fields = ('date_value',)
-        sequence = ('selection','amount','description','status','type','date_value')
+        fields = ('date_trans',)
+        sequence = ('selection','amount','description','date_trans','status','type')
     
     def render_amount(self,record):
         return mark_safe('<a href="{}">{}</a>'.format(reverse("bank-transaction-detail", args=[record.id]), '{:0,.0f}'.format(record.amount)))
@@ -144,8 +144,7 @@ class TransactionTable(django_tables2.Table):
     description = django_tables2.Column(accessor='description', verbose_name='Description')
     type = StatusColumn(accessor='type', verbose_name='Type')
     status = StatusColumn(accessor='status', verbose_name = "Status")
-    created_by = django_tables2.Column(accessor='created_by.email', verbose_name = "Created By")
-    date_created = django_tables2.Column(accessor='date_created', verbose_name = "Date Created ")
+    date_trans = django_tables2.Column(accessor='reference__date_trans', verbose_name = "Tran Date")
     
 
     class Meta:
@@ -153,7 +152,7 @@ class TransactionTable(django_tables2.Table):
         attrs = {'class': 'table '}
         template_name = 'django_tables2/bootstrap.html'
         fields = ('amount',)
-        sequence = ('amount','description','status','type','created_by','date_created')
+        sequence = ('amount','description','date_trans','status','type')
     
     def render_amount(self,record):
         return mark_safe('<a href="{}">{}</a>'.format(reverse("transaction-detail", args=[record.id]), '{:0,.0f}'.format(record.amount)))

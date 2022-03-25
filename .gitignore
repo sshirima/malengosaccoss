@@ -119,11 +119,13 @@ Procfile*
 .venv
 env/
 venv/
+factory/
 ENV/
 venvmalengo/
 env.bak/
 venv.bak/
 core/.env
+authentication/management/commands/test*
 
 # Spyder project settings
 .spyderproject

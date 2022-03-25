@@ -5,8 +5,9 @@ from authentication.forms import RegistrationForm
 from authentication.services import RegistrationService
 from loans.models import LoanFormFee, LoanInsuranceFee, LoanInterest, LoanLimits, LoanProcessingFee
 
-from loans.services import LoanCRUDService
-from transactions.services import BankStatementParserService
+from loans.services import LoanCRUDService, LoanObject, LoanManager, LoanRepaymentManager
+from transactions.models import BankTransaction
+from transactions.services import BankStatementParserService, BankTransactionAssignmentService
 from loans.forms import LoanCreateFromBankTransactionForm, LoanRepaymentCreateForm, LoanRepaymentMemberSelectForm
 from members.models import Member
 
@@ -122,4 +123,111 @@ class LoanTestCase(TransactionTestCase):
         msg, created, loanrepayment = loanservice.create_loan_repaymet(data=form_create_loanrepayment.cleaned_data, creator=self.user)
 
         self.assertTrue(created)
-        print(loanrepayment)
+
+        loanobject = LoanObject()
+        loanobject.load(loan)
+        self.assertEquals(loan.principle, loanobject.principle)
+
+        loanObject2 = LoanObject(loan.id)
+        self.assertEquals(loan.principle, loanObject2.principle)
+
+
+        """
+        testing creating object from user request
+        """
+        loanObject3 = LoanObject()
+        loanObject3.create_new_loan_from_request(
+            principle= 1000000,
+            time = 10,
+            type = 'normal',
+            member = member.id
+        )
+        self.assertEquals(loanObject3.principle, 1000000)
+        self.assertEquals(loanObject3.interest_amount, 135000)
+        self.assertEquals(loanObject3.amount_issued, 970000)
+        self.assertEquals(loanObject3.installment_amount, 113500)
+
+        loanObject3.save_loan_details(created_by=self.user)
+
+        loan_manager = LoanManager(loanObject3)
+        is_qualified = loan_manager.qualify_member_loan()
+        self.assertFalse(is_qualified)
+
+        paid_loan = BankTransaction.objects.create(
+            amount=970000,
+            description = 'Description',
+            balance=300000,
+            type='debit',
+            status='imported',
+            date_trans = '2021-10-11',
+            date_value = '2021-10-11',
+            created_by = self.user
+        )
+
+        loanObject4 = LoanObject()
+        loanObject4.create_new_loan_from_amount_issued(
+            amount_issued= 970000,
+            time = 10,
+            type = 'normal',
+            member = member.id
+        )
+
+        self.assertEquals(loanObject4.principle, 1000000)
+        self.assertEquals(loanObject4.interest_amount, 135000)
+        self.assertEquals(loanObject4.installment_amount, 113500)
+
+        """
+        Creating testing savings for the member
+        """
+        for _ in range(3):
+            paid_saving = BankTransaction.objects.create(
+                amount=200000,
+                description = '',
+                balance=300000,
+                type='credit',
+                status='imported',
+                date_trans = '2021-10-11',
+                date_value = '2021-10-11',
+                created_by = self.user
+            )
+            service = BankTransactionAssignmentService()
+            msg, created, saving = service.assign_banktransaction_to_saving(
+                paid_saving.id, 
+                created_by=self.user, 
+                description='', 
+                owner=member.id
+            )
+        """
+        Creatinng testing shares to member
+        """
+
+        for _ in range(3):
+            paid_saving = BankTransaction.objects.create(
+                amount=50000,
+                description = '',
+                balance=300000,
+                type='credit',
+                status='imported',
+                date_trans = '2021-10-11',
+                date_value = '2021-10-11',
+                created_by = self.user
+            )
+            service = BankTransactionAssignmentService()
+            msg, created, saving = service.assign_banktransaction_to_share(
+                paid_saving.id, 
+                created_by=self.user, 
+                description='', 
+                owner=member.id
+            )
+
+        loan_manager2 = LoanManager(loanObject4)
+        is_qualified = loan_manager2.qualify_member_loan()
+        self.assertTrue(is_qualified)
+
+        
+
+
+
+
+
+

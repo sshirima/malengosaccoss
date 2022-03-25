@@ -7,7 +7,7 @@ from authentication.models import User
 # Create your models here.
 GENDER_STATUS = (
     ('male', 'Male' ),
-    ('famale', 'Female' ),
+    ('female', 'Female' ),
 )
 
 class Member(models.Model):

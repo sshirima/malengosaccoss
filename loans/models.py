@@ -23,7 +23,7 @@ LOAN_TYPE = (
 )
 
 LOAN_REPAYMENT_STATUS = (
-    ('issued', 'Normal' ),
+    ('issued', 'Issued' ),
     ('repayment', 'Repayment' ),
     ('completed', 'Completed' ),
     ('default', 'Default' ),
@@ -117,6 +117,8 @@ class Loan(LoanBaseModel):
 
     class Meta:
         verbose_name = "Loan"
+        ordering = ['-transaction__reference__date_trans']
+        
 
     def get_absolute_url(self):
         return reverse('loan-detail', args=[self.id])
@@ -131,3 +133,19 @@ class LoanRepayment(LoanBaseModel):
 
     def get_absolute_url(self):
         return reverse('loanrepayment-detail', args=[self.id])
+
+    class Meta:
+        verbose_name = "Loan Repayment"
+        verbose_name_plural = "Loan Repayments"
+        ordering = ['-transaction__reference__date_trans']
+
+
+class RepaymentsInterest(LoanBaseModel):
+    amount = models.FloatField()
+    loan = models.ForeignKey(to=Loan, on_delete=models.CASCADE, default=None)
+    transaction = models.OneToOneField(Transaction, on_delete=models.CASCADE)
+
+class RepaymentsPrinciple(LoanBaseModel):
+    amount = models.FloatField()
+    loan = models.ForeignKey(to=Loan, on_delete=models.CASCADE, default=None)
+    transaction = models.OneToOneField(Transaction, on_delete=models.CASCADE)

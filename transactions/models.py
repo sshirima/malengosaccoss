@@ -96,7 +96,7 @@ class BankTransaction(BaseTransaction):
         return "{}:{}".format(str(self.type), str(self.amount))
 
     class Meta:
-        ordering = ['-date_created']
+        ordering = ['-date_trans']
 
     def get_absolute_url(self):
         return reverse('banktransaction-detail', args=[self.id])
@@ -113,7 +113,7 @@ class Transaction(BaseTransaction):
         return str(self.amount)
 
     class Meta:
-        ordering = ['-date_created']
+        ordering = ['-reference__date_trans']
 
     def get_absolute_url(self):
         return reverse('transaction-detail', args=[self.id])

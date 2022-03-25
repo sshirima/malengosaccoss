@@ -25,7 +25,9 @@ class Expense(models.Model):
         return str(self.transaction.amount)
 
     class Meta:
-        ordering = ['-date_created']
+        verbose_name = "Expense"
+        verbose_name_plural = "Expenses"
+        ordering = ['-transaction__reference__date_trans']
 
     def get_absolute_url(self):
         return reverse('expense-detail', args=[self.id])
