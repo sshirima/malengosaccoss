@@ -107,7 +107,7 @@ DATABASES = {
             'NAME': 'ebdb',#os.environ['RDS_DB_NAME'],
             'USER': 'malengosaccosdb',#os.environ['RDS_USERNAME'],
             'PASSWORD': 'jimaya792',# os.environ['RDS_PASSWORD'],
-            'HOST': 'aau3hd6m5rcqya.chslknxmrkyi.us-west-2.rds.amazonaws.com:5432',#os.environ['RDS_HOSTNAME'],
+            'HOST': 'aau3hd6m5rcqya.chslknxmrkyi.us-west-2.rds.amazonaws.com',#os.environ['RDS_HOSTNAME'],
             'PORT': 5432,#os.environ['RDS_PORT'],
         }
     }
