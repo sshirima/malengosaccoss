@@ -29,7 +29,7 @@ SECRET_KEY = True #os.environ.get('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True #if os.environ.get('DEBUG') == "True" else False
 
-ALLOWED_HOSTS = []#[os.environ.get('SERVER_HOSTNAME')]
+ALLOWED_HOSTS = ['malengosaccos-env-test.eba-2weqvctr.us-west-2.elasticbeanstalk.com']#[os.environ.get('SERVER_HOSTNAME')]
 
 
 # Application definition
