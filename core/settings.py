@@ -15,7 +15,6 @@ from pathlib import Path
 #CUSTOM IMPORTS
 import os
 from django.contrib import messages
-import django_heroku
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,12 +24,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY')
+SECRET_KEY = True #os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True #if os.environ.get('DEBUG') == "True" else False
 
-ALLOWED_HOSTS = [os.environ.get('SERVER_HOSTNAME')]
+ALLOWED_HOSTS = []#[os.environ.get('SERVER_HOSTNAME')]
 
 
 # Application definition
@@ -180,18 +179,12 @@ AUTH_USER_MODEL = 'authentication.User'
 # EMAIL_PORT = env('EMAIL_PORT')
 # EMAIL_USE_TLS = env('EMAIL_USE_TLS')
 
-EMAIL_BACKEND='django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST_USER='shirimas.work@gmail.com'
-EMAIL_HOST='smtp.gmail.com'
-EMAIL_HOST_PASSWORD='egkuvbvlmjcrhrux'
-DEFAULT_FROM_EMAIL= 'shirimas.work@gmail.com'
-EMAIL_PORT= 587
-EMAIL_USE_TLS= True
+
 
 #Bootstrap template
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
-APP_NAME = 'Malengo Saccoss'
+APP_NAME = 'Malengo Saccos'
 
 #Django Heroku for static files and database setup
 # django_heroku.settings(locals())

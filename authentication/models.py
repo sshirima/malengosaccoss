@@ -77,7 +77,6 @@ class User(AbstractUser):
         """
         return self.email
 
-    
     def has_perm(self, perm, obj=None):
         """
         Returns True if the user has the given permission
@@ -86,7 +85,6 @@ class User(AbstractUser):
             return True
 
         return _user_has_perm(self, perm, obj)
-
 
     def has_perms(self, perm_list, obj=None):
         """

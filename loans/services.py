@@ -1,13 +1,16 @@
 import traceback
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Sum, Count
-from members.models import Member
+from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
 
+from members.models import Member
 from transactions.models import BankTransaction, Transaction
 import transactions.models as t_models
-from loans.models import Loan, LoanFormFee, LoanInsuranceFee, LoanInterest, LoanProcessingFee, LoanRepayment, RepaymentsInterest
+from loans.models import Loan, LoanFormFee, LoanInsuranceFee, LoanInterest, LoanProcessingFee, LoanRepayment, RepaymentsInterest, RepaymentsPrinciple
 from shares.models import Share
 from savings.models import Saving
+from transactions.services import TransactionCRUDService
 
 
 class LoanCRUDService(): 
@@ -245,6 +248,7 @@ class LoanObject():
     installment_amount = None
     type = None
     transaction = None
+    model = None
 
     def __init__(self, id = None):
 
@@ -253,6 +257,7 @@ class LoanObject():
 
             if loan:
                 self.load(loan)
+                self.model = loan
 
     def load(self, loan):
         try:
@@ -301,7 +306,8 @@ class LoanObject():
 
     def create_new_loan_from_amount_issued(self, **kwargs):
         try:
-            self.amount_issued = kwargs.pop('amount_issued', None)
+            banktransaction = kwargs.pop('banktransaction', None)
+            self.amount_issued = banktransaction.amount
             self.time = kwargs.pop('time', None)
             self.type = kwargs.pop('type', None)
             member_id = kwargs.pop('member', None)
@@ -320,10 +326,17 @@ class LoanObject():
             self.member = self.get_member(member_id)
             self.installment_amount = self.calculate_installment_amount()
             self.amount_issued = self.calculate_amount_issued()
+            
+            transaction_crud = TransactionCRUDService()
+            msg,cr,bt,t = transaction_crud.create_transaction_from_banktransaction(banktransaction.id, created_by=kwargs['created_by'])
+            self.transaction = t
+            return self.save_loan_details(created_by=kwargs['created_by'])
+        
 
         except Exception as e:
             msg = 'Error, creating new loan from amount issued,file {}, line {}: {}'.format(e.__traceback__.tb_frame.f_code.co_filename, e.__traceback__.tb_lineno, str(e))
             print(msg)
+            return msg, False, None
 
     def save_loan_details(self, **kwargs):
         try:
@@ -343,7 +356,7 @@ class LoanObject():
                 installment_amount = self.installment_amount,
                 created_by = kwargs['created_by']
             )
-
+            self.model = loan
             return '', True, loan
 
         except Exception as e:
@@ -418,21 +431,66 @@ class LoanManager():
             print(msg)
             return msg, False
 
-
-class LoanRepaymentManager():
-    loanmanager = None
-
-    def __init__(self, loanmanager) -> None:
-        self.loanmanager = loanmanager
-
-    def receive_loan_repayment_transaction(self, transaction):
+    def receive_loan_repayment_transaction(self, banktransaction, **kwargs):
         #Calculate interest payment
-        interest_pay = self.calculate_interest_pay(self.loanmanager.loan)
-        principle_pay = self.calculate_principle_pay(interest_pay, transaction.reference.amount)
-        self.save_repayment_details(interest_pay, principle_pay, transaction=transaction)
+        try:
+            transaction_crud = TransactionCRUDService()
+            msg,created,banktransaction,transaction = transaction_crud.create_transaction_from_banktransaction(banktransaction.id, created_by=kwargs['created_by'])
+            interest_pay = self.calculate_interest_monthly_installment_amount()
+            principle_pay = self.calculate_principle_pay(interest_pay, transaction.reference.amount)
+            return self.save_repayment_details(interest_pay, principle_pay, transaction=transaction)
 
-    def calculate_interest_pay(self, loan):
-        return loan.interest_amount/loan.time
+        except Exception as e:
+            msg = 'Error,  receiving loan repayment transaction: {}, {}'.format(e.__traceback__.tb_lineno, str(e))
+            print(msg)
+            return msg, False, None, None
+
+    def get_loan_first_payment_deadline(self):
+
+        date = self.loan.model.transaction.reference.date_trans
+
+        next_paying_date = date + timedelta(days=31) + relativedelta(months=1)
+
+        return next_paying_date.replace(day=5)
+
+
+    def get_date_difference_in_months(self, from_date, to_date=datetime.now()):
+        r = relativedelta(to_date, from_date)
+        return (r.years * 12) + r.months
+
+
+    def get_nth_payment_deadline(self, nth):
+        first_payment_deadline = self.get_loan_first_payment_deadline()
+        
+        if not (nth > 0) or not (nth <= self.loan.time):
+            return None
+        
+        nth = nth - 1
+        nth_payment_deadline = first_payment_deadline + relativedelta(months=nth)
+        return nth_payment_deadline
+
+    def get_nth_installment_principle_total(self, nth):
+        p_repayment = self.calculate_principle_monthly_installment_amount()
+
+        if not (nth > 0) or not (nth <= self.loan.time) :
+            return None
+
+        return p_repayment*nth
+
+    def get_nth_installment_interest_total(self, nth):
+        i_repayment = self.calculate_interest_monthly_installment_amount()
+
+        if not (nth > 0) or not (nth < self.loan.time) :
+            return None
+
+        return i_repayment*nth
+
+
+    def calculate_principle_monthly_installment_amount(self):
+        return self.loan.principle/self.loan.time
+
+    def calculate_interest_monthly_installment_amount(self):
+        return self.loan.interest_amount/self.loan.time
 
     def calculate_principle_pay(self, interest_pay, total_payment):
         return total_payment-interest_pay if total_payment-interest_pay > 0 else 0
@@ -441,20 +499,27 @@ class LoanRepaymentManager():
         try:
             interest_pay = RepaymentsInterest.objects.create(
                 amount = interest_pay,
-                loan = self.loanmanager.loan,
+                loan = self.loan.model,
                 transaction = kwargs['transaction'],
             )
 
-            principle_pay = RepaymentsInterest.objects.create(
+            principle_pay = RepaymentsPrinciple.objects.create(
                 amount = principle_pay,
-                loan = self.loanmanager.loan,
+                loan = self.loan.model,
                 transaction = kwargs['transaction'],
             )
 
-            return '', False , principle_pay, interest_pay
+            return '', True , principle_pay, interest_pay
 
         except Exception as e:
             msg = 'Error, saving loan repayment details: {}, {}'.format(e.__traceback__.tb_lineno, str(e))
             print(msg)
             return msg, False , None, None
+
+
+class LoanRepaymentManager():
+    loanmanager = None
+
+    def __init__(self, loanmanager) -> None:
+        self.loanmanager = loanmanager
     

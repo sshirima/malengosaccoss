@@ -84,7 +84,7 @@ class SavingDetailView(LoginRequiredMixin, BaseDetailView):
     slug_url_kwarg = 'id'
 
     def get_queryset(self):
-        return super(SavingDetailView, self).get_queryset(id=self.kwargs['id'], owner__user=self.request.user)
+        return super(SavingDetailView, self).get_queryset(id=self.kwargs['id'], owner__user=self.request.user).select_related('transaction__reference','owner__user')
 
 class SavingUpdateView(LoginRequiredMixin, UpdateView):
     template_name ='savings/saving_update.html'

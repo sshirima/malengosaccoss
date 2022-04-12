@@ -7,7 +7,7 @@ from loans.models import LoanFormFee, LoanInsuranceFee, LoanInterest, LoanLimits
 
 from loans.services import LoanCRUDService, LoanObject, LoanManager, LoanRepaymentManager
 from transactions.models import BankTransaction
-from transactions.services import BankStatementParserService, BankTransactionAssignmentService
+from transactions.services import BankStatementParserService, BankTransactionAssignmentService, TransactionCRUDService
 from loans.forms import LoanCreateFromBankTransactionForm, LoanRepaymentCreateForm, LoanRepaymentMemberSelectForm
 from members.models import Member
 
@@ -124,6 +124,8 @@ class LoanTestCase(TransactionTestCase):
 
         self.assertTrue(created)
 
+        """+++++++++++++++++++++++++++++++++++++++++++++++++++"""
+
         loanobject = LoanObject()
         loanobject.load(loan)
         self.assertEquals(loan.principle, loanobject.principle)
@@ -147,7 +149,7 @@ class LoanTestCase(TransactionTestCase):
         self.assertEquals(loanObject3.amount_issued, 970000)
         self.assertEquals(loanObject3.installment_amount, 113500)
 
-        loanObject3.save_loan_details(created_by=self.user)
+        # loanObject3.save_loan_details(created_by=self.user)
 
         loan_manager = LoanManager(loanObject3)
         is_qualified = loan_manager.qualify_member_loan()
@@ -159,19 +161,20 @@ class LoanTestCase(TransactionTestCase):
             balance=300000,
             type='debit',
             status='imported',
-            date_trans = '2021-10-11',
-            date_value = '2021-10-11',
+            date_trans = '2021-05-11',
+            date_value = '2021-05-11',
             created_by = self.user
         )
 
         loanObject4 = LoanObject()
-        loanObject4.create_new_loan_from_amount_issued(
-            amount_issued= 970000,
+        msg, created, loan = loanObject4.create_new_loan_from_amount_issued(
+            banktransaction= paid_loan,
             time = 10,
             type = 'normal',
-            member = member.id
+            member = member.id,
+            created_by = self.user
         )
-
+        self.assertTrue(created)
         self.assertEquals(loanObject4.principle, 1000000)
         self.assertEquals(loanObject4.interest_amount, 135000)
         self.assertEquals(loanObject4.installment_amount, 113500)
@@ -186,8 +189,8 @@ class LoanTestCase(TransactionTestCase):
                 balance=300000,
                 type='credit',
                 status='imported',
-                date_trans = '2021-10-11',
-                date_value = '2021-10-11',
+                date_trans = '2021-05-11',
+                date_value = '2021-05-11',
                 created_by = self.user
             )
             service = BankTransactionAssignmentService()
@@ -224,10 +227,39 @@ class LoanTestCase(TransactionTestCase):
         is_qualified = loan_manager2.qualify_member_loan()
         self.assertTrue(is_qualified)
 
+        """
+            Testing loan repayment besiness logic
+        """
+        loanpayment = BankTransaction.objects.create(
+                amount=100000,
+                description = '',
+                balance=300000,
+                type='credit',
+                status='imported',
+                date_trans = '2022-02-11',
+                date_value = '2022-02-11',
+                created_by = self.user
+            )
+
+        msg, created , principle_pay, interest_pay = loan_manager2.receive_loan_repayment_transaction(loanpayment, created_by = self.user)
         
+        self.assertTrue(created)
 
+        first_payment_date = loan_manager2.get_loan_first_payment_deadline()
+        nth_payment_deadline = loan_manager2.get_nth_payment_deadline(5)
+        nth_installment_principle_total = loan_manager2.get_nth_installment_principle_total(2)
+        nth_installment_interest_total = loan_manager2.get_nth_installment_interest_total(2)
+        date_difference_in_months = loan_manager2.get_date_difference_in_months(first_payment_date)
 
-
-
-
+        # self.assertEquals(str(first_payment_date), '2022-02-05')
+        # self.assertEquals(str(nth_payment_deadline), '2022-06-05')
+        self.assertEquals(nth_installment_principle_total, 200000)
+        self.assertEquals(nth_installment_interest_total, 27000)
+        print(str(first_payment_date))
+        print(str(nth_payment_deadline))
+        print(str(nth_installment_principle_total))
+        print(str(nth_installment_interest_total))
+        print(str(date_difference_in_months))
+        print(principle_pay.amount)
+        print(interest_pay.amount)
 

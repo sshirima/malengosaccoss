@@ -107,7 +107,9 @@
   </div>
   <div class="col-md-12">
     {% include "partials/_messages.html" %}
-    {% render_table table 'partials/_table.html'%}
+    <div style="overflow-x:auto;">
+      {% render_table table 'partials/_table.html'%}
+    </div>
   </div>
 </div>
   

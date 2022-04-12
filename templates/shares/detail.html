@@ -2,6 +2,8 @@
 
 {% load static %}
 
+{% load humanize %}
+
 {% block title %}
     Share Detail
 {% endblock title %}
@@ -48,19 +50,19 @@
       {% csrf_token %}
       <div class="card-body">
               {% include "partials/_form_errors.html" %}
-    
-              <div class="input-group mb-3">
-                <div class="input-group-prepend">
-                  <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+              
+              <div class="form-group row">
+                <label for="created_by" class="col-sm-4 col-form-label">Amount</label>
+                <div class="col-sm-6">
+                  <input type="text" class="form-control" value="{{share.description}}" disabled >
                 </div>
-                <input type="text" class="form-control" value="{{share.description}}" disabled placeholder="Description">
               </div>
 
-              <div class="input-group mb-3">
-                <div class="input-group-prepend">
-                  <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+              <div class="form-group row">
+                <label for="created_by" class="col-sm-4 col-form-label">Description</label>
+                <div class="col-sm-6">
+                  {{share.transaction.amount|floatformat:0|intcomma }}
                 </div>
-                <input type="number" class="form-control" value="{{share.transaction.amount}}"  disabled placeholder="Amount">
               </div>
               
               <div class="form-group row">
@@ -69,6 +71,7 @@
                   {{share.owner}}
                 </div>
               </div>
+              
               <div class="form-group row">
                 <label for="created_by" class="col-sm-4 col-form-label">Created By</label>
                 <div class="col-sm-6">
@@ -82,18 +85,13 @@
                 </div>
               </div>
               <div class="form-group row">
-                <label for="date_created" class="col-sm-4 col-form-label">Date created</label>
+                <label for="created_by" class="col-sm-4 col-form-label">Date Purchased</label>
                 <div class="col-sm-6">
-                  <input type="email" class="form-control" id="date_created" disabled value="{{share.date_created}}">
+                  {{share.transaction.reference.date_trans}}
                 </div>
               </div>
-              <div class="form-group row">
-                <label for="date_updated" class="col-sm-4 col-form-label">Date updated</label>
-                <div class="col-sm-6">
-                  <input type="email" class="form-control" id="date_updated" disabled value="{{share.date_updated}}">
-                </div>
-              </div>
-    
+              
+              
               <div class="card-footer">
 
                 <a href="{% url 'share-update' share.id %}" class="btn btn-outline-info mr-1">Edit</a>

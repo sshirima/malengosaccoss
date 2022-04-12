@@ -47,11 +47,12 @@ class SavingTableExport(django_tables2.Table):
     status = django_tables2.Column(accessor='status', verbose_name = "Status")
     owner = django_tables2.Column(accessor='owner', verbose_name='Owner')
     date_trans = django_tables2.Column(accessor='transaction.reference.date_trans', verbose_name = "Date Trans")
+    date_created = django_tables2.Column(accessor='date_created', verbose_name = "Date Created")
 
     class Meta:
         model = Saving
-        fields = ('amount','description','owner','date_trans','status',)
-        sequence = ('amount','description','owner','date_trans','status',)
+        fields = ('amount',)
+        sequence = ('amount','owner', 'description','status','date_created')
 
     def value_owner(self,record):
         return record.owner.get_full_name()
@@ -59,13 +60,21 @@ class SavingTableExport(django_tables2.Table):
     def value_date_created(self,record):
         return record.date_created.replace(tzinfo=None)
 
-
 class SavingTableFilter(django_filters.FilterSet):
     description = django_filters.CharFilter(label='Description', method='search_description')
+    start_date = django_filters.CharFilter(label='Start Date', method='search_start_date')
+    end_date = django_filters.CharFilter(label='End Date', method='search_end_date')
 
     def search_description(self, qs, name, value):
-        return qs.filter(Q(description__icontains=value))
+        return qs.filter(
+            Q(description__icontains=value)|
+            Q(owner__first_name__icontains=value)|
+            Q(owner__middle_name__icontains=value)|
+            Q(owner__last_name__icontains=value)
+            )
 
-    class Meta:
-        model = Saving
-        fields = ['description']
+    def search_start_date(self, qs, name, value):
+        return qs.filter(Q(transaction__reference__date_trans__gte=value))
+
+    def search_end_date(self, qs, name, value):
+        return qs.filter(Q(transaction__reference__date_trans__lte=value))

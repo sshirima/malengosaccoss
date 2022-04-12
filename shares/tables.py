@@ -48,6 +48,7 @@ class ShareTableExport(django_tables2.Table):
     description = django_tables2.Column(accessor='description', verbose_name='Description')
     status = django_tables2.Column(accessor='status', verbose_name = "Status")
     owner = django_tables2.Column(accessor='owner', verbose_name='Owner')
+    date_trans = django_tables2.Column(accessor='transaction.reference.date_trans', verbose_name = "Date Trans")
     date_created = django_tables2.Column(accessor='date_created', verbose_name = "Date Created")
 
     class Meta:
@@ -75,7 +76,7 @@ class ShareTableFilter(django_filters.FilterSet):
             )
 
     def search_start_date(self, qs, name, value):
-        return qs.filter(Q(date_created__gte=value))
+        return qs.filter(Q(transaction__reference__date_trans__gte=value))
 
     def search_end_date(self, qs, name, value):
-        return qs.filter(Q(date_created__lte=value))
+        return qs.filter(Q(transaction__reference__date_trans__lte=value))

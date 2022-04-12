@@ -35,7 +35,7 @@
 {% block content %}
 
 <div class="row">
-  <div class="col-lg-3 col-6">
+  <div class="col-lg-3 col-md-6 col-sm-12">
     <!-- small box -->
     <div class="small-box bg-info">
       <div class="inner">
@@ -55,9 +55,9 @@
     </div>
   </div>
   <!-- ./col -->
-  <div class="col-lg-3 col-6">
+  <div class="col-lg-3 col-md-6 col-sm-12">
     <!-- small box -->
-    <div class="small-box bg-success">
+    <div class="small-box bg-info">
       <div class="inner">
         {% if saving_amount_sum %}
         <h3>{{saving_amount_sum|floatformat:0|intcomma }}</h3>
@@ -73,10 +73,67 @@
       <a href="{% url 'savings-list' %}" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
     </div>
   </div>
-  <!-- ./col -->
-  <div class="col-lg-3 col-6">
+
+  <div class="col-lg-3 col-md-6 col-sm-12">
     <!-- small box -->
-    <div class="small-box bg-warning">
+    <div class="small-box bg-info">
+      <div class="inner">
+        {% if loan_all_count %}
+        <h3>{{loan_all_count|floatformat:0|intcomma }}</h3>
+        {% else %}
+        <h3>0</h3>
+        {% endif %}
+
+        <p>Loans</p>
+      </div>
+      <div class="icon">
+        <i class="fas fa-users"></i>
+      </div>
+      <a href="{% url 'members-list'%}" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+    </div>
+  </div>
+  <!-- ./col -->
+  <div class="col-lg-3 col-md-6 col-sm-12">
+    <!-- small box -->
+    <div class="small-box bg-info">
+      <div class="inner">
+        {% if loanrepayments_all_count %}
+        <h3>{{loanrepayments_all_count|floatformat:0|intcomma }}</h3>
+        {% else %}
+        <h3>0</h3>
+        {% endif %}
+
+        <p>Loan Repayments</p>
+      </div>
+      <div class="icon">
+        <i class="fas fa-users"></i>
+      </div>
+      <a href="{% url 'members-list'%}" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+    </div>
+  </div>
+  <!-- ./col -->
+  <div class="col-lg-3 col-md-6 col-sm-12">
+    <!-- small box -->
+    <div class="small-box bg-info">
+      <div class="inner">
+        {% if penalties_total %}
+        <h3>{{penalties_total|floatformat:0|intcomma }}</h3>
+        {% else %}
+        <h3>0</h3>
+        {% endif %}
+
+        <p>Penalties</p>
+      </div>
+      <div class="icon">
+        <i class="fas fa-users"></i>
+      </div>
+      <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+    </div>
+  </div>
+  <!-- ./col -->
+  <div class="col-lg-3 col-md-6 col-sm-12">
+    <!-- small box -->
+    <div class="small-box bg-info">
       <div class="inner">
         {% if member_all_count %}
         <h3>{{member_all_count|floatformat:0|intcomma }}</h3>
@@ -92,10 +149,14 @@
       <a href="{% url 'members-list'%}" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
     </div>
   </div>
+
+  
+
   <!-- ./col -->
-  <div class="col-lg-3 col-6">
+  
+  <div class="col-lg-3 col-md-6 col-sm-12">
     <!-- small box -->
-    <div class="small-box bg-danger">
+    <div class="small-box bg-info">
       <div class="inner">
         
         {% if expense_amount_sum %}
@@ -115,14 +176,14 @@
   <!-- ./col -->
 </div>
 
-<div class="row">
+<!-- <div class="row">
   <div class="col-sm-12 col-md-6"> <canvas id="shares_chart" width="400" height="400"></canvas> </div>
   <div class="col-sm-12 col-md-6"> <canvas id="savings_chart" width="400" height="400"></canvas> </div>
-</div>
+</div> -->
 
 {% endblock content %}
 
 {% block extra_js %}
 <script src="{% static 'js/Chart.min.js'%}" ></script>
-<script src="{% static 'js/dashboard/main.js'%}"></script>
+<!-- <script src="{% static 'js/dashboard/main.js'%}"></script> -->
 {% endblock extra_js %}

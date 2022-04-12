@@ -85,7 +85,6 @@ class ShareCreateView(LoginRequiredMixin, CreateView):
         context['bank_transaction'] = BankTransaction.objects.get(id=uuid)
         return context
         
-
 class ShareDetailView(LoginRequiredMixin, BaseDetailView):
     template_name = 'shares/detail.html'
     model = Share
@@ -94,10 +93,8 @@ class ShareDetailView(LoginRequiredMixin, BaseDetailView):
     slug_url_kwarg = 'id'
 
     def get_queryset(self):
-        return super(ShareDetailView, self).get_queryset(id=self.kwargs['id'], owner__user=self.request.user)
+        return super(ShareDetailView, self).get_queryset(id=self.kwargs['id'], owner__user=self.request.user).select_related('transaction__reference','owner__user')
         
-
-
 class ShareUpdateView(LoginRequiredMixin, BaseUpdateView):
     template_name ='shares/update.html'
     model = Share
@@ -135,8 +132,6 @@ class ShareUpdateView(LoginRequiredMixin, BaseUpdateView):
         kwargs['user'] = self.request.user
         return kwargs
     
-
-
 class ShareDeleteView(LoginRequiredMixin, DeleteView):
     template_name ='shares/delete.html'
     model = Share
@@ -163,7 +158,6 @@ class ShareDeleteView(LoginRequiredMixin, DeleteView):
 
         messages.error(self.request, msg)
         return HttpResponseRedirect(reverse_lazy('shares-list'))
-
 
 class ShareAuthorizeView(LoginRequiredMixin, View):
     template_name = 'shares/authorize.html'
