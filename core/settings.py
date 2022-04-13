@@ -24,12 +24,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-)oib!1pwo@g&c5c(i3^pnf(j97gke4i1x=0-p053@_d6lb2%1u'#os.environ.get('SECRET_KEY')
+SECRET_KEY = os.environ['APP_SECRET_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True #if os.environ.get('DEBUG') == "True" else False
+DEBUG = True if os.environ['APP_DEBUG'] == "True" else False
 
-ALLOWED_HOSTS = ['malengosaccos-env-test.eba-g3pszdhk.us-west-2.elasticbeanstalk.com']#[os.environ.get('SERVER_HOSTNAME')]
+ALLOWED_HOSTS = [os.environ['APP_SERVER_HOSTNAME']]
 
 
 # Application definition
@@ -94,63 +94,24 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-DATABASES = {
+if 'APP_RDS_DB_NAME' in os.environ:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': os.environ['APP_RDS_DB_NAME'],
+            'USER': os.environ['APP_RDS_USERNAME'],
+            'PASSWORD': os.environ['APP_RDS_PASSWORD'],
+            'HOST': os.environ['APP_RDS_HOSTNAME'],
+            'PORT': os.environ['APP_RDS_PORT'],
+        }
+    }
+else:
+    DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
-# DATABASES = {
-#         'default': {
-#             'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#             'NAME': 'ebdb',#os.environ['RDS_DB_NAME'],
-#             'USER': 'malengosaccosdb',#os.environ['RDS_USERNAME'],
-#             'PASSWORD': 'jimaya792',# os.environ['RDS_PASSWORD'],
-#             'HOST': 'aau3hd6m5rcqya.chslknxmrkyi.us-west-2.rds.amazonaws.com',#os.environ['RDS_HOSTNAME'],
-#             'PORT': 5432,#os.environ['RDS_PORT'],
-#         }
-#     }
-
-DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': os.environ['RDS_DB_NAME'],
-            'USER': os.environ['RDS_USERNAME'],
-            'PASSWORD': os.environ['RDS_PASSWORD'],
-            'HOST': os.environ['RDS_HOSTNAME'],
-            'PORT': os.environ['RDS_PORT'],
-        }
-    }
-
-# if 'RDS_DB_NAME' in os.environ:
-#     DATABASES = {
-#         'default': {
-#             'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#             'NAME': os.environ['RDS_DB_NAME'],
-#             'USER': os.environ['RDS_USERNAME'],
-#             'PASSWORD': os.environ['RDS_PASSWORD'],
-#             'HOST': os.environ['RDS_HOSTNAME'],
-#             'PORT': os.environ['RDS_PORT'],
-#         }
-#     }
-# else:
-#     DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'postgres',
-#         'USER':'root',
-#         'PASSWORD':'jimaya792',
-#         'HOST':'localhost',
-#     }
-# }
 
 
 # Password validation
@@ -212,13 +173,13 @@ LOGOUT_REDIRECT_URL = '/'
 AUTH_USER_MODEL = 'authentication.User'
 
 #Email BACKEND SETTINGS
-# EMAIL_BACKEND = env('EMAIL_BACKEND')
-# EMAIL_HOST_USER = env('EMAIL_HOST_USER')
-# EMAIL_HOST = env('EMAIL_HOST')
-# EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
-# DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
-# EMAIL_PORT = env('EMAIL_PORT')
-# EMAIL_USE_TLS = env('EMAIL_USE_TLS')
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST_USER = os.environ['APP_EMAIL_HOST_USER']
+EMAIL_HOST = os.environ['APP_EMAIL_HOST_USER']
+EMAIL_HOST_PASSWORD = os.environ['APP_EMAIL_HOST_PASSWORD']
+DEFAULT_FROM_EMAIL = os.environ['APP_EMAIL_DEFAULT_FROM_EMAIL']
+EMAIL_PORT = os.environ['APP_EMAIL_PORT']
+EMAIL_USE_TLS = True
 
 
 
