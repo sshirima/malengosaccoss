@@ -101,14 +101,25 @@ DATABASES = {
     }
 }
 
+# DATABASES = {
+#         'default': {
+#             'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#             'NAME': 'ebdb',#os.environ['RDS_DB_NAME'],
+#             'USER': 'malengosaccosdb',#os.environ['RDS_USERNAME'],
+#             'PASSWORD': 'jimaya792',# os.environ['RDS_PASSWORD'],
+#             'HOST': 'aau3hd6m5rcqya.chslknxmrkyi.us-west-2.rds.amazonaws.com',#os.environ['RDS_HOSTNAME'],
+#             'PORT': 5432,#os.environ['RDS_PORT'],
+#         }
+#     }
+
 DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': 'ebdb',#os.environ['RDS_DB_NAME'],
-            'USER': 'malengosaccosdb',#os.environ['RDS_USERNAME'],
-            'PASSWORD': 'jimaya792',# os.environ['RDS_PASSWORD'],
-            'HOST': 'aau3hd6m5rcqya.chslknxmrkyi.us-west-2.rds.amazonaws.com',#os.environ['RDS_HOSTNAME'],
-            'PORT': 5432,#os.environ['RDS_PORT'],
+            'NAME': os.environ['RDS_DB_NAME'],
+            'USER': os.environ['RDS_USERNAME'],
+            'PASSWORD': os.environ['RDS_PASSWORD'],
+            'HOST': os.environ['RDS_HOSTNAME'],
+            'PORT': os.environ['RDS_PORT'],
         }
     }
 
