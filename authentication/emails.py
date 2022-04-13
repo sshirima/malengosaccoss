@@ -22,11 +22,14 @@ class ActivationEmailSender():
         self.request = request
 
 
-    def send(self,subject, body, from_email, to):
+    def send(self,subject, body, from_email, to, threading = True):
         try:
             email = EmailMessage(subject=subject,body=body, from_email=from_email, to=to)
             email.send(fail_silently= False)
-            #EmailThread(email).start()
+            if threading:
+                EmailThread(email).start()
+            else:
+                email.send(fail_silently= False)
             return True
         except Exception as e:
             print_error_message("ERROR, Sending email", e)

@@ -27,7 +27,11 @@ class SmtpEmailSenderThread(threading.Thread):
         threading.Thread.__init__(self)
 
     def run(self):
-        self.email.send(fail_silently= False)
+        try:
+            self.email.send(fail_silently= False)
+        except Exception as e:
+            print_error_message("ERROR, Sending email", e)
+
 
 class SmtpEmailSender():
 
