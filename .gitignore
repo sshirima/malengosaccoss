@@ -119,7 +119,7 @@ Procfile*
 .venv
 env/
 venv/
-factory/
+# factory/
 ENV/
 venvmalengo/
 env.bak/
