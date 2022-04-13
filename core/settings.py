@@ -175,13 +175,11 @@ AUTH_USER_MODEL = 'authentication.User'
 #Email BACKEND SETTINGS
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST_USER = os.environ['APP_EMAIL_HOST_USER']
-EMAIL_HOST = os.environ['APP_EMAIL_HOST_USER']
+EMAIL_HOST = os.environ['APP_EMAIL_HOST']
 EMAIL_HOST_PASSWORD = os.environ['APP_EMAIL_HOST_PASSWORD']
 DEFAULT_FROM_EMAIL = os.environ['APP_EMAIL_DEFAULT_FROM_EMAIL']
 EMAIL_PORT = os.environ['APP_EMAIL_PORT']
 EMAIL_USE_TLS = True
-
-
 
 #Bootstrap template
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
