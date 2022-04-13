@@ -125,7 +125,7 @@ venvmalengo/
 env.bak/
 venv.bak/
 core/.env
-authentication/management/commands/test*
+# appcommands/management/commands/test*
 
 # Spyder project settings
 .spyderproject
