@@ -130,6 +130,8 @@ class Loan(LoanBaseModel):
 class LoanRepayment(LoanBaseModel):
     loan = models.ForeignKey(to=Loan, on_delete=models.CASCADE, default=None)
     transaction = models.OneToOneField(Transaction, on_delete=models.CASCADE)
+    principle_amount = models.FloatField(blank=True, null=True)
+    interest_amount = models.FloatField(blank = True, null=True)
 
     def get_absolute_url(self):
         return reverse('loanrepayment-detail', args=[self.id])
@@ -138,14 +140,3 @@ class LoanRepayment(LoanBaseModel):
         verbose_name = "Loan Repayment"
         verbose_name_plural = "Loan Repayments"
         ordering = ['-transaction__reference__date_trans']
-
-
-class RepaymentsInterest(LoanBaseModel):
-    amount = models.FloatField()
-    loan = models.ForeignKey(to=Loan, on_delete=models.CASCADE, default=None)
-    transaction = models.OneToOneField(Transaction, on_delete=models.CASCADE)
-
-class RepaymentsPrinciple(LoanBaseModel):
-    amount = models.FloatField()
-    loan = models.ForeignKey(to=Loan, on_delete=models.CASCADE, default=None)
-    transaction = models.OneToOneField(Transaction, on_delete=models.CASCADE)

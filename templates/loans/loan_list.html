@@ -50,36 +50,15 @@
       </div>
       <div class="card-body">
         <form action="" method="get" class="form">
-            <div class="row">
-              <div class="col-md-3">
+          <div class="row">
+              <div class="col-md-6">
                 <div class="form-group">
                   <label for="id_member">Member</label>
                   <input type="text" name="member" class="form-control form-control-sm" value="{{request.GET.member}}" placeholder="Member" title="" id="id_member">
                 </div>
               </div>
-              <div class="col-md-2">
-                <div class="form-group">
-                  <label for="id_type">Type</label>
-                  <select name="type" class="form-control form-control-sm" id="id_type">
-                    <option ></option>
-                    {% for type in loan_types %}
-                    <option value="{{type.0}}" {% if request.GET.type == type.0 %} selected {% endif %}>{{type.1}}</option>
-                    {% endfor %}
-                  </select>
-                </div>
-              </div>
-              <div class="col-md-2">
-                <div class="form-group">
-                  <label for="id_type">Status</label>
-                  <select name="status" class="form-control form-control-sm" id="id_status">
-                    <option ></option>
-                    {% for status in loan_status %}
-                    <option value="{{status.0}}" {% if request.GET.status == status.0 %} selected {% endif %}>{{status.1}}</option>
-                    {% endfor %}
-                  </select>
-                </div>
-              </div>
-              <div class="col-md-2">
+              
+              <div class="col-md-3">
                 <div  class="form-group">
                   <label for="id_start_date">Start Date</label>
                   <input type="date" name="start_date" class="form-control form-control-sm" value="{{request.GET.start_date}}"  placeholder="Start Date" title="" id="id_start_date">

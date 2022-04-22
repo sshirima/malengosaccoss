@@ -3,6 +3,7 @@ import django_tables2
 import django_filters
 from django.db.models import Q
 from django.utils.safestring import mark_safe
+from django.urls.base import reverse
 
 from transactions.models import BankTransaction
 
@@ -49,7 +50,10 @@ class ReportMembersTable(django_tables2.Table):
         sequence = ('name', 'share_total','saving_total','loan_total')
 
     def render_name(self,record):
-        return '{} {} {}'.format(record['first_name'], record['middle_name'], record['last_name'])
+        return mark_safe('<a href="{}">{}</a>'.format(reverse("member-detail", args=[record['id']]), '{} {} {}'.format(record['first_name'], record['middle_name'], record['last_name'])))
+
+    # def render_name(self,record):
+    #     return '{} {} {}'.format(record['first_name'], record['middle_name'], record['last_name'])
 
     def render_share_total(self,record):
         return '{:0,.0f}'.format(record['share_total'])

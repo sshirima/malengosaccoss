@@ -4,6 +4,7 @@ from django.db import transaction
 from django.core.management.base import BaseCommand
 import factory
 from django.db.models import Sum
+from loans.services import LoanManager, LoanObject
 
 from tests.factory.factories import (
     BankTransactionFactory,
@@ -19,11 +20,11 @@ from authentication.models import User
 from members.models import Member
 from transactions.models import BankTransaction
 
-NUMBER_USERS = 50
-NUMBER_SHARES = 500
-NUMBER_SAVINGS = 500
-NUMBER_EXPENSE = 100
-NUMBER_LOAN = 100
+NUMBER_USERS = 5
+NUMBER_SHARES = 50
+NUMBER_SAVINGS = 50
+NUMBER_EXPENSE = 10
+NUMBER_LOAN = 3
 
 
 class Command(BaseCommand):
@@ -79,7 +80,7 @@ class Command(BaseCommand):
         #Generating loans
         self.stdout.write('Generating fake loans....')
         bankbalance = BankTransaction.objects.filter(type = 'credit').aggregate(Sum('amount'))['amount__sum']
-        max_value = int(bankbalance/NUMBER_LOAN)
+        max_value = 12000000#int(bankbalance/NUMBER_LOAN)
         loans_banktransactions = self.generate_fake_banktransactions(
             NUMBER_LOAN, 
             created_by= adminuser, 
@@ -88,13 +89,56 @@ class Command(BaseCommand):
         )
         loans_transactions = self.generate_fake_transactions(loans_banktransactions, created_by=adminuser)
         loans = self.generate_fake_loans(loans_transactions, members, created_by=adminuser)
+
+        #Generating fake loan repayments
+        self.stdout.write('Generating fake loans repayments....')
+
+        for loan in loans:
+            loan_object =  LoanObject(id=loan.id)
+            loan_manager = LoanManager(loan_object)
+
+            
+
+            installment_amount = loan_object.installment_amount
+            duration = random.randint(1, int(loan_object.time))#factory.Faker('pyint', min_value=1 , max_value=int(loan_object.time))
+            
+            repayment_banktransaction = self.generate_fake_banktransactions_loanrepayments(
+                duration, 
+                created_by= adminuser, 
+                type='credit',
+                amount = installment_amount,
+                loan_manager = loan_manager
+            )
+            self.generate_fake_loanrepayments(loan_manager, repayment_banktransaction, created_by = adminuser)
+
+    def generate_fake_loanrepayments(self, loan_manager, banktransactions, **kwargs):
+        for payment in banktransactions:
+            loan_manager.pay_loan(payment, created_by = kwargs['created_by'])
+
     
     def generate_fake_banktransactions(self, number, **kwargs):
         transactions = []
-
         for _ in range(number):
             trans = BankTransactionFactory(**kwargs)
             transactions.append(trans)
+
+        return transactions
+
+    def generate_fake_banktransactions_loanrepayments(self, number, **kwargs):
+        transactions = []
+        count = 1
+        
+        loan_manager = kwargs.pop('loan_manager')
+        # date_trans = factory.Faker('date_between_dates', date_end=datetime(2022,3,10), date_start=datetime(2021,3,10))
+        # date_value = factory.Faker('date_between_dates', date_end=datetime(2022,3,10), date_start=datetime(2021,3,10))
+            
+        for _ in range(number):
+            kwargs['date_trans'] = loan_manager.get_nth_payment_deadline(count)
+            kwargs['date_value'] = loan_manager.get_nth_payment_deadline(count)
+            trans = BankTransactionFactory(**kwargs)
+            transactions.append(trans)
+            count +=1
+
         return transactions
 
     def generate_fake_transactions(self, banktransactions, **kwargs):
@@ -206,7 +250,6 @@ class Command(BaseCommand):
                 'created_by':kwargs['created_by']
             }
             
-
     def generate_fake_expenses(self, transactions, **kwargs):
         expenses = []
         for t in transactions:

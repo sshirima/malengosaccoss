@@ -14,13 +14,11 @@ from savings.models import Saving
 from expenses.models import Expense
 from loans.models import Loan
 
-
 class UserFactory(DjangoModelFactory):
     class Meta:
         model = User
     email = factory.Faker('email')
     is_active = True
-
 
 class MemberFactory(DjangoModelFactory):
     class Meta:
@@ -35,7 +33,6 @@ class MemberFactory(DjangoModelFactory):
     mobile_number = factory.Faker('msisdn')
     date_joined = datetime.now().replace(tzinfo=timezone.utc) #factory.LazyFunction(datetime.now().replace(tzinfo=timezone.utc))
 
-
 class BankTransactionFactory(DjangoModelFactory):
     class Meta:
         model = BankTransaction 
@@ -47,7 +44,6 @@ class BankTransactionFactory(DjangoModelFactory):
     # date_trans = factory.Faker('date_between', start_date=datetime.date(2022,1,1), end_date=datetime.date(2022,3,1))
     date_trans = factory.Faker('date_between_dates', date_end=datetime(2022,3,10), date_start=datetime(2021,3,10))
     date_value = factory.Faker('date_between_dates', date_end=datetime(2022,3,10), date_start=datetime(2021,3,10))
-
 
 class TransactionFactory(DjangoModelFactory):
     class Meta:

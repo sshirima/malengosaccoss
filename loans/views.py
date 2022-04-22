@@ -7,18 +7,18 @@ from django.views.generic import CreateView, ListView, UpdateView, DeleteView, D
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
 from django.contrib import messages
-from core.views.generic import BaseListView
+from core.views.generic import BaseDetailView, BaseListView
 from django_tables2 import RequestConfig
 from django.db.models import Sum
 import json
 from django.http import JsonResponse
 
 from loans.models import LOAN_TYPE, LOAN_STATUS, Loan, LoanRepayment
-from loans.tables import LoanRepaymentTableExport, LoanTable, LoanTableExport, LoanTableFilter, LoanRepaymentTableFilter, LoanRepaymentTable
+from loans.tables import LoanRepaymentDetailTable, LoanRepaymentTableExport, LoanTable, LoanTableExport, LoanTableFilter, LoanRepaymentTableFilter, LoanRepaymentTable
 from authentication.models import User
 from members.models import Member
 from loans.forms import LoanCreateFromBankTransactionForm, LoanRepaymentCreateForm, LoanRepaymentMemberSelectForm
-from loans.services import LoanCRUDService
+from loans.services import LoanCRUDService, LoanObject
 import loans.models as l_models
 from transactions.models import BankTransaction
 
@@ -29,7 +29,6 @@ class LoanListView(LoginRequiredMixin, BaseListView):
     model = Loan
     table_class = LoanTable
     filterset_class = LoanTableFilter
-
     #Export options
     table_class_export = LoanTableExport
     export_filename = 'loans'
@@ -38,7 +37,14 @@ class LoanListView(LoginRequiredMixin, BaseListView):
     def get_queryset(self, *args, **kwargs):
         filters = {}
         filters['member__user'] = self.request.user
-        return super(LoanListView, self).get_queryset(**filters)
+        if self.request.user.is_staff:
+            # qs = self.model.objects.filter(**kwargs)
+            qs = self.model.objects.all()
+        else:
+            qs = self.model.objects.filter(**filters)
+
+        self.filter = self.filterset_class(self.request.GET, queryset=qs)
+        return self.filter.qs
 
     def get_context_data(self,*args, **kwargs):
         queryset = self.get_queryset(**kwargs)
@@ -91,49 +97,45 @@ class LoanCreateFromBankTransactionView(LoginRequiredMixin, View):
         context['members'] = Member.objects.filter(is_active=True)
         return context
     
-class LoanDetailView(LoginRequiredMixin, DetailView):
+class LoanDetailView(LoginRequiredMixin, BaseDetailView):
     template_name = 'loans/loan_detail.html'
     model = Loan
     context_object_name = 'loan'
     slug_field = 'id'
     slug_url_kwarg = 'id'
+    paginate_by = 10
 
     def get_queryset(self):
-
-        # if self.request.user.is_admin:
-        #     return Loan.objects.filter(id=self.kwargs['id'])
-
-        # if self.request.user.is_authenticated:
-        #     return Loan.objects.filter( transaction__created_by=self.request.user)
-        # else:
-        #     return Loan.objects.none()
-
-        return Loan.objects.filter(id=self.kwargs['id'])
+        return super(LoanDetailView, self).get_queryset(id=self.kwargs['id'], member__user=self.request.user).select_related('transaction__reference','member__user')
+        
 
     def get_context_data(self,*args, **kwargs):
         context = super(LoanDetailView, self).get_context_data()
-        queryset = self.object.loanrepayment_set.all()
+        loan_object = LoanObject(loan=self.object)
+        queryset = loan_object.loan_repayments
+        self.set_loanrepayment_table(queryset, context)
+        #Repayment and balance
+        context['total_loanrepayment'] = loan_object.get_sum_loan_repayments()
+        context['loan_balance'] = loan_object.get_outstanding_balance()
+        
+        return context
+
+    def set_loanrepayment_table(self, queryset, context):
         filter = LoanRepaymentTableFilter(self.request.GET, queryset=queryset)
-        table = LoanRepaymentTable(filter.qs)
-        RequestConfig(self.request, paginate={"per_page": 5}).configure(table)
-        total_repayment = queryset.aggregate(Sum('transaction__amount'))['transaction__amount__sum']
-        if total_repayment:
-            balance = self.object.get_total_loan_amount() - total_repayment 
-        else:
-            total_repayment = 0
-            balance = self.object.get_total_loan_amount() - total_repayment
-        context['total_loanrepayment'] = total_repayment
-        context['loan_balance'] = balance
+        table = LoanRepaymentDetailTable(filter.qs)
+        RequestConfig(self.request, paginate={"per_page": self.paginate_by}).configure(table)
         context['filter']=filter
         context['table']=table
-        return context
 
 class LoanRepaymentListView(LoginRequiredMixin, BaseListView):
 
-    template_name ='loans/loanrepayment_list.html'
+    template_name ='loans/loan_list.html'
     model = LoanRepayment
     table_class = LoanRepaymentTable
     filterset_class = LoanRepaymentTableFilter
+    #Export options
+    table_class_export = LoanTableExport
+    export_filename = 'loanrepayment'
 
     #Export options
     table_class_export = LoanRepaymentTableExport
@@ -150,24 +152,16 @@ class LoanRepaymentListView(LoginRequiredMixin, BaseListView):
 
         return context
 
-class LoanRepaymentDetailView(LoginRequiredMixin, DetailView):
+class LoanRepaymentDetailView(LoginRequiredMixin, BaseDetailView):
     template_name = 'loans/loanrepayment_detail.html'
     model = LoanRepayment
-    context_object_name = 'loan'
+    context_object_name = 'loanrepayment'
     slug_field = 'id'
     slug_url_kwarg = 'id'
 
     def get_queryset(self):
-
-        # if self.request.user.is_admin:
-        #     return Loan.objects.filter(id=self.kwargs['id'])
-
-        # if self.request.user.is_authenticated:
-        #     return Loan.objects.filter( transaction__created_by=self.request.user)
-        # else:
-        #     return Loan.objects.none()
-
-        return LoanRepayment.objects.filter(id=self.kwargs['id'])
+        return super(LoanRepaymentDetailView, self).get_queryset(id=self.kwargs['id'], member__user=self.request.user).select_related('transaction__reference','loan')
+       
 
 class LoanRepaymentMemberSelectView(LoginRequiredMixin, View):
     template_name = 'loans/loanrepayment_select_member.html'

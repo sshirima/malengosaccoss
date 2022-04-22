@@ -22,6 +22,7 @@ class Command(BaseCommand):
         savings = self.get_members_totals(Saving, member='owner',first_name='owner__first_name', middle_name='owner__middle_name', last_name= 'owner__last_name', email='owner__user__email')
         loans = self.get_members_totals(Loan, member='member',first_name='member__first_name', middle_name='member__middle_name', last_name= 'member__last_name', email='member__user__email')
 
+        loans = Loan.objects.select_related('')
         
         # results = self.get_formated_data(shares, results, 'share')
         # results = self.get_formated_data(savings, results, 'saving')
@@ -59,7 +60,6 @@ class Command(BaseCommand):
         return object.objects.select_related('member', 'user').values(kwargs['member']).annotate(sum=Sum('transaction__reference__amount'), first_name=F(
             kwargs['first_name']), email=F(kwargs['email']), middle_name=F(kwargs['middle_name']), last_name=F(kwargs['last_name'])).values('email','first_name', 'middle_name', 'last_name', 'sum')
 
-        
     def get_monthly_transactions(self):
         self.stdout.write('Creating reports ....')
         transactions = BankTransaction.objects.annotate(month=TruncMonth('date_trans')).values(

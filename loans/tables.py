@@ -20,9 +20,8 @@ class LoanTable(django_tables2.Table):
     
     principle = django_tables2.Column(accessor='principle', verbose_name='Principle')
     duration = django_tables2.Column(accessor='duration', verbose_name='Duration')
-    date_trans = django_tables2.Column(accessor='transaction.reference.date_trans', verbose_name = "Date Trans")
-    member = django_tables2.Column(accessor='status', verbose_name = "Belongs To")
-    installment_amount = django_tables2.Column(accessor='installment_amount', verbose_name = "Installment Amount")
+    owner = django_tables2.Column(accessor='member', verbose_name='Owned By')
+    date_trans = django_tables2.Column(accessor='transaction.reference.date_trans', verbose_name = "Date Issued")
     status = StatusColumn(accessor='status', verbose_name = "Status")
     type = django_tables2.Column(accessor='type', verbose_name = "Type")
     
@@ -31,26 +30,17 @@ class LoanTable(django_tables2.Table):
         model = Loan
         attrs = {'class': 'table '}
         template_name = 'django_tables2/bootstrap.html'
-        fields = ('principle','installment_amount','duration','member','date_trans','status','type')
-        sequence = ('principle','installment_amount','member','date_trans','duration','status','type')
+        fields = ('principle','duration','owner','date_trans','status','type')
+        sequence = ('principle','duration','owner','date_trans','status','type')
     
     def render_principle(self,record):
         return mark_safe('<a href="{}">{}</a>'.format(reverse("loan-detail", args=[record.id]), '{:0,.0f}'.format(record.principle)))
 
-    def render_member(self,record):
-        return record.member.get_full_name()
-
-    def render_amount_issued(self, record):
-        return '{:0,.0f}'.format(record.amount_issued)
-
-    def render_interest(self, record):
-        return '{:0,.0f}'.format(record.interest_amount)
-
-    def render_installment_amount(self, record):
-        return '{:0,.0f}'.format(record.installment_amount)
+    def render_owner(self,record):
+        return '{} {}'.format(record.member.first_name, record.member.last_name)
 
     def render_duration(self, record):
-        return '{:0,.0f}'.format(record.duration)
+        return int(record.duration)
 
 class LoanTableExport(django_tables2.Table):
     
@@ -112,27 +102,69 @@ class LoanTableFilter(django_filters.FilterSet):
         fields = ['member']
 
 class LoanRepaymentTable(django_tables2.Table):
-    
-    amount = django_tables2.Column(accessor='transaction__amount', verbose_name='Paid Amount')
-    loan = django_tables2.Column(accessor='loan', verbose_name='Reference Loan')
-    member = django_tables2.Column(accessor='loan__member', verbose_name = "Owner")
-    date_paid = django_tables2.Column(accessor='loan__transaction__reference__date_trans', verbose_name = "Date Paid")
+    balance = None
+    amount = django_tables2.Column(accessor='transaction__amount', verbose_name='Total Amount')
+    principle_amount = django_tables2.Column(accessor='principle_amount', verbose_name='Principle Pay')
+    interest_amount = django_tables2.Column(accessor='interest_amount', verbose_name='Interest Pay')
+    owner = django_tables2.Column(accessor='loan__member', verbose_name='Owner')
+    date_paid = django_tables2.Column(accessor='transaction__reference__date_trans', verbose_name = "Date Paid")
 
     class Meta:
         model = LoanRepayment
         attrs = {'class': 'table'}
         template_name = 'django_tables2/bootstrap.html'
-        fields = ('amount','member','date_paid')
-        sequence = ('amount','loan','member','date_paid')
+        fields = ('amount','date_paid')
+        sequence = ('amount','principle_amount','interest_amount','owner','date_paid')
+
+    def render_owner(self,record):
+        return '{} {}'.format(record.loan.member.first_name, record.loan.member.last_name)
     
     def render_amount(self,record):
         return mark_safe('<a href="{}">{}</a>'.format(reverse("loanrepayment-detail", args=[record.id]), '{:0,.0f}'.format(record.transaction.amount)))
+    
+    def render_principle_amount(self,record):
+        return '{:0,.0f}'.format(record.principle_amount)
+
+    def render_interest_amount(self,record):
+        return '{:0,.0f}'.format(record.interest_amount)
+
+class LoanRepaymentDetailTable(django_tables2.Table):
+    balance = None
+    amount = django_tables2.Column(accessor='transaction__amount', verbose_name='Total Amount')
+    principle_amount = django_tables2.Column(accessor='principle_amount', verbose_name='Principle Pay')
+    interest_amount = django_tables2.Column(accessor='interest_amount', verbose_name='Interest Pay')
+    loan_balance = django_tables2.Column(accessor='interest_amount', verbose_name='Balance')
+    date_paid = django_tables2.Column(accessor='transaction__reference__date_trans', verbose_name = "Date Paid")
+
+    class Meta:
+        model = LoanRepayment
+        attrs = {'class': 'table'}
+        template_name = 'django_tables2/bootstrap.html'
+        fields = ('amount','date_paid')
+        sequence = ('amount','principle_amount','interest_amount','loan_balance','date_paid')
+    
+    def render_amount(self,record):
+        return mark_safe('<a href="{}">{}</a>'.format(reverse("loanrepayment-detail", args=[record.id]), '{:0,.0f}'.format(record.transaction.amount)))
+    
+    def render_principle_amount(self,record):
+        return '{:0,.0f}'.format(record.principle_amount)
+
+    def render_interest_amount(self,record):
+        return '{:0,.0f}'.format(record.interest_amount)
+
+    def render_loan_balance(self,record):
+
+        if self.balance is None:
+            self.balance = record.loan.principle - record.principle_amount
+            return '{:0,.0f}'.format(self.balance )
+
+        self.balance = self.balance - record.principle_amount
+        return '{:0,.0f}'.format(self.balance)
+        
 
     def render_member(self,record):
         return record.loan.member.get_full_name()
 
-    def render_loan(self,record):
-        return mark_safe('<a href="{}">{}</a>'.format(reverse("loan-detail", args=[record.id]), '{:0,.0f}'.format(record.loan.principle)))
 
 class LoanRepaymentTableExport(django_tables2.Table):
     
@@ -158,13 +190,12 @@ class LoanRepaymentTableFilter(django_filters.FilterSet):
             Q(loan__member__first_name__icontains=value)|
             Q(loan__member__middle_name__icontains=value)|
             Q(loan__member__last_name__icontains=value)
-            
             )
 
     def search_start_date(self, qs, name, value):
-        return qs.filter(Q(loan__transaction__reference__date_trans__gte=value))
+        return qs.filter(Q(transaction__reference__date_trans__gte=value))
 
     def search_end_date(self, qs, name, value):
-        return qs.filter(Q(loan__transaction__reference__date_trans__lte=value))
+        return qs.filter(Q(transaction__reference__date_trans__lte=value))
 
 

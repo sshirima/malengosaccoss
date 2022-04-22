@@ -1,6 +1,7 @@
 import imp
 from django.shortcuts import render
 from django.views.generic import View
+from loans.models import Loan, LoanRepayment
 
 from shares.models import Share
 from transactions.models import Transaction, BankTransaction
@@ -29,6 +30,13 @@ class DashboardView(LoginRequiredMixin, View):
         context['saving_amount_sum']  = Saving.objects.all().aggregate(Sum('transaction__amount'))['transaction__amount__sum']
         #Total Expenses
         context['expense_amount_sum']  = Expense.objects.all().aggregate(Sum('transaction__amount'))['transaction__amount__sum']
+        
+        #Total Expenses
+        # context['loan_amount_sum']  = Loan.objects.all().aggregate(Sum('transaction__amount'))['transaction__amount__sum']
+        context['loan_amount_sum']  = Loan.objects.all().aggregate(Sum('principle'))['principle__sum']
+        
+        #Total Expenses
+        context['loanrepayment_amount_sum']  = LoanRepayment.objects.all().aggregate(Sum('transaction__amount'))['transaction__amount__sum']
         
         #Total members
         context['member_all_count'] = Member.objects.all().count()
