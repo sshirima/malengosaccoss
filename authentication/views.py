@@ -17,6 +17,7 @@ from authentication.models import User
 from .forms import PasswordResetChangeForm, RegistrationForm, LoginForm, PasswordResetRequestForm, UserProfileUpdateForm
 from .services import PasswordResetService, RegistrationService, LoginService, UserProfileService
 from authentication.permissions import MemberNormalPassesTestMixin
+from members.models import Member
 
 # Create your views here.
 
@@ -34,11 +35,12 @@ class RegistrationView(CreateView):
             context = self.get_context_data_post(request, form)
             return render(request, self.template_name, context) 
 
-        created, user = registrationService.create_user(form.cleaned_data)
+        created, user = registrationService.create_user(**form.cleaned_data)
 
         
         if not created and user is None:
             context = self.get_context_data_post(request, form)
+            messages.error(request, 'Fails to create member account')
             return render(request, self.template_name, context) 
 
         messages.success(request, 'Account created successful, an activation email will be sent by the administrator')
@@ -251,7 +253,11 @@ class UserProfileUpdateView(LoginRequiredMixin, View):
 
     def get(self, request):
 
-        return render(request, self.template_name)
+        if not Member.objects.filter(user=request.user).exists():
+            messages.error(request, 'User is not assigned to any member')
+            return redirect('dashboard')
+
+        return render(request, self.template_name, {'member':request.user.member})
 
     def post(self, request):
         form = UserProfileUpdateForm(request.POST)

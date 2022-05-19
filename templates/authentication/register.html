@@ -1,7 +1,9 @@
 {% extends "base_auth.html" %}
 
+{% load i18n %} 
+
 {% block title %}
-      Register
+{% translate 'Register' %}
 {% endblock title %}
 
 {% block content %}
@@ -18,13 +20,13 @@
           <a href="#" class="h1"><b>{{APP_NAME}}</b></a>
         </div>
         <div class="card-body">
-          <p class="login-box-msg">Register new account</p>
+          <p class="login-box-msg">{% translate 'Register new account' %}</p>
           {% include "partials/_form_errors.html" %}
           <form action="{% url 'register'%}" method="post">
             {% csrf_token %}
             
             <div class="input-group mb-3">
-              <input type="email" class="form-control" name="email" placeholder="Email" value="{{values.email}}" required>
+              <input type="email" class="form-control" name="email" placeholder="{% translate 'Email'%}" value="{{values.email}}" required>
               <div class="input-group-append">
                 <div class="input-group-text">
                   <span class="fas fa-envelope"></span>
@@ -33,7 +35,7 @@
             </div>
             
             <div class="input-group mb-3">
-              <input type="password" class="form-control" name="password1" placeholder="Password" required>
+              <input type="password" class="form-control" name="password1" placeholder="{% translate 'Password'%}" required>
               <div class="input-group-append">
                 <div class="input-group-text">
                   <span class="fas fa-lock"></span>
@@ -41,7 +43,7 @@
               </div>
             </div>
             <div class="input-group mb-3">
-              <input type="password" class="form-control" name="password2" placeholder="Confirm password" required>
+              <input type="password" class="form-control" name="password2" placeholder="{% translate 'Confirm Password'%}" required>
               <div class="input-group-append">
                 <div class="input-group-text">
                   <span class="fas fa-lock"></span>
@@ -51,8 +53,8 @@
             <div class="input-group mb-3">
               <select name="gender" class="form-control" required> 
                 <option ></option>
-                <option value="male">Male</option>
-                <option value="female">Female</option>
+                <option value="male">"{% translate 'Male'%}"</option>
+                <option value="female">"{% translate 'Female'%}"</option>
               </select>
               <div class="input-group-append">
                 <div class="input-group-text">
@@ -61,7 +63,7 @@
               </div>
             </div>
             <div class="input-group mb-3">
-              <input type="text" class="form-control" name="mobile_number" required value="{{values.mobile_number}}" placeholder="Mobile Number" >
+              <input type="text" class="form-control" name="mobile_number" required value="{{values.mobile_number}}" placeholder="{% translate 'Mobile number'%}" >
               <div class="input-group-append">
                 <div class="input-group-text">
                   <span class="fas fa-mobile"></span>
@@ -70,19 +72,19 @@
             </div>
             <div class="row mb-3">
               <div class="col-md-4 mt-3">
-                <input type="text" class="form-control" name="first_name" value="{{values.first_name}}" required placeholder="First name" >
+                <input type="text" class="form-control" name="first_name" value="{{values.first_name}}" required placeholder="{% translate 'First name'%}" >
               </div>
               <div class="col-md-4 mt-3">
-                <input type="text" class="form-control" name="middle_name" value="{{values.middle_name}}" required placeholder="Middle Name" >
+                <input type="text" class="form-control" name="middle_name" value="{{values.middle_name}}" placeholder="{% translate 'Middle name'%}" >
               </div>
               <div class="col-md-4 mt-3">
-                <input type="text" class="form-control" name="last_name" value="{{values.last_name}}" required placeholder="Last name" >
+                <input type="text" class="form-control" name="last_name" value="{{values.last_name}}" required placeholder="{% translate 'Last name'%}" >
               </div>
             </div>
             
             <div class="row">
               <div class="col-md-6">
-                <button type="submit" class="btn btn-outline-info btn-block">Register</button>
+                <button type="submit" id="submit"  class="btn btn-outline-info btn-block">{% translate 'Register'%}</button>
               </div>
               <!-- /.col -->
               <div class="col-md-6">
@@ -93,10 +95,10 @@
           </form>
     
           <p class="mb-1">
-            <a href="{% url 'password-reset-request' %}">Reset password</a>
+            <a style="color: #17a2b8;" href="{% url 'password-reset-request' %}">{% translate 'Reset Password'%}</a>
           </p>
           <p class="mb-0">
-            <a href="{% url 'login' %}" class="text-center">Login</a>
+            <a style="color: #17a2b8;" href="{% url 'login' %}" class="text-center">{% translate 'Login'%}</a>
           </p>
         </div>
         <!-- /.card-body -->

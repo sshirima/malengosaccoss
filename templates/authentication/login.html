@@ -1,10 +1,15 @@
 {% extends "base_auth.html" %}
 
-{% block title %}
-      Login
-{% endblock title %}
+{% load i18n %} 
 
 {% load static %}
+
+{% block title %}
+      {% translate 'Login' %}
+{% endblock title %}
+
+
+
 
 {% block content %}
   
@@ -20,12 +25,12 @@
           <a href="#" class="h1"><b>{{APP_NAME}}</b></a>
         </div>
         <div class="card-body">
-          <p class="login-box-msg">Login to your account</p>
+          <p class="login-box-msg">{% translate 'Login to your account' %}</p>
           {% include "partials/_form_errors.html" %}
           <form action="{% url 'login'%}" method="post">
             {% csrf_token %}
             <div class="input-group mb-3">
-              <input type="email" class="form-control" id="email" name="email" placeholder="Email" required>
+              <input type="email" class="form-control" id="email" name="email" placeholder="{% translate 'Email'%}" required>
               <div class="input-group-append">
                 <div class="input-group-text">
                   <span class="fas fa-envelope"></span>
@@ -33,7 +38,7 @@
               </div>
             </div>
             <div class="input-group mb-3">
-              <input type="password" class="form-control passwordField" id="password" name="password" placeholder="Password" required>
+              <input type="password" class="form-control passwordField" id="password" name="password" placeholder="{% translate 'Password'%}" required>
               
               <div class="input-group-append">
                 <div class="input-group-text showPasswordToggle">
@@ -43,7 +48,7 @@
             </div>
             <div class="row">
               <div class="col-4">
-                <button type="submit" id="submit" class="btn btn-outline-info btn-block">Login</button>
+                <button type="submit" id="submit" class="btn btn-outline-info btn-block">{% translate 'Login'%}</button>
               </div>
               <!-- /.col -->
               <div class="col-8">
@@ -54,10 +59,10 @@
           </form>
     
           <p class="mb-1">
-            <a href="{% url 'password-reset-request' %}">Reset password</a>
+            <a style="color: #17a2b8;" href="{% url 'password-reset-request' %}">{% translate 'Reset Password'%}</a>
           </p>
           <p class="mb-0">
-            <a href="{% url 'register' %}" class="text-center">Register</a>
+            <a style="color: #17a2b8;" href="{% url 'register' %}" class="text-center">{% translate 'Create member account'%}</a>
           </p>
         </div>
         <!-- /.card-body -->
@@ -69,8 +74,8 @@
 {% endblock content %}
 
 {% block extra_js %}
-<script src="{% static 'js/authentication/login.js'%}"></script>
-<!-- <script  >
+<!-- <script src="{% static 'js/authentication/login.js'%}"></script> -->
+<script  >
   
   const showPasswordToggle = document.querySelector('.showPasswordToggle');
   const passwordField = document.querySelector('.passwordField')
@@ -89,5 +94,5 @@
     
   });
 
-</script> -->
+</script>
 {% endblock extra_js %}

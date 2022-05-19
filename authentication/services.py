@@ -249,10 +249,12 @@ class UserProfileService():
     def update_user_profile(self, data, user):
 
         try:
-            user.first_name = data['first_name']
-            user.last_name = data['last_name']
-            user.mobile_number = data['mobile_number']
-            user.save()
+            member = user.member
+            member.first_name = data['first_name']
+            member.middle_name = data['middle_name']
+            member.last_name = data['last_name']
+            member.mobile_number = data['mobile_number']
+            member.save()
 
             return ('', True, user)
 

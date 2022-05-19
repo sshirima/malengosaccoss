@@ -3,13 +3,18 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm, PasswordResetForm, PasswordChangeForm
 from django.forms import fields
 from .models import User
+from members.models import Member
 
 class RegistrationForm(UserCreationForm):
-    middle_name = forms.CharField(max_length=30, required=True)
+    email = forms.CharField(max_length=30, required=True)
+    first_name = forms.CharField(max_length=30, required=True)
+    middle_name = forms.CharField(max_length=30, required=False)
+    last_name = forms.CharField(max_length=30, required=True)
+    mobile_number = forms.CharField(max_length=30, required=False)
     gender = forms.CharField(max_length=30, required=True)
     class Meta:
         model = User
-        fields = ('email','first_name','last_name','password1', 'password2', 'mobile_number')
+        fields=('email',)
 
 
 class LoginForm(forms.Form):
@@ -67,12 +72,13 @@ class PasswordChangeRequiredForm(forms.Form):
 
 class UserProfileUpdateForm(forms.Form):
 
-    first_name = forms.CharField(max_length=30, required=False)
-    last_name = forms.CharField(max_length=30, required=False)
-    mobile_number = forms.CharField(max_length=15, required=False)
+    first_name = forms.CharField(max_length=30, required=True)
+    middle_name = forms.CharField(max_length=30, required=False)
+    last_name = forms.CharField(max_length=30, required=True)
+    mobile_number = forms.CharField(max_length=20, required=True)
 
     class Meta:
-        fields = ('first_name', 'last_name', 'mobile_number')
+        fields = ('first_name', 'last_name',)
 
 class PasswordChangeRequiredForm():
     new_password1 = forms.CharField(required= True, max_length=255)

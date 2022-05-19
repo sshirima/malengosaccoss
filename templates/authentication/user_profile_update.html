@@ -17,12 +17,12 @@
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
-            <h1 class="m-0">Update Profile</h1>
+            <h1 class="m-0">Update profile</h1>
           </div><!-- /.col -->
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
-              <li class="breadcrumb-item"><a href="{% url 'user-profile'%}">User Profile</a></li>
-              <li class="breadcrumb-item active">Update Profile</li>
+              <li class="breadcrumb-item"><a href="{% url 'user-profile'%}">User profile</a></li>
+              <li class="breadcrumb-item active">Update profile</li>
             </ol>
           </div><!-- /.col -->
       </div><!-- /.row -->
@@ -49,7 +49,7 @@
           {% csrf_token %}
           
           <div class="input-group mb-3">
-            <input type="text" class="form-control" value="{{request.user.first_name}}" name="first_name" placeholder="First Name">
+            <input type="text" class="form-control" value="{{member.first_name}}" name="first_name" placeholder="First name">
             <div class="input-group-append">
               <div class="input-group-text">
                 <i class="fas fa-file-alt"></i>
@@ -57,7 +57,7 @@
             </div>
           </div>
           <div class="input-group mb-3">
-            <input type="text" class="form-control" value="{{request.user.last_name}}" name="last_name" placeholder="Last Name">
+            <input type="text" class="form-control" value="{{member.middle_name}}" name="middle_name" placeholder="Middle name">
             <div class="input-group-append">
               <div class="input-group-text">
                 <i class="fas fa-file-alt"></i>
@@ -65,20 +65,29 @@
             </div>
           </div>
           <div class="input-group mb-3">
-            <input type="text" class="form-control" value="{{request.user.mobile_number}}" name="mobile_number" placeholder="Mobile Number">
+            <input type="text" class="form-control" value="{{member.last_name}}" name="last_name" placeholder="Last name">
             <div class="input-group-append">
               <div class="input-group-text">
-                <i class="fas fa-mobile-alt"></i>
+                <i class="fas fa-file-alt"></i>
               </div>
             </div>
           </div>
+          <div class="input-group mb-3">
+            <input type="text" class="form-control" value="{{member.mobile_number}}" name="mobile_number" placeholder="Mobile number">
+            <div class="input-group-append">
+              <div class="input-group-text">
+                <i class="fas fa-file-alt"></i>
+              </div>
+            </div>
+          </div>
+          
           <div class="row">
             <div class="col-md-6">
-              <button type="submit" class="btn btn-outline-info btn-block">Update</button>
+              <button type="submit" id="submit" class="btn btn-outline-info btn-block mt-1">Update</button>
             </div>
             <!-- /.col -->
             <div class="col-md-6">
-              <a href="{% url 'user-profile'%}" class="btn btn-outline-danger btn-block"><b>Cancel</b></a>
+              <a href="{% url 'user-profile'%}" class="btn btn-outline-danger btn-block mt-2"><b>Cancel</b></a>
             </div>
             <!-- /.col -->
           </div>

@@ -12,7 +12,7 @@ GENDER_STATUS = (
 
 class Member(models.Model):
     id = models.UUIDField(primary_key = True,default = uuid.uuid4, editable = False)
-    mobile_number = models.CharField(max_length=15, blank=True, null=True)
+    mobile_number = models.CharField(max_length=20, blank=True, null=True)
     first_name = models.CharField(max_length=30, blank=False)
     middle_name = models.CharField(max_length=30, blank=False)
     last_name = models.CharField(max_length=30, blank=False)

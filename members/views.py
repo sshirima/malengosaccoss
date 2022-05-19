@@ -159,7 +159,7 @@ class MemberSendActivationLinkView(LoginRequiredMixin,MemberStaffPassTestMixin,V
             return redirect(reverse('member-detail', member.id))
 
         messages.success(request, 'Account activation has been sent to: {}'.format(user.email))
-        messages.info(request, 'Activation url: {}'.format(activation_url))
+        messages.info(request, '{}'.format(activation_url), extra_tags='info activation_url')
         return redirect(reverse('member-detail', args=[member.id]))
 
 class MemberSendPasswordResetLinkView(LoginRequiredMixin,MemberStaffPassTestMixin,View):

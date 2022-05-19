@@ -23,7 +23,7 @@
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
-            <h1 class="m-0">Members</h1>
+            <h1 class="m-0">Member details</h1>
           </div><!-- /.col -->
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
@@ -45,16 +45,16 @@
   <div class="card-header p-0 border-bottom-0">
     <ul class="nav nav-tabs" id="custom-tabs-four-tab" role="tablist">
       <li class="nav-item">
-      <a class="nav-link active" id="tab-one-id" data-toggle="pill" href="#tab-one" role="tab" aria-controls="tab-one" aria-selected="true">Member Details</a>
+      <a class="nav-link active" id="tab-one-id" data-toggle="pill" href="#tab-one" role="tab" aria-controls="tab-one" aria-selected="true">Details</a>
       </li>
       <li class="nav-item">
-      <a class="nav-link" id="tab-two-id" data-toggle="pill" href="#tab-two" role="tab" aria-controls="tab-two" aria-selected="false">Shares List</a>
+      <a class="nav-link" id="tab-two-id" data-toggle="pill" href="#tab-two" role="tab" aria-controls="tab-two" aria-selected="false">Shares </a>
       </li>
       <li class="nav-item">
-      <a class="nav-link" id="tab-three-id" data-toggle="pill" href="#tab-three" role="tab" aria-controls="tab-three" aria-selected="false">Loans List</a>
+      <a class="nav-link" id="tab-three-id" data-toggle="pill" href="#tab-three" role="tab" aria-controls="tab-three" aria-selected="false">Loans </a>
       </li>
       <li class="nav-item">
-      <a class="nav-link" id="tab-four-id" data-toggle="pill" href="#tab-four" role="tab" aria-controls="tab-four" aria-selected="false">Savings List</a>
+      <a class="nav-link" id="tab-four-id" data-toggle="pill" href="#tab-four" role="tab" aria-controls="tab-four" aria-selected="false">Savings </a>
       </li>
       </li>
       <li class="nav-item">
@@ -171,12 +171,12 @@
             </div>
             
             <div class="col-sm-3 p-1">
-              <a href="{% url 'member-send-password-reset-link' member.id %}" class="btn btn-outline-info ">Send Password Reset Link</a>
+              <a href="{% url 'member-send-password-reset-link' member.id %}" id="send_password_reset_link" class="btn btn-outline-info ">Send Password Reset Link</a>
             </div>
             <div class="col-sm-3 p-1">
               
               {% if not member.is_active %}
-                <a href="{% url 'member-send-activation-link' member.id %}" class="btn btn-outline-info ">Send Activation Link</a>
+                <a href="{% url 'member-send-activation-link' member.id %}" id="send_activation_link" class="btn btn-outline-info ">Send Activation Link</a>
               {% endif %}
                 
             </div>
