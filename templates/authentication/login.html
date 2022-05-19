@@ -4,6 +4,8 @@
       Login
 {% endblock title %}
 
+{% load static %}
+
 {% block content %}
   
   <div class="row mt-5 mx-auto p-2">
@@ -23,7 +25,7 @@
           <form action="{% url 'login'%}" method="post">
             {% csrf_token %}
             <div class="input-group mb-3">
-              <input type="email" class="form-control" name="email" placeholder="Email" required>
+              <input type="email" class="form-control" id="email" name="email" placeholder="Email" required>
               <div class="input-group-append">
                 <div class="input-group-text">
                   <span class="fas fa-envelope"></span>
@@ -31,16 +33,17 @@
               </div>
             </div>
             <div class="input-group mb-3">
-              <input type="password" class="form-control" name="password" placeholder="Password" required>
+              <input type="password" class="form-control passwordField" id="password" name="password" placeholder="Password" required>
+              
               <div class="input-group-append">
-                <div class="input-group-text">
-                  <span class="fas fa-lock"></span>
+                <div class="input-group-text showPasswordToggle">
+                  <span class="fas fa-eye" id="toggleIcon"></span>
                 </div>
               </div>
             </div>
             <div class="row">
               <div class="col-4">
-                <button type="submit" class="btn btn-outline-info btn-block">Sign In</button>
+                <button type="submit" id="submit" class="btn btn-outline-info btn-block">Login</button>
               </div>
               <!-- /.col -->
               <div class="col-8">
@@ -64,3 +67,27 @@
     <div class="col-md-3"></div>
   </div>
 {% endblock content %}
+
+{% block extra_js %}
+<script src="{% static 'js/authentication/login.js'%}"></script>
+<!-- <script  >
+  
+  const showPasswordToggle = document.querySelector('.showPasswordToggle');
+  const passwordField = document.querySelector('.passwordField')
+  const toggleIcon = document.querySelector('#toggleIcon')
+
+  showPasswordToggle.addEventListener('click', (e)=>{
+    if (passwordField.type === 'password'){
+      passwordField.setAttribute('type', 'text')
+      toggleIcon.classList.remove('fa-eye')
+      toggleIcon.classList.add('fa-eye-slash')
+    } else {
+      passwordField.setAttribute('type', 'password')
+      toggleIcon.classList.remove('fa-eye-slash')
+      toggleIcon.classList.add('fa-eye')
+    }
+    
+  });
+
+</script> -->
+{% endblock extra_js %}

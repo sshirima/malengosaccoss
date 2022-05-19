@@ -1,3 +1,4 @@
+from authentication.permissions import MemberNormalPassesTestMixin
 from django.shortcuts import render
 from django.views.generic import CreateView, ListView, UpdateView, DeleteView, DetailView, View
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -17,7 +18,7 @@ from transactions.models import BankTransaction
 from core.views.generic import BaseListView, BaseDetailView
 
 # Create your views here.
-class SavingListView(LoginRequiredMixin, BaseListView):
+class SavingListView(LoginRequiredMixin,MemberNormalPassesTestMixin, BaseListView):
     template_name ='savings/saving_list.html'
     model = Saving
     table_class = SavingTable
@@ -37,46 +38,46 @@ class SavingListView(LoginRequiredMixin, BaseListView):
         return context
 
 
-class SavingCreateView(LoginRequiredMixin, CreateView):
-    template_name ='savings/saving_create.html'
-    form_class = SavingCreateForm
-    context_object_name = 'saving'
-    success_url = reverse_lazy('savings-list')
+# class SavingCreateView(LoginRequiredMixin, CreateView):
+#     template_name ='savings/saving_create.html'
+#     form_class = SavingCreateForm
+#     context_object_name = 'saving'
+#     success_url = reverse_lazy('savings-list')
 
-    def get(self, request, uuid):
-        context = self.get_context_data(uuid)
-        return render(request, self.template_name, context)
+#     def get(self, request, uuid):
+#         context = self.get_context_data(uuid)
+#         return render(request, self.template_name, context)
 
 
-    def post(self, request, uuid):
-        form = SavingCreateForm(uuid=uuid,data= request.POST)
+#     def post(self, request, uuid):
+#         form = SavingCreateForm(uuid=uuid,data= request.POST)
 
-        if not form.is_valid():
-            context = self.get_context_data(uuid)
-            context['form'] = form
-            return render(request, self.template_name, context) 
+#         if not form.is_valid():
+#             context = self.get_context_data(uuid)
+#             context['form'] = form
+#             return render(request, self.template_name, context) 
 
-        service = SavingCRUDService()
-        data = form.cleaned_data
-        data['uuid'] = uuid
-        msg, created, share = service.create_saving(data=data, created_by=self.request.user)
+#         service = SavingCRUDService()
+#         data = form.cleaned_data
+#         data['uuid'] = uuid
+#         msg, created, share = service.create_saving(data=data, created_by=self.request.user)
 
-        if not created and share is None:
-            messages.error(self.request, msg)
-            context = self.get_context_data(uuid)
-            context['form'] = form
-            return render(request, self.template_name, context) 
+#         if not created and share is None:
+#             messages.error(self.request, msg)
+#             context = self.get_context_data(uuid)
+#             context['form'] = form
+#             return render(request, self.template_name, context) 
 
-        messages.success(self.request, 'Saving record added successful')
-        return HttpResponseRedirect(share.get_absolute_url())
+#         messages.success(self.request, 'Saving record added successful')
+#         return HttpResponseRedirect(share.get_absolute_url())
 
-    def get_context_data(self,uuid):
-        context = {}
-        context['owners'] = Member.objects.all()
-        context['bank_transaction'] = BankTransaction.objects.get(id=uuid)
-        return context
+#     def get_context_data(self,uuid):
+#         context = {}
+#         context['owners'] = Member.objects.all()
+#         context['bank_transaction'] = BankTransaction.objects.get(id=uuid)
+#         return context
 
-class SavingDetailView(LoginRequiredMixin, BaseDetailView):
+class SavingDetailView(LoginRequiredMixin,MemberNormalPassesTestMixin, BaseDetailView):
     template_name = 'savings/saving_detail.html'
     model = Saving
     context_object_name = 'saving'
@@ -86,7 +87,7 @@ class SavingDetailView(LoginRequiredMixin, BaseDetailView):
     def get_queryset(self):
         return super(SavingDetailView, self).get_queryset(id=self.kwargs['id'], owner__user=self.request.user).select_related('transaction__reference','owner__user')
 
-class SavingUpdateView(LoginRequiredMixin, UpdateView):
+class SavingUpdateView(LoginRequiredMixin,MemberNormalPassesTestMixin, UpdateView):
     template_name ='savings/saving_update.html'
     model = Saving
     context_object_name = 'saving'
@@ -122,7 +123,7 @@ class SavingUpdateView(LoginRequiredMixin, UpdateView):
         kwargs['user'] = self.request.user
         return kwargs
 
-class SavingDeleteView(LoginRequiredMixin, DeleteView):
+class SavingDeleteView(LoginRequiredMixin,MemberNormalPassesTestMixin, DeleteView):
     template_name ='savings/saving_delete.html'
     model = Saving
 

@@ -5,7 +5,7 @@ from savings.views import (
     SavingDetailView, 
     SavingListView,
     SavingDeleteView,
-    SavingCreateView,
+    # SavingCreateView,
 )
 
 urlpatterns = [
@@ -13,5 +13,5 @@ urlpatterns = [
     path('saving-detail/<id>', SavingDetailView.as_view(), name='saving-detail'),
     path('saving-update/<id>', SavingUpdateView.as_view(), name='saving-update'),
     path('saving-delete/<id>', SavingDeleteView.as_view(), name='saving-delete'),
-    path('saving-create/<uuid>', SavingCreateView.as_view(), name='saving-create'),
+    # path('saving-create/<uuid>', SavingCreateView.as_view(), name='saving-create'),
 ]

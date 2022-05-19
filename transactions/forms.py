@@ -133,6 +133,7 @@ class BankTransactionMultipleAssignShareForm(BankTransactionMultipleAssignForm):
 
     owner = forms.CharField(required=True)
     description = forms.CharField(required=False)
+    amount = forms.CharField(required=False)
 
     def clean_owner(self):
         owner = self.cleaned_data['owner']
@@ -144,6 +145,7 @@ class BankTransactionMultipleAssignSavingForm(BankTransactionMultipleAssignForm)
 
     owner = forms.CharField(required=True)
     description = forms.CharField(required=False)
+    amount = forms.CharField(required=False)
 
     def clean_owner(self):
         owner = self.cleaned_data['owner']
@@ -156,6 +158,7 @@ class BankTransactionMultipleAssignLoanRepaymentForm(BankTransactionMultipleAssi
     owner = forms.CharField(required=True)
     loan = forms.CharField(required=True)
     description = forms.CharField(required=False)
+    amount = forms.CharField(required=False)
 
     def clean_owner(self):
         owner = self.cleaned_data['owner']
@@ -185,6 +188,7 @@ class BankTransactionMultipleAssignLoanForm(BankTransactionMultipleAssignForm):
     loan_type = forms.CharField(max_length=255,required=True)
     duration = forms.CharField(max_length=10,required=True)
     description = forms.CharField(required=False)
+    amount = forms.CharField(required=False)
 
     def clean_owner(self):
         owner = self.cleaned_data['owner']
@@ -216,6 +220,6 @@ class BankTransactionMultipleAssignLoanForm(BankTransactionMultipleAssignForm):
         return duration
 
 class BankTransactionMultipleAssignExpenseForm(BankTransactionMultipleAssignForm):
-
     description = forms.CharField(required=False)
+    amount = forms.CharField(required=False)
 

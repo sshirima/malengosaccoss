@@ -19,7 +19,7 @@ class MemberTable(django_tables2.Table):
     fullname = django_tables2.Column(accessor='first_name', verbose_name='Full name')
     gender = django_tables2.Column(accessor='gender', verbose_name='Gender')
     mobile_number = django_tables2.Column( accessor='mobile_number', verbose_name='Mobile Number')
-    is_active = BooleanColumn( accessor='is_active', verbose_name='Is Active', )
+    is_active = BooleanColumn( accessor='user__is_active', verbose_name='Is Active', )
     is_staff = BooleanColumn( accessor='user__is_staff', verbose_name='Is Staff')
     email = django_tables2.Column(accessor='user__email', verbose_name = "Email")
     

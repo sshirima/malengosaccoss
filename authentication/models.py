@@ -54,6 +54,7 @@ class User(AbstractUser):
     mobile_number = models.CharField(max_length=15, blank=True, null=True)
     first_name = models.CharField(max_length=30, blank=False)
     last_name = models.CharField(max_length=150, blank=False)
+    password_change = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)

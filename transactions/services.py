@@ -1,3 +1,4 @@
+from core.utils import print_error_message
 from expenses.models import Expense
 from loans.models import Loan, LoanFormFee, LoanInsuranceFee, LoanInterest, LoanProcessingFee, LoanRepayment
 from members.models import Member
@@ -34,8 +35,14 @@ class TransactionCRUDService(BaseTransactionService):
 
             transaction_crud = TransactionCRUDService()
 
+            amount = kwargs['amount'] if ('amount' in kwargs) and not (kwargs['amount'] == '')  else banktransaction.amount
+            
+            description = kwargs['description'] if ('description' in kwargs) and (not kwargs['description'] == '') else banktransaction.description
+
             msg, tr_created, transaction = transaction_crud.create_transaction(
                 banktransaction,
+                amount = amount,
+                description = description,
                 status= t_models.TRANSACTION_STATUS[1][0],
                 created_by = kwargs['created_by']
             )
@@ -43,19 +50,21 @@ class TransactionCRUDService(BaseTransactionService):
             if not tr_created:
                 return (msg,False, None, None)
 
-            self.change_bank_transaction_status(banktransaction, t_models.BANK_TRANSACTION_STATUS[1][0])
+            status = t_models.BANK_TRANSACTION_STATUS[1][0]  if amount == banktransaction.amount else t_models.BANK_TRANSACTION_STATUS[2][0]
+            self.change_bank_transaction_status(banktransaction, status)
 
             return '', True, banktransaction, transaction
 
         except Exception as e:
-            print('ERROR, creating transaction from bank transaction: {}'.format(str(e)))
-            return ('ERROR, creating transaction from bank transaction: ',False, None, None)
+            msg = "ERROR, creating transaction from bank transaction"
+            print_error_message(msg, e)
+            return (msg,False, None, None)
 
     def create_transaction(self, banktransaction, **kwargs):
         try:
             transaction = tr_models.Transaction.objects.create(
-                amount= banktransaction.amount, 
-                description=banktransaction.description,
+                amount= kwargs['amount'], 
+                description=kwargs['description'],
                 reference=banktransaction, 
                 type=banktransaction.type,
                 created_by = kwargs['created_by'],
@@ -66,8 +75,8 @@ class TransactionCRUDService(BaseTransactionService):
                 return ('', True, transaction)
             
         except Exception as e:
-            print('ERROR, creating transaction: {}'.format(str(e)))
-            return ()
+            msg = "ERROR, saving transaction"
+            print_error_message(msg, e)
 
         return ('', False, None)
 

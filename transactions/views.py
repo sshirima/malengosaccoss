@@ -46,12 +46,12 @@ from transactions.tables import (
     TransactionTableExport,
     TransactionTableFilter
 )
-from authentication.permissions import BaseUserPassesTestMixin
+from authentication.permissions import MemberStaffPassTestMixin
 from core.views.generic import BaseListView
 # Create your views here.
 
 
-class TransactionListView(LoginRequiredMixin,BaseUserPassesTestMixin, BaseListView):
+class TransactionListView(LoginRequiredMixin,MemberStaffPassTestMixin, BaseListView):
     
     template_name ='transactions/list.html'
     model = Transaction
@@ -71,7 +71,7 @@ class TransactionListView(LoginRequiredMixin,BaseUserPassesTestMixin, BaseListVi
 
         return context
     
-class TransactionCreateView(LoginRequiredMixin,BaseUserPassesTestMixin, CreateView):
+class TransactionCreateView(LoginRequiredMixin,MemberStaffPassTestMixin, CreateView):
     template_name ='transactions/create.html'
     form_class = TransactionCreateForm
     context_object_name = 'transaction'
@@ -88,7 +88,7 @@ class TransactionCreateView(LoginRequiredMixin,BaseUserPassesTestMixin, CreateVi
         kwargs['user'] = self.request.user
         return kwargs
 
-class TransactionDetailView(LoginRequiredMixin,BaseUserPassesTestMixin, DetailView):
+class TransactionDetailView(LoginRequiredMixin,MemberStaffPassTestMixin, DetailView):
     template_name = 'transactions/detail.html'
     model = Transaction
     context_object_name = 'transaction'
@@ -101,7 +101,7 @@ class TransactionDetailView(LoginRequiredMixin,BaseUserPassesTestMixin, DetailVi
         else:
             return Transaction.objects.none()
 
-class TransactionUpdateView(LoginRequiredMixin,BaseUserPassesTestMixin, UpdateView):
+class TransactionUpdateView(LoginRequiredMixin,MemberStaffPassTestMixin, UpdateView):
     template_name ='transactions/update.html'
     model = Transaction
     context_object_name = 'transaction'
@@ -121,7 +121,7 @@ class TransactionUpdateView(LoginRequiredMixin,BaseUserPassesTestMixin, UpdateVi
         kwargs['user'] = self.request.user
         return kwargs
     
-class TransactionDeleteView(LoginRequiredMixin,BaseUserPassesTestMixin, DeleteView):
+class TransactionDeleteView(LoginRequiredMixin,MemberStaffPassTestMixin, DeleteView):
     template_name ='transactions/delete.html'
     model = Transaction
     slug_field = 'id'
@@ -163,7 +163,7 @@ class TransactionDeleteView(LoginRequiredMixin,BaseUserPassesTestMixin, DeleteVi
         messages.error(self.request, msg)
         return HttpResponseRedirect(reverse_lazy('transactions-list'))
 
-class BankTransactionListView(LoginRequiredMixin,BaseUserPassesTestMixin, BaseListView):
+class BankTransactionListView(LoginRequiredMixin,MemberStaffPassTestMixin, BaseListView):
     template_name ='transactions/bank_transaction_list.html'
     model = BankTransaction
     table_class = BankTransactionTable
@@ -183,7 +183,7 @@ class BankTransactionListView(LoginRequiredMixin,BaseUserPassesTestMixin, BaseLi
         
         return context
 
-class BankTransactionDetailView(LoginRequiredMixin,BaseUserPassesTestMixin, DetailView):
+class BankTransactionDetailView(LoginRequiredMixin,MemberStaffPassTestMixin, DetailView):
     template_name = 'transactions/bank_transaction_detail.html'
     model = Transaction
     context_object_name = 'bank_transaction'
@@ -197,7 +197,7 @@ class BankTransactionDetailView(LoginRequiredMixin,BaseUserPassesTestMixin, Deta
         #     return BankTransaction.objects.none()
         return BankTransaction.objects.filter(id = self.kwargs['id'])
 
-class BankTransactionImportView(LoginRequiredMixin,BaseUserPassesTestMixin, View):
+class BankTransactionImportView(LoginRequiredMixin,MemberStaffPassTestMixin, View):
     template_name = 'transactions/bank_transaction_import.html'
 
     def get(self, request):
@@ -230,7 +230,7 @@ class BankTransactionImportView(LoginRequiredMixin,BaseUserPassesTestMixin, View
         messages.error(request, 'Something wrong with the input fields')
         return render(request, self.template_name,{'form':form})
 
-class BankTransactionAssignView(LoginRequiredMixin,BaseUserPassesTestMixin, View):
+class BankTransactionAssignView(LoginRequiredMixin,MemberStaffPassTestMixin, View):
     template_name = 'transactions/bank_transaction_assign.html'
 
     assign_scope = (
@@ -297,7 +297,7 @@ class BankTransactionAssignView(LoginRequiredMixin,BaseUserPassesTestMixin, View
         }
         return context
 
-class BankTransactionMultipleAssignView(LoginRequiredMixin,BaseUserPassesTestMixin, View):
+class BankTransactionMultipleAssignView(LoginRequiredMixin,MemberStaffPassTestMixin, View):
     template_name = 'transactions/bank_transaction_assign_multiple.html'
     model = BankTransaction
     table_class = BankTransactionFlatTable
@@ -340,7 +340,7 @@ class BankTransactionMultipleAssignView(LoginRequiredMixin,BaseUserPassesTestMix
         self.object_list = BankTransaction.objects.filter(id__in=kwargs['selections'])
         return self.object_list
 
-class BankTransactionMultipleAssignConfirmView(LoginRequiredMixin,BaseUserPassesTestMixin, View):
+class BankTransactionMultipleAssignConfirmView(LoginRequiredMixin,MemberStaffPassTestMixin, View):
 
     def post(self, request):
 
@@ -356,6 +356,7 @@ class BankTransactionMultipleAssignConfirmView(LoginRequiredMixin,BaseUserPasses
         service = BankTransactionAssignmentService()
         kwargs = form.cleaned_data
         kwargs['created_by'] = request.user
+        print(kwargs)
 
         results= service.assign_banktransactions_with_action(
             form.cleaned_data['selection'],
@@ -381,6 +382,8 @@ class BankTransactionMultipleAssignConfirmView(LoginRequiredMixin,BaseUserPasses
                 'action':action,
                 'selection':','.join(selections),
                 'owner':request.POST['owner'],
+                'description':request.POST['description'],
+                'amount':request.POST['amount'],
             })
 
             return form.is_valid(), form
@@ -391,6 +394,8 @@ class BankTransactionMultipleAssignConfirmView(LoginRequiredMixin,BaseUserPasses
                 'action':action,
                 'selection':','.join(selections),
                 'owner':request.POST['owner'],
+                'description':request.POST['description'],
+                'amount':request.POST['amount'],
             })
 
             return form.is_valid(), form
@@ -402,6 +407,8 @@ class BankTransactionMultipleAssignConfirmView(LoginRequiredMixin,BaseUserPasses
                 'selection':','.join(selections),
                 'owner':request.POST['owner'],
                 'loan':request.POST['loan'],
+                'description':request.POST['description'],
+                'amount':request.POST['amount'],
             })
 
             return form.is_valid(), form
@@ -414,6 +421,8 @@ class BankTransactionMultipleAssignConfirmView(LoginRequiredMixin,BaseUserPasses
                 'owner':request.POST['owner'],
                 'duration':request.POST['duration'],
                 'loan_type':request.POST['loan_type'],
+                'description':request.POST['description'],
+                'amount':request.POST['amount'],
             })
 
             return form.is_valid(), form
@@ -423,6 +432,8 @@ class BankTransactionMultipleAssignConfirmView(LoginRequiredMixin,BaseUserPasses
             form = BankTransactionMultipleAssignExpenseForm({
                 'action':action,
                 'selection':','.join(selections),
+                'description':request.POST['description'],
+                'amount':request.POST['amount'],
             })
             return form.is_valid(), form
         else:

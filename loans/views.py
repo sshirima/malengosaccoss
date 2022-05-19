@@ -3,7 +3,7 @@ from multiprocessing import context
 from re import template
 from django.shortcuts import redirect, render, reverse
 from django.urls.base import reverse_lazy
-from django.views.generic import CreateView, ListView, UpdateView, DeleteView, DetailView, View
+from django.views.generic import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
 from django.contrib import messages
@@ -15,11 +15,9 @@ from django.http import JsonResponse
 
 from loans.models import LOAN_TYPE, LOAN_STATUS, Loan, LoanRepayment
 from loans.tables import LoanRepaymentDetailTable, LoanRepaymentTableExport, LoanTable, LoanTableExport, LoanTableFilter, LoanRepaymentTableFilter, LoanRepaymentTable
-from authentication.models import User
 from members.models import Member
-from loans.forms import LoanCreateFromBankTransactionForm, LoanRepaymentCreateForm, LoanRepaymentMemberSelectForm
-from loans.services import LoanCRUDService, LoanObject
-import loans.models as l_models
+from loans.forms import LoanRepaymentMemberSelectForm
+from loans.services import LoanObject
 from transactions.models import BankTransaction
 
 # Create your views here.
@@ -53,49 +51,49 @@ class LoanListView(LoginRequiredMixin, BaseListView):
         context['loan_status']= LOAN_STATUS
         return context
 
-class LoanCreateFromBankTransactionView(LoginRequiredMixin, View):
-    template_name = 'loans/loan_create.html'
+# class LoanCreateFromBankTransactionView(LoginRequiredMixin, View):
+#     template_name = 'loans/loan_create.html'
 
-    def get(self, request, uuid):
-        #Fetch bankTransaction
+#     def get(self, request, uuid):
+#         #Fetch bankTransaction
         
-        bankTransaction = BankTransaction.objects.get(id=uuid)
+#         bankTransaction = BankTransaction.objects.get(id=uuid)
 
-        if bankTransaction is None:
-            messages.error(request, 'Bank Transaction not found')
-            return redirect('bank-transaction-list')
+#         if bankTransaction is None:
+#             messages.error(request, 'Bank Transaction not found')
+#             return redirect('bank-transaction-list')
             
-        context = self.get_context_data(uuid)
+#         context = self.get_context_data(uuid)
 
-        return render(request, self.template_name, context)
+#         return render(request, self.template_name, context)
 
-    def post(self, request, uuid):
+#     def post(self, request, uuid):
 
-        form = LoanCreateFromBankTransactionForm(data= request.POST)
+#         form = LoanCreateFromBankTransactionForm(data= request.POST)
 
-        if not form.is_valid():
-            context = self.get_context_data(uuid)
-            context['form'] = form
-            return render(request, self.template_name, context)
+#         if not form.is_valid():
+#             context = self.get_context_data(uuid)
+#             context['form'] = form
+#             return render(request, self.template_name, context)
 
-        loancreateservice = LoanCRUDService()
-        msg, created, loan = loancreateservice.create_loan(data=form.cleaned_data, creator=request.user)
+#         loancreateservice = LoanCRUDService()
+#         msg, created, loan = loancreateservice.create_loan(data=form.cleaned_data, creator=request.user)
 
-        if not (created and loan is not None):
-            messages.error(request, msg)
-            context = self.get_context_data(uuid)
-            context['form'] = form
-            return render(request, self.template_name, context)
+#         if not (created and loan is not None):
+#             messages.error(request, msg)
+#             context = self.get_context_data(uuid)
+#             context['form'] = form
+#             return render(request, self.template_name, context)
 
-        return redirect(reverse('loan-detail', args=[loan.id]))
+#         return redirect(reverse('loan-detail', args=[loan.id]))
 
-    def get_context_data(self, uuid):
-        context={}
-        context['banktransaction'] = BankTransaction.objects.get(id=uuid) 
-        context['loan_types'] = l_models.LOAN_TYPE
-        context['loan_statuses'] = l_models.LOAN_STATUS
-        context['members'] = Member.objects.filter(is_active=True)
-        return context
+#     def get_context_data(self, uuid):
+#         context={}
+#         context['banktransaction'] = BankTransaction.objects.get(id=uuid) 
+#         context['loan_types'] = l_models.LOAN_TYPE
+#         context['loan_statuses'] = l_models.LOAN_STATUS
+#         context['members'] = Member.objects.filter(is_active=True)
+#         return context
     
 class LoanDetailView(LoginRequiredMixin, BaseDetailView):
     template_name = 'loans/loan_detail.html'
@@ -162,7 +160,6 @@ class LoanRepaymentDetailView(LoginRequiredMixin, BaseDetailView):
     def get_queryset(self):
         return super(LoanRepaymentDetailView, self).get_queryset(id=self.kwargs['id'], member__user=self.request.user).select_related('transaction__reference','loan')
        
-
 class LoanRepaymentMemberSelectView(LoginRequiredMixin, View):
     template_name = 'loans/loanrepayment_select_member.html'
     model = LoanRepayment
@@ -196,40 +193,40 @@ class LoanRepaymentMemberSelectView(LoginRequiredMixin, View):
         context['members'] = Member.objects.filter(is_active=True).only('id','first_name', 'last_name')
         return context
 
-class LoanRepaymentCreateView(LoginRequiredMixin, View):
-    template_name = 'loans/loanrepayment_create.html'
-    model = LoanRepayment
+# class LoanRepaymentCreateView(LoginRequiredMixin, View):
+#     template_name = 'loans/loanrepayment_create.html'
+#     model = LoanRepayment
 
-    def get(self, request, uuid1, uuid2):
+#     def get(self, request, uuid1, uuid2):
             
-        context = self.get_context_data(uuid1, uuid2)
+#         context = self.get_context_data(uuid1, uuid2)
     
-        return render(request, self.template_name, context)
+#         return render(request, self.template_name, context)
 
-    def post(self, request, uuid1, uuid2):
+#     def post(self, request, uuid1, uuid2):
 
-        form = LoanRepaymentCreateForm(request.POST)
+#         form = LoanRepaymentCreateForm(request.POST)
 
-        if not form.is_valid():
-            context = self.get_context_data(uuid1, uuid2)
-            context['form'] = form
-            return render(request, self.template_name, context )
+#         if not form.is_valid():
+#             context = self.get_context_data(uuid1, uuid2)
+#             context['form'] = form
+#             return render(request, self.template_name, context )
 
-        #Create LoanRepaymentModel
-        loancreateservice = LoanCRUDService()
+#         #Create LoanRepaymentModel
+#         loancreateservice = LoanCRUDService()
 
-        msg, created, loan = loancreateservice.create_loan_repaymet(form.cleaned_data, self.request.user)
-        if not (created and loan is not None):
-            messages.error(request, msg)
-            context = self.get_context_data(uuid1, uuid2)
-            context['form'] = form
-            return render(request, self.template_name, context)
+#         msg, created, loan = loancreateservice.create_loan_repaymet(form.cleaned_data, self.request.user)
+#         if not (created and loan is not None):
+#             messages.error(request, msg)
+#             context = self.get_context_data(uuid1, uuid2)
+#             context['form'] = form
+#             return render(request, self.template_name, context)
         
-        return redirect(reverse('loanrepayment-list'))
+#         return redirect(reverse('loanrepayment-list'))
 
-    def get_context_data(self, transaction_id, member_id):
-        context={}
-        context['banktransaction'] = transaction_id
-        context['member'] = member_id
-        context['loans'] = Loan.objects.select_related('member').filter(member__id=member_id,member__is_active=True)
-        return context
+#     def get_context_data(self, transaction_id, member_id):
+#         context={}
+#         context['banktransaction'] = transaction_id
+#         context['member'] = member_id
+#         context['loans'] = Loan.objects.select_related('member').filter(member__id=member_id,member__is_active=True)
+#         return context

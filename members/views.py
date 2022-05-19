@@ -25,9 +25,9 @@ from loans.tables import LoanRepaymentTable, LoanRepaymentTableFilter
 from .models import Member, GENDER_STATUS
 from .tables import MemberTable, MemberTableExport, MemberTableFilter
 from shares.tables import ShareTable, ShareTableFilter
-from authentication.permissions import BaseUserPassesTestMixin
+from authentication.permissions import MemberStaffPassTestMixin
 
-class MemberListView(LoginRequiredMixin,BaseUserPassesTestMixin, BaseListView):
+class MemberListView(LoginRequiredMixin,MemberStaffPassTestMixin, BaseListView):
     template_name ='members/member_list.html'
     model = Member
     table_class = MemberTable
@@ -47,7 +47,7 @@ class MemberListView(LoginRequiredMixin,BaseUserPassesTestMixin, BaseListView):
         context['member_status'] = (('active', 'Active'),('inactive', 'Inactive'))
         return context
 
-class MemberDetailView(LoginRequiredMixin,BaseUserPassesTestMixin, DetailView):
+class MemberDetailView(LoginRequiredMixin,MemberStaffPassTestMixin, DetailView):
     template_name = 'members/member_detail.html'
     model = Member
     context_object_name = 'member'
@@ -129,7 +129,7 @@ class MemberDetailView(LoginRequiredMixin,BaseUserPassesTestMixin, DetailView):
 
         return context
 
-class MemberSendActivationLinkView(LoginRequiredMixin,BaseUserPassesTestMixin,View):
+class MemberSendActivationLinkView(LoginRequiredMixin,MemberStaffPassTestMixin,View):
 
     def get(self, request, id):
 
@@ -146,28 +146,25 @@ class MemberSendActivationLinkView(LoginRequiredMixin,BaseUserPassesTestMixin,Vi
 
         if user.is_active:
             messages.error(request, 'User already activated')
-            return redirect(reverse('member-detail', member.id))
+            return redirect('member-detail', id=member.id)
 
         registrationService = RegistrationService(request)
 
         activation_url = registrationService.create_activation_url(user)
 
-        activation_link_sent = registrationService.send_activation_email(user, activation_url)
+        is_sent = registrationService.send_activation_email(user, activation_url)
         
-        if not activation_link_sent:
+        if not is_sent:
             messages.error(request, 'Fails to send activation link, Please try agail later')
             return redirect(reverse('member-detail', member.id))
 
         messages.success(request, 'Account activation has been sent to: {}'.format(user.email))
+        messages.info(request, 'Activation url: {}'.format(activation_url))
         return redirect(reverse('member-detail', args=[member.id]))
 
-class MemberSendPasswordResetLinkView(LoginRequiredMixin,BaseUserPassesTestMixin,View):
+class MemberSendPasswordResetLinkView(LoginRequiredMixin,MemberStaffPassTestMixin,View):
 
     def get(self, request, id):
-
-        if not request.user.is_staff:
-            messages.error(request, 'You dont have permission to perform this operation')
-            return redirect('members-list')
 
         member = Member.objects.get(id=id)
         user = member.user
@@ -190,5 +187,6 @@ class MemberSendPasswordResetLinkView(LoginRequiredMixin,BaseUserPassesTestMixin
             messages.error(request, 'Fails to send password activation link, please try again')
             return redirect(reverse('member-detail', args=[member.id]))
         
-        messages.success(request, 'Password reset link has been sent')
+        messages.success(request, 'Password reset link has been sent: {}'.format(user.email))
+        messages.info(request, 'Reset link: {}'.format(password_reset_url))
         return redirect(reverse('member-detail', args=[member.id]))

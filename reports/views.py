@@ -4,14 +4,14 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django_tables2 import RequestConfig
 
 
-from authentication.permissions import BaseUserPassesTestMixin
+from authentication.permissions import MemberStaffPassTestMixin
 from core.views.generic import BaseListView
 from reports.tables import ReportMembersTable, ReportTransactionTableFilter, ReportTransactionsTable
 from transactions.models import BankTransaction
 from reports.selectors import ReportBankTransactionSelector, ReportMemberSelector
 # Create your views here.
 
-class TransactionReportListView(LoginRequiredMixin,BaseUserPassesTestMixin, ListView):
+class TransactionReportListView(LoginRequiredMixin,MemberStaffPassTestMixin, ListView):
     template_name ='reports/transactions.html'
     model = BankTransaction
     table_class = ReportTransactionsTable
@@ -48,7 +48,7 @@ class TransactionReportListView(LoginRequiredMixin,BaseUserPassesTestMixin, List
         return self.paginate_by
 
 
-class ReportMembersListView(LoginRequiredMixin,BaseUserPassesTestMixin, ListView):
+class ReportMembersListView(LoginRequiredMixin,MemberStaffPassTestMixin, ListView):
     template_name ='reports/transactions.html'
     model = BankTransaction
     table_class = ReportMembersTable

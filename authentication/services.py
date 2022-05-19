@@ -13,20 +13,31 @@ from members.models import Member
 from .models import User, UserManager
 from .emails import ActivationEmailSender
 from .utils import token_generator
+from core.utils import print_error_message
 
 class RegistrationService():
 
-    def __init__(self, request):
+    def __init__(self, request=None):
         self.request = request
 
-    def create_user(self, data):
+    def create_user(self, **data):
         
         try:
+            is_active = data.pop('is_active', False)
+            password_change = data.pop('password_change', False)
+            
+            #Check if email exist
+            if User.objects.filter(email=data['email']).exists():
+                print('User exits: {}'.format(data['email']))
+                return False, None
+
             user = User.objects.create(
                 email=UserManager.normalize_email(data['email']),
             )
+            
             user.set_password(data['password1'])
-            user.is_active = False
+            user.password_change = password_change
+            user.is_active = is_active
             user.save()
 
             #Create member
@@ -41,8 +52,12 @@ class RegistrationService():
 
             return (True, user)
         except Exception as e:
-            print('ERROR, creating new user account: {}'.format(str(e)))
-            return None
+
+            if user:
+                user.delete()
+
+            print_error_message("Error, create user", e)
+            return False, None
         
 
 
@@ -71,7 +86,8 @@ class RegistrationService():
             email_subject = 'Account activation email'
             sender = settings.EMAIL_HOST_USER
             receivers = [user.email]
-            return mail_sender.send(subject=email_subject, body=email_body, from_email=sender, to=receivers)
+            sent = mail_sender.send(subject=email_subject, body=email_body, from_email=sender, to=receivers)
+            return sent
             
         except Exception as e:
             print('ERROR, preparing activation email: {}'.format(str(e)))
@@ -118,12 +134,10 @@ class LoginService():
             if user.is_active:
                 auth.login(self.request, user)
                 return ('', True, user)
-            else:
-                print('ERROR, Account not activated')
-                return ('',False, None )
-        else:
-            print('ERROR, Fail to authenticate')
-            return ('', False, None)
+            
+            return ('',True, user )
+        
+        return ('', False, None)
 
 class PasswordResetService():
 
@@ -211,8 +225,15 @@ class PasswordResetService():
 
         try:
             user = form.save()
+
+            if user.password_change:
+                user.password_change = False
+                user.save()
+
             update_session_auth_hash(request, user)  # Important!
+
             return (request, form,True)
+            
         except Exception as e:
             print('ERROR, changing password: {}'.format(str(e)))
             return (form, request, False)

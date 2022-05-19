@@ -114,8 +114,7 @@ class Command(BaseCommand):
     def generate_fake_loanrepayments(self, loan_manager, banktransactions, **kwargs):
         for payment in banktransactions:
             loan_manager.pay_loan(payment, created_by = kwargs['created_by'])
-
-    
+   
     def generate_fake_banktransactions(self, number, **kwargs):
         transactions = []
         for _ in range(number):

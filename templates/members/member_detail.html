@@ -169,7 +169,11 @@
             <div class="col-sm-3 p-1">
               <a href="{% url 'members-list' %}" class="btn btn-outline-danger"><i class="fas fa-arrow-circle-left"></i>Member List</a>
             </div>
-            <div class="col-sm-9 p-1">
+            
+            <div class="col-sm-3 p-1">
+              <a href="{% url 'member-send-password-reset-link' member.id %}" class="btn btn-outline-info ">Send Password Reset Link</a>
+            </div>
+            <div class="col-sm-3 p-1">
               
               {% if not member.is_active %}
                 <a href="{% url 'member-send-activation-link' member.id %}" class="btn btn-outline-info ">Send Activation Link</a>
@@ -177,9 +181,6 @@
                 
             </div>
           </div>
-          
-          
-          
         </div>
       </div>
   

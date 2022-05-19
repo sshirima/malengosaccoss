@@ -9,66 +9,66 @@ from django.core.exceptions import ObjectDoesNotExist
 
 class SavingCRUDService():
     
-    def create_saving(self, data, created_by):
-        #Retrieving data
-        try:
-            description = data['description']
-            uuid = data['uuid']
-            owner = data['owner']
+    # def create_saving(self, data, created_by):
+    #     #Retrieving data
+    #     try:
+    #         description = data['description']
+    #         uuid = data['uuid']
+    #         owner = data['owner']
 
-            bank_transaction = BankTransaction.objects.get(id=uuid)
+    #         bank_transaction = BankTransaction.objects.get(id=uuid)
 
-            if hasattr(bank_transaction, 'transaction'):
-                print('ERROR, Bank transaction already assigned')
-                return ('ERROR, Bank transaction already assigned', False, None)
+    #         if hasattr(bank_transaction, 'transaction'):
+    #             print('ERROR, Bank transaction already assigned')
+    #             return ('ERROR, Bank transaction already assigned', False, None)
 
-            if not bank_transaction.type == 'credit':
-                print('ERROR, Bank transaction reference type must be of type credit')
-                return ('ERROR, Bank transaction reference type must be of type credit', False, None)
+    #         if not bank_transaction.type == 'credit':
+    #             print('ERROR, Bank transaction reference type must be of type credit')
+    #             return ('ERROR, Bank transaction reference type must be of type credit', False, None)
 
-            transaction = Transaction.objects.create(
-                    amount= bank_transaction.amount, 
-                    description=bank_transaction.description,
-                    reference=bank_transaction, 
-                    type=bank_transaction.type,
-                    status= t_models.TRANSACTION_STATUS[1][0],
-                    created_by = created_by
-            )
+    #         transaction = Transaction.objects.create(
+    #                 amount= bank_transaction.amount, 
+    #                 description=bank_transaction.description,
+    #                 reference=bank_transaction, 
+    #                 type=bank_transaction.type,
+    #                 status= t_models.TRANSACTION_STATUS[1][0],
+    #                 created_by = created_by
+    #         )
 
-            owner = Member.objects.get(id=owner)
-            #Creating Share
+    #         owner = Member.objects.get(id=owner)
+    #         #Creating Share
 
-            #Default Description
-            if description == '':
-                description = self._get_default_saving_description(owner, bank_transaction)
+    #         #Default Description
+    #         if description == '':
+    #             description = self._get_default_saving_description(owner, bank_transaction)
 
-            saving = Saving.objects.create(
-                description = description,
-                status = s_models.SHARE_STATUS[1][0],
-                owner = owner,
-                transaction=transaction,
-            )
+    #         saving = Saving.objects.create(
+    #             description = description,
+    #             status = s_models.SHARE_STATUS[1][0],
+    #             owner = owner,
+    #             transaction=transaction,
+    #         )
 
-            self._change_bank_transaction_status(bank_transaction, t_models.BANK_TRANSACTION_STATUS[1][0])
+    #         self._change_bank_transaction_status(bank_transaction, t_models.BANK_TRANSACTION_STATUS[1][0])
 
-            return ('', True, saving)
+    #         return ('', True, saving)
 
-        except KeyError as e:
+    #     except KeyError as e:
             
-            self._delete_transaction(transaction)
-            print('ERROR, retrieving saving creation data: {}'.format(str(e)))
-            return ('ERROR, retrieving saving creation data', False, None)
+    #         self._delete_transaction(transaction)
+    #         print('ERROR, retrieving saving creation data: {}'.format(str(e)))
+    #         return ('ERROR, retrieving saving creation data', False, None)
 
-        except ObjectDoesNotExist as e:
-            self._delete_transaction(transaction)
-            print('ERROR, object does not exist: {}'.format(str(e)))
-            return ('ERROR, object does not exist', False, None)
+    #     except ObjectDoesNotExist as e:
+    #         self._delete_transaction(transaction)
+    #         print('ERROR, object does not exist: {}'.format(str(e)))
+    #         return ('ERROR, object does not exist', False, None)
 
             
-        except Exception as e:
-            self._delete_transaction(transaction)
-            print('ERROR, creating share: {}'.format(str(e)))
-            return ('Error creating share', False, None)
+    #     except Exception as e:
+    #         self._delete_transaction(transaction)
+    #         print('ERROR, creating share: {}'.format(str(e)))
+    #         return ('Error creating share', False, None)
 
 
     def create_saving_from_transaction(self, transaction, **kwargs):

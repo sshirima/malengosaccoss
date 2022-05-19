@@ -21,9 +21,8 @@ class StatusColumn(django_tables2.Column):
         elif value.lower() == 'imported':
             return mark_safe('<span class="badge badge-warning">{}</span>'.format(value))
 
-        elif value.lower() == 'debit':
-            return mark_safe('<span class="badge badge-danger">{}</span>'.format(value))
-
+        elif value.lower() == 'partial assigned':
+            return mark_safe('<span class="badge badge-warning">{}</span>'.format(value))
         else :
             return mark_safe('<span class="badge badge-success">{}</span>'.format(value))
 
@@ -73,6 +72,8 @@ class BankTransactionTable(django_tables2.Table):
         if record.status == 'imported':
             return mark_safe('<input type="checkbox" name="selection" value="{}">'.format(record.id))
         return ''
+
+        
 
 class BankTransactionTableExport(django_tables2.Table):
     

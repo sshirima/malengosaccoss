@@ -1,6 +1,10 @@
 import imp
 from django.shortcuts import render
 from django.views.generic import View
+from django.contrib.auth.mixins import LoginRequiredMixin
+import json
+from django.http import JsonResponse
+from django.db.models import Sum
 from loans.models import Loan, LoanRepayment
 
 from shares.models import Share
@@ -8,14 +12,12 @@ from transactions.models import Transaction, BankTransaction
 from members.models import Member
 from savings.models import Saving
 from expenses.models import Expense
-from django.contrib.auth.mixins import LoginRequiredMixin
-import json
-from django.http import JsonResponse
-from django.db.models import Sum
+from authentication.permissions import MemberNormalPassesTestMixin
+
 # Create your views here.
 
 
-class DashboardView(LoginRequiredMixin, View):
+class DashboardView(LoginRequiredMixin,MemberNormalPassesTestMixin, View):
     template_name = 'dashboard/index.html'
 
     def get(self, request):
@@ -56,11 +58,8 @@ def get_shares(request):
             # member_id = json.loads(request.body).get('owner_id')
             shares = Share.objects.values(month = F('transaction__reference__date_trans__month')).annotate(sum=Sum('transaction__amount'))
             # loans = shares.values('id','principle', 'type')
-            return JsonResponse(list(shares), safe=False)
-            
+            return JsonResponse(list(shares), safe=False)      
         # return JsonResponse(list({}), safe=False)   
-
-
 def get_savings(request):
 
     if request.method == "GET":

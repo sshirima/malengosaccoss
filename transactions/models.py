@@ -21,6 +21,7 @@ TRANSACTION_TYPE = (
 BANK_TRANSACTION_STATUS = (
     ('imported', 'Imported' ),
     ('assigned', 'Assigned' ),
+    ('partial_assigned', 'Partial Assigned' ),
     ('cancelled', 'Canceled'),
 )
 
@@ -106,7 +107,7 @@ class Transaction(BaseTransaction):
     amount = models.FloatField()
     description = models.CharField(max_length=255, blank=True, null=True)
     status = models.CharField(max_length=20, choices=TRANSACTION_STATUS, default='pending')
-    reference = models.OneToOneField(BankTransaction, on_delete=models.CASCADE)
+    reference = models.ForeignKey(BankTransaction, on_delete=models.CASCADE)
     
 
     def __str__(self):

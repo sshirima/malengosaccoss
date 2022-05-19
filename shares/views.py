@@ -1,5 +1,6 @@
 
 
+from authentication.permissions import MemberNormalPassesTestMixin
 from django.urls.base import reverse_lazy
 from django.views.generic import CreateView, ListView, UpdateView, DeleteView, DetailView, View
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -46,46 +47,46 @@ class ShareListView(LoginRequiredMixin, BaseListView):
         return context
     
 
-class ShareCreateView(LoginRequiredMixin, CreateView):
-    template_name ='shares/create.html'
-    form_class = ShareCreateForm
-    context_object_name = 'share'
-    success_url = reverse_lazy('share-list')
+# class ShareCreateView(LoginRequiredMixin, CreateView):
+#     template_name ='shares/create.html'
+#     form_class = ShareCreateForm
+#     context_object_name = 'share'
+#     success_url = reverse_lazy('share-list')
 
-    def get(self, request, uuid):
-        context = self.get_context_data(uuid)
-        return render(request, self.template_name, context)
+#     def get(self, request, uuid):
+#         context = self.get_context_data(uuid)
+#         return render(request, self.template_name, context)
 
 
-    def post(self, request, uuid):
-        form = ShareCreateForm(uuid=uuid,data= request.POST)
+#     def post(self, request, uuid):
+#         form = ShareCreateForm(uuid=uuid,data= request.POST)
 
-        if not form.is_valid():
-            context = self.get_context_data(uuid)
-            context['form'] = form
-            return render(request, self.template_name, context) 
+#         if not form.is_valid():
+#             context = self.get_context_data(uuid)
+#             context['form'] = form
+#             return render(request, self.template_name, context) 
 
-        service = ShareCrudService()
-        data = form.cleaned_data
-        data['uuid'] = uuid
-        msg, created, share = service.create_share(data=data, created_by=self.request.user)
+#         service = ShareCrudService()
+#         data = form.cleaned_data
+#         data['uuid'] = uuid
+#         msg, created, share = service.create_share(data=data, created_by=self.request.user)
 
-        if not created and share is None:
-            messages.error(self.request, msg)
-            context = self.get_context_data(uuid)
-            context['form'] = form
-            return render(request, self.template_name, context) 
+#         if not created and share is None:
+#             messages.error(self.request, msg)
+#             context = self.get_context_data(uuid)
+#             context['form'] = form
+#             return render(request, self.template_name, context) 
 
-        messages.success(self.request, 'Share created successful')
-        return HttpResponseRedirect(share.get_absolute_url())
+#         messages.success(self.request, 'Share created successful')
+#         return HttpResponseRedirect(share.get_absolute_url())
 
-    def get_context_data(self,uuid):
-        context = {}
-        context['owners'] = Member.objects.all()
-        context['bank_transaction'] = BankTransaction.objects.get(id=uuid)
-        return context
+#     def get_context_data(self,uuid):
+#         context = {}
+#         context['owners'] = Member.objects.all()
+#         context['bank_transaction'] = BankTransaction.objects.get(id=uuid)
+#         return context
         
-class ShareDetailView(LoginRequiredMixin, BaseDetailView):
+class ShareDetailView(LoginRequiredMixin, MemberNormalPassesTestMixin,BaseDetailView):
     template_name = 'shares/detail.html'
     model = Share
     context_object_name = 'share'
@@ -95,7 +96,7 @@ class ShareDetailView(LoginRequiredMixin, BaseDetailView):
     def get_queryset(self):
         return super(ShareDetailView, self).get_queryset(id=self.kwargs['id'], owner__user=self.request.user).select_related('transaction__reference','owner__user')
         
-class ShareUpdateView(LoginRequiredMixin, BaseUpdateView):
+class ShareUpdateView(LoginRequiredMixin, MemberNormalPassesTestMixin,BaseUpdateView):
     template_name ='shares/update.html'
     model = Share
     context_object_name = 'share'
@@ -132,7 +133,7 @@ class ShareUpdateView(LoginRequiredMixin, BaseUpdateView):
         kwargs['user'] = self.request.user
         return kwargs
     
-class ShareDeleteView(LoginRequiredMixin, DeleteView):
+class ShareDeleteView(LoginRequiredMixin,MemberNormalPassesTestMixin, DeleteView):
     template_name ='shares/delete.html'
     model = Share
 
@@ -159,7 +160,7 @@ class ShareDeleteView(LoginRequiredMixin, DeleteView):
         messages.error(self.request, msg)
         return HttpResponseRedirect(reverse_lazy('shares-list'))
 
-class ShareAuthorizeView(LoginRequiredMixin, View):
+class ShareAuthorizeView(LoginRequiredMixin,MemberNormalPassesTestMixin, View):
     template_name = 'shares/authorize.html'
 
     def get(self, request, uuid):

@@ -1,4 +1,5 @@
 
+from re import template
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.urls.base import  reverse_lazy
@@ -9,13 +10,13 @@ from django.contrib.auth.forms import PasswordChangeForm
 from django_tables2 import RequestConfig
 from django.db.models import Sum
 from django.views.generic import CreateView, ListView, DetailView
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from authentication.models import User
 
 from .forms import PasswordResetChangeForm, RegistrationForm, LoginForm, PasswordResetRequestForm, UserProfileUpdateForm
 from .services import PasswordResetService, RegistrationService, LoginService, UserProfileService
-
-from django.contrib.auth.mixins import LoginRequiredMixin
+from authentication.permissions import MemberNormalPassesTestMixin
 
 # Create your views here.
 
@@ -50,8 +51,6 @@ class RegistrationView(CreateView):
         context['form'] = form
         return context
                 
-
-
 class ActivationView(View):
 
     def get(self, request, uidb64, token):
@@ -84,6 +83,10 @@ class LoginView(View):
             message, authenticated, user = loginservice.authenticate_user(form.cleaned_data)
 
             if authenticated and user is not None:
+
+                if user.password_change:
+                    return redirect('password-change-required')
+
                 return redirect('dashboard')
             
             messages.error(request, 'Fails to authenticate username/password')
@@ -92,7 +95,6 @@ class LoginView(View):
 
         context['form'] = form
         return render(request, self.template_name, context)
-
 
 class LogoutView(View):
 
@@ -132,7 +134,6 @@ class PasswordResetRequestView(View):
 
         return render(request, 'authentication/reset_password.html')
         
-
 class PasswordResetChangeView(View):
 
     def get(self, request, uidb64, token):
@@ -172,7 +173,33 @@ class PasswordResetChangeView(View):
         else:
             messages.error(request, 'Invalid input fields')
 
-        return render(request, 'authentication/set_newpassword.html', context) 
+        return render(request, 'authentication/set_newpassword.html', context)
+
+class PasswordChangeRequiredView(View):
+    template_name = 'authentication/password_change_required.html'
+
+    def get(self, request):
+
+        return render(request, self.template_name, {'form': PasswordChangeForm})
+
+    def post(self, request):
+
+        form = PasswordChangeForm(request.user, request.POST)
+
+        resetService = PasswordResetService(request)
+
+        if form.is_valid():
+            request,form, changed = resetService.change_password(request, form)
+
+            if changed:
+                messages.success(request, 'Password change successfull')
+
+                return redirect('login')
+            else:
+                messages.error(request, 'Error updating your password')
+
+
+        return render(request, self.template_name, {'form': form})
 
 
 class LogoutView(LoginRequiredMixin,View):
@@ -183,7 +210,7 @@ class LogoutView(LoginRequiredMixin,View):
         return redirect('login')
 
    
-class PasswordChangeChangeView(LoginRequiredMixin, View):
+class UserProfilePasswordChangeView(LoginRequiredMixin, View):
 
     template_name = 'authentication/change_password.html'
 
@@ -202,7 +229,7 @@ class PasswordChangeChangeView(LoginRequiredMixin, View):
             if changed:
                 messages.success(request, 'Password updated successfull')
 
-                return redirect('user-profile')
+                return redirect('dashboard')
             else:
                 messages.error(request, 'Error updating your password')
 
