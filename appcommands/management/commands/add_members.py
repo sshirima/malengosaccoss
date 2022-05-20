@@ -4,6 +4,7 @@ from django.core.management.base import BaseCommand
 from members.models import Member
 import pandas as pd
 from django.db import transaction
+from django.conf import settings
 
 from authentication.services import RegistrationService
 from core.utils import print_error_message
@@ -13,7 +14,10 @@ class Command(BaseCommand):
     def handle(self,  *args, **kwargs):
         self.stdout.write('Adding member accounts from csv file....')
         try:
-            df_members = pd.read_csv('static/init/members.csv',skipinitialspace=True, header=0,skip_blank_lines=True)
+            BASE_DIR = settings.BASE_DIR
+            members_file = BASE_DIR / 'static/init/members.csv'
+
+            df_members = pd.read_csv(members_file,skipinitialspace=True, header=0,skip_blank_lines=True)
             df_members.columns = df_members.columns.str.strip()
 
             with transaction.atomic():
