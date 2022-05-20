@@ -20,7 +20,7 @@ class Command(BaseCommand):
                 for index, row in df_members.iterrows():
                     registrationService = RegistrationService()
 
-                    created, user = registrationService.create_user(
+                    created, u = registrationService.create_user(
                         email=row['email'],
                         password1='Changeme_123',
                         first_name=row['first_name'],
@@ -32,7 +32,7 @@ class Command(BaseCommand):
                         is_active = True
                     )
                     if created:
-                        print('Success, Member created: {}'.format(user.email))
+                        print('{}: Success, Member created: {}'.format(index, row['email']))
                         continue
                     print('Error, user creation fails')
 

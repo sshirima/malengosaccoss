@@ -17,7 +17,7 @@ from authentication.permissions import MemberNormalPassesTestMixin
 # Create your views here.
 
 
-class DashboardView(LoginRequiredMixin,MemberNormalPassesTestMixin, View):
+class DashboardView(LoginRequiredMixin, MemberNormalPassesTestMixin ,View):
     template_name = 'dashboard/index.html'
 
     def get(self, request):

@@ -22,7 +22,11 @@ class MemberNormalPassesTestMixin(UserPassesTestMixin):
     def test_func(self):
         if self.request.user.password_change:
             return not self.request.user.password_change
-        return True
+        return False
             
     def handle_no_permission(self):
-        return redirect('password-change-required')
+        
+        if self.request.user.is_authenticated:
+            return redirect('password-change-required')
+
+        return redirect('login')

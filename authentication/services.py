@@ -34,14 +34,14 @@ class RegistrationService():
             user = User.objects.create(
                 email=UserManager.normalize_email(data['email']),
             )
-            
+
             user.set_password(data['password1'])
             user.password_change = password_change
             user.is_active = is_active
             user.save()
 
             #Create member
-            member = Member.objects.create(
+            Member.objects.create(
                 first_name = data['first_name'],
                 middle_name = data['middle_name'],
                 last_name = data['last_name'],
@@ -51,10 +51,12 @@ class RegistrationService():
             )
 
             return (True, user)
+
         except Exception as e:
 
-            if user:
-                user.delete()
+            if 'user' in locals():
+                if user:
+                    user.delete()
 
             print_error_message("Error, create user", e)
             return False, None

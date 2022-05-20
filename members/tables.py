@@ -18,9 +18,10 @@ class BooleanColumn(django_tables2.Column):
 class MemberTable(django_tables2.Table):
     fullname = django_tables2.Column(accessor='first_name', verbose_name='Full name')
     gender = django_tables2.Column(accessor='gender', verbose_name='Gender')
-    mobile_number = django_tables2.Column( accessor='mobile_number', verbose_name='Mobile Number')
-    is_active = BooleanColumn( accessor='user__is_active', verbose_name='Is Active', )
-    is_staff = BooleanColumn( accessor='user__is_staff', verbose_name='Is Staff')
+    mobile_number = django_tables2.Column( accessor='mobile_number', verbose_name='Phone')
+    is_active = BooleanColumn( accessor='user__is_active', verbose_name='Is active', )
+    is_staff = BooleanColumn( accessor='user__is_staff', verbose_name='Is staff')
+    password_change = BooleanColumn( accessor='user__password_change', verbose_name='Change password')
     email = django_tables2.Column(accessor='user__email', verbose_name = "Email")
     
     # assign = django_tables2.TemplateColumn(template_name ='partials/_btn_assign.html')
@@ -34,7 +35,7 @@ class MemberTable(django_tables2.Table):
         attrs = {'class': 'table '}
         template_name = 'django_tables2/bootstrap.html'
         fields = ('gender',)
-        sequence = ('fullname', 'gender','mobile_number','email','is_active','is_staff')
+        sequence = ('fullname','email', 'gender','mobile_number','is_active','is_staff','password_change')
     
     def render_fullname(self,record):
         return mark_safe('<a href="{}">{}</a>'.format(reverse("member-detail", args=[record.id]), record.get_full_name()))

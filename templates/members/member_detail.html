@@ -125,31 +125,31 @@
           <div class="form-group row">
             <label for="" class="col-sm-3 col-form-label">First Name</label>
             <div class="col-sm-9">
-              <input type="text" class="form-control" value="{{member.first_name }}" disabled>
+              {{member.first_name }}
             </div>
           </div>
           <div class="form-group row">
             <label for="" class="col-sm-3 col-form-label">Middle Name</label>
             <div class="col-sm-9">
-              <input type="text" class="form-control" value="{{member.middle_name }}" disabled>
+              {{member.middle_name }}
             </div>
           </div>
           <div class="form-group row">
             <label for="" class="col-sm-3 col-form-label">Last Name</label>
             <div class="col-sm-9">
-              <input type="text" class="form-control" value="{{member.last_name }}" disabled>
+              {{member.last_name }}
             </div>
           </div>
           <div class="form-group row">
             <label for="" class="col-sm-3 col-form-label">Phone Number</label>
             <div class="col-sm-9">
-              <input type="text" class="form-control" value="{{member.mobile_number }}" disabled>
+              {{member.mobile_number }}
             </div>
           </div>
           <div class="form-group row">
             <label for="" class="col-sm-3 col-form-label">Email</label>
             <div class="col-sm-9">
-              <input type="text" class="form-control" value="{{member.user.email }}" disabled>
+              {{member.user.email }}
             </div>
           </div>
 
@@ -158,6 +158,18 @@
             <div class="col-sm-9">
               
               {% if  member.is_active %}
+              <small class="text-success mr-1"><i class="fas fa-check-circle"></i></i></small>
+              {% else%}
+              <small class="text-danger mr-1"><i class="fas fa-times-circle"></i></i></small>
+              {% endif %}
+                
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="" class="col-sm-3 col-form-label">Must change password</label>
+            <div class="col-sm-9">
+              
+              {% if  member.user.password_change %}
               <small class="text-success mr-1"><i class="fas fa-check-circle"></i></i></small>
               {% else%}
               <small class="text-danger mr-1"><i class="fas fa-times-circle"></i></i></small>
