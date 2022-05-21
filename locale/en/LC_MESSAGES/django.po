@@ -45,9 +45,56 @@ msgid ""
 "%(object)s transaction type: %(type)s does not match assigments: %(action)s"
 msgstr ""
 
-msgid "title_login"
+
+msgid "Login to you member account"
+msgstr "Login to you member account"
+
+msgid "Email"
+msgstr "Email"
+
+msgid "Password"
+msgstr "Password"
+
+msgid "Password"
+msgstr "Password"
+
+msgid "Login"
 msgstr "Login"
 
-msgid "login_to_your_account"
-msgstr "Login to you member account"
+msgid "Reset Password"
+msgstr "Reset Password"
+
+msgid "Create member account"
+msgstr "Create member account"
+
+msgid "Reset password"
+msgstr "Reset password"
+
+msgid "Register new account"
+msgstr "Register new account"
+
+msgid "Confirm password"
+msgstr "Confirm password"
+
+msgid "Mobile number"
+msgstr "Mobile number"
+
+msgid "First name"
+msgstr "First name"
+
+msgid "Middle name"
+msgstr "Middle name"
+
+msgid "Last name"
+msgstr "Last name"
+
+msgid "Register"
+msgstr "Register"
+
+msgid "Male"
+msgstr "Male"
+
+msgid "Female"
+msgstr "Female"
+
 

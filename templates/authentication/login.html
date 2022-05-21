@@ -42,7 +42,7 @@
               
               <div class="input-group-append">
                 <div class="input-group-text showPasswordToggle">
-                  <span class="fas fa-eye" id="toggleIcon"></span>
+                  <span class="fas fa-eye toggleIcon" id="toggleIcon"></span>
                 </div>
               </div>
             </div>
@@ -79,7 +79,7 @@
   
   const showPasswordToggle = document.querySelector('.showPasswordToggle');
   const passwordField = document.querySelector('.passwordField')
-  const toggleIcon = document.querySelector('#toggleIcon')
+  const toggleIcon = document.querySelector('.toggleIcon')
 
   showPasswordToggle.addEventListener('click', (e)=>{
     if (passwordField.type === 'password'){

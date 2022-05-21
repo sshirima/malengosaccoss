@@ -2,6 +2,8 @@
 
 {% load i18n %} 
 
+{% load static %}
+
 {% block title %}
 {% translate 'Register' %}
 {% endblock title %}
@@ -53,8 +55,8 @@
             <div class="input-group mb-3">
               <select name="gender" class="form-control" required> 
                 <option ></option>
-                <option value="male">"{% translate 'Male'%}"</option>
-                <option value="female">"{% translate 'Female'%}"</option>
+                <option value="male">{% translate 'Male'%}</option>
+                <option value="female">{% translate 'Female'%}</option>
               </select>
               <div class="input-group-append">
                 <div class="input-group-text">
@@ -109,3 +111,11 @@
   </div>
 {% endblock content %}
 
+{% block extra_js %}
+<script src="{% static 'js/auth_main.js'%}"></script>
+
+<script  >
+
+
+</script>
+{% endblock extra_js %}

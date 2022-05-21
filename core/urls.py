@@ -17,8 +17,9 @@ from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import TemplateView
 from dashboard.views import DashboardView
+from django.conf.urls.i18n import i18n_patterns
 
-urlpatterns = [
+urlpatterns = i18n_patterns(
     path('', DashboardView.as_view(), name='homepage'),
     path('admin/', admin.site.urls),
     path('dashboard/', include('dashboard.urls')),
@@ -31,4 +32,4 @@ urlpatterns = [
     path('loans/', include('loans.urls')),
     path('members/', include('members.urls')),
     path('reports/', include('reports.urls')),
-]
+)
