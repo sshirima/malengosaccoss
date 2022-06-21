@@ -4,7 +4,7 @@ from django.urls import reverse
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.contrib.sites.shortcuts import get_current_site
-from core.utils import print_error_message
+from core.utils import log_error
 
 from .utils import token_generator
 
@@ -33,5 +33,5 @@ class ActivationEmailSender():
                 email.send(fail_silently= False)
             return True
         except Exception as e:
-            print_error_message("Error, Sending email", e)
+            log_error("Error, Sending email", e)
             return False

@@ -65,7 +65,7 @@ class ActivationView(View):
             messages.success(request, 'Account activated successfully')
 
         else:
-            messages.error(request, 'There was an error activating your account')
+            messages.error(request, message)
 
         return redirect('login')
 
@@ -91,7 +91,7 @@ class LoginView(View):
 
                 return redirect('dashboard')
             
-            messages.error(request, 'Fails to authenticate username/password')
+            messages.error(request, message)
         else:
             messages.error(request, 'Fill all required fields')
 
@@ -112,7 +112,6 @@ class PasswordResetRequestView(View):
     def post(self, request):
 
         form = PasswordResetRequestForm(request.POST)
-        context = {}
         resetService = PasswordResetService(request)
 
         if form.is_valid():

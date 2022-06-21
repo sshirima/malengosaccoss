@@ -37,18 +37,18 @@
             </div>
             
             <div class="input-group mb-3">
-              <input type="password" class="form-control" name="password1" placeholder="{% translate 'Password'%}" required>
+              <input type="password" class="form-control" id="password1" name="password1" placeholder="{% translate 'Password'%}" required>
               <div class="input-group-append">
-                <div class="input-group-text">
-                  <span class="fas fa-lock"></span>
+                <div class="input-group-text" id="password1-toggle">
+                  <span class="fas fa-eye" id="password1-icon"></span>
                 </div>
               </div>
             </div>
             <div class="input-group mb-3">
-              <input type="password" class="form-control" name="password2" placeholder="{% translate 'Confirm Password'%}" required>
+              <input type="password" class="form-control" id="password2" name="password2" placeholder="{% translate 'Confirm Password'%}" required>
               <div class="input-group-append">
-                <div class="input-group-text">
-                  <span class="fas fa-lock"></span>
+                <div class="input-group-text" id="password2-toggle">
+                  <span class="fas fa-eye" id="password2-icon"></span>
                 </div>
               </div>
             </div>
@@ -112,10 +112,5 @@
 {% endblock content %}
 
 {% block extra_js %}
-<script src="{% static 'js/auth_main.js'%}"></script>
-
-<script  >
-
-
-</script>
+<script src="{% static 'js/authentication/main.js'%}"></script>
 {% endblock extra_js %}

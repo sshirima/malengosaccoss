@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% load render_table from django_tables2 %}
+
+{% load bootstrap3 %}
+
+{% load humanize %}
+
+{% block title %}
+    Bank Statement Details
+{% endblock title %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/transactions/main.css' %}">
+{% endblock extra_css %}
+
+
+{% block pageheader %}
+
+  <!-- Content Header (Page header) -->
+  <div class="content-header">
+    <div class="container-fluid">
+      <div class="row mb-2">
+        <div class="col-sm-6">
+          <h1 class="m-0">Bank Statement Details</h1>
+        </div><!-- /.col -->
+        <div class="col-sm-6">
+          <ol class="breadcrumb float-sm-right float-right">
+            <li class="breadcrumb-item active"><a class="btn btn-outline-danger btn-sm" href="{% url 'bank-statement-delete' bankstatement.id %}">Delete statement</a> </li>
+          </ol>
+        </div><!-- /.col -->
+      </div><!-- /.row -->
+    </div><!-- /.container-fluid -->
+  </div>
+  
+{% endblock pageheader %}
+  
+
+
+{% block content %}
+
+<div class="row" >
+  {% include "partials/_messages.html" %}
+    <div class="col-md-12">
+        {% include "partials/_messages.html" %}
+      <div class="card card-info">
+        <div class="card-header">
+          <h3 class="card-title">Details</h3>
+        </div>
+            <div class="card-body">
+                {% include "partials/_form_errors.html" %}
+                
+                <div class="form-group row">
+                  <label for="" class="col-sm-3 col-form-label">Filename</label>
+                  <div class="col-sm-9">
+                    {{bankstatement.filename }}
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label for="" class="col-sm-3 col-form-label">Imported By</label>
+                  <div class="col-sm-9">
+                    {{bankstatement.created_by }}
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="" class="col-sm-3 col-form-label">Date imported</label>
+                  <div class="col-sm-9">
+                    {{bankstatement.date_created }}
+                  </div>
+                </div>
+      
+            </div>
+        <!-- /.card-body -->
+      </div>
+    </div>
+
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-12">
+            <h4 class="m-0">Bank statement transactions</h4>
+          </div><!-- /.col -->
+        </div><!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <div class="col-sm-12">
+      
+      {% render_table table 'partials/_table.html'%}
+    </div>
+</div>
+
+
+  
+{% endblock content %}

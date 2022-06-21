@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block title %}
+    Bank Statement Delete
+{% endblock title %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/transactions/main.css'%}">
+{% endblock extra_css %}
+
+
+{% block pageheader %}
+
+  <!-- Content Header (Page header) -->
+  <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">Bank statement delete</h1>
+          </div><!-- /.col -->
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+                <li class="breadcrumb-item"><a href="{% url 'bank-statement-list'%}">Bank statement</a></li>
+                <li class="breadcrumb-item active">Delete</li>
+            </ol>
+          </div><!-- /.col -->
+        </div><!-- /.row -->
+      </div><!-- /.container-fluid -->
+  </div>
+  
+{% endblock pageheader %}
+  
+
+
+{% block content %}
+
+<div class="row" >
+    <div class="col-md-12">
+      {% include "partials/_messages.html" %}
+    <div class="card card-info">
+        <div class="card-header">
+            <h3 class="card-title">Delete bank statement confirmation</h3>
+          </div>
+        <form action="{% url 'bank-statement-delete' bankstatement.id %}" method="post">
+            {% csrf_token %}
+            <div class="card-body">
+                {% include "partials/_form_errors.html" %}
+                <h4 >Are you sure?</h4>
+    
+                <p>Are you sure you want to delete the selected <b>Bank statement</b>.  All of the following <b>transactions</b> and their related items will be deleted:</p>
+
+                <h5>Related transactions</h5>
+                <p>Below transactions will also be deleted</p>
+                <ul>
+                  {% for object in banktransactions %}
+                  <li> <a href="{% url 'bank-transaction-detail' object.id %}">Bank Transaction: {{object}}</a> </li>
+                  {% endfor %}
+                  
+                </ul>
+                <div class="card-footer">
+                  <button type="submit" class="btn btn-outline-info mr-2">Delete</button>
+                  <a href="{% url 'bank-statement-detail' bankstatement.id %}" class="btn btn-outline-danger">Cancel</a>
+                </div>
+      
+            </div>
+        </form>
+    </div>
+    
+    </div>
+</div>
+  
+{% endblock content %}

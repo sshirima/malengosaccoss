@@ -9,7 +9,9 @@
 {% endblock title %}
 
 
-
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/authentication/main.css'%}">
+{% endblock extra_css %}
 
 {% block content %}
   
@@ -59,10 +61,10 @@
           </form>
     
           <p class="mb-1">
-            <a style="color: #17a2b8;" href="{% url 'password-reset-request' %}">{% translate 'Reset Password'%}</a>
+            <a class="auth-link" href="{% url 'password-reset-request' %}">{% translate 'Reset Password'%}</a>
           </p>
           <p class="mb-0">
-            <a style="color: #17a2b8;" href="{% url 'register' %}" class="text-center">{% translate 'Create member account'%}</a>
+            <a class="auth-link" href="{% url 'register' %}" class="text-center">{% translate 'Create member account'%}</a>
           </p>
         </div>
         <!-- /.card-body -->
@@ -74,25 +76,6 @@
 {% endblock content %}
 
 {% block extra_js %}
-<!-- <script src="{% static 'js/authentication/login.js'%}"></script> -->
-<script  >
-  
-  const showPasswordToggle = document.querySelector('.showPasswordToggle');
-  const passwordField = document.querySelector('.passwordField')
-  const toggleIcon = document.querySelector('.toggleIcon')
+<script src="{% static 'js/authentication/login.js'%}"></script>
 
-  showPasswordToggle.addEventListener('click', (e)=>{
-    if (passwordField.type === 'password'){
-      passwordField.setAttribute('type', 'text')
-      toggleIcon.classList.remove('fa-eye')
-      toggleIcon.classList.add('fa-eye-slash')
-    } else {
-      passwordField.setAttribute('type', 'password')
-      toggleIcon.classList.remove('fa-eye-slash')
-      toggleIcon.classList.add('fa-eye')
-    }
-    
-  });
-
-</script>
 {% endblock extra_js %}

@@ -1,9 +1,11 @@
 {% extends "base.html" %}
 
+{% load i18n %} 
+
 {% load static %}
 
 {% block title %}
-    User profile
+{% translate 'User profile'%}
 {% endblock title %}
 
 {% block extra_css %}
@@ -18,12 +20,12 @@
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
-            <h1 class="m-0">User profile</h1>
+            <h1 class="m-0">{% translate 'User profile'%}</h1>
           </div><!-- /.col -->
           <div class="col-sm-6">
-            <ol class="breadcrumb float-sm-right">
-              <li class="breadcrumb-item active">User profile </li>
-            </ol>
+            <!-- <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item active"> </li>
+            </ol> -->
           </div><!-- /.col -->
       </div><!-- /.row -->
     </div><!-- /.container-fluid -->
@@ -46,18 +48,18 @@
           </div>
       
           <h3 class="profile-username text-center">
-            {{request.user.get_full_name}}
+            {{request.user.member.first_name}} {{request.user.member.middle_name}} {{request.user.member.last_name}} 
             </h3>
       
-          <p class="text-muted text-center">{{request.user}}</p>
+          <p class="text-muted text-center">{{request.user.email}}</p>
           
           
-          <p class="text-muted text-center">{{request.user.mobile_number}}</p>
+          <p class="text-muted text-center">{{request.user.member.mobile_number}}</p>
             
           
       
-          <a href="{% url 'password-change'%}" id="change_password" class="btn btn-outline-info btn-block mb-3"><b>Change Password</b></a>
-          <a href="{% url 'user-profile-update' %}" id="update_profie" class="btn btn-outline-info btn-block"><b>Update Profile</b></a>
+          <a href="{% url 'password-change'%}" id="change_password" class="btn btn-outline-info btn-block mb-3"><b>{% translate 'Change password' %}</b></a>
+          <a href="{% url 'user-profile-update' %}" id="update_profie" class="btn btn-outline-info btn-block"><b>{% translate 'Update profile' %}</b></a>
         </div>
         <!-- /.card-body -->
       </div>

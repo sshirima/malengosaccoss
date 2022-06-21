@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-19 11:56+0300\n"
+"POT-Creation-Date: 2022-05-23 17:44+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -24,6 +24,194 @@ msgstr ""
 
 #: core/settings.py:155
 msgid "Swahili"
+msgstr ""
+
+# command: django-admin makemessages --all --ignore=env
+# notepad: \{% translate '(.+?)'
+#: templates/authentication/change_password.html:8
+#: templates/authentication/change_password.html:27
+#: templates/authentication/change_password.html:80
+#: templates/authentication/password_change_required.html:9
+#: templates/authentication/password_change_required.html:57
+#: templates/authentication/set_newpassword.html:48
+#: templates/authentication/user_profile.html:61
+msgid "Change password"
+msgstr ""
+
+#: templates/authentication/change_password.html:22
+msgid "User change password"
+msgstr ""
+
+#: templates/authentication/change_password.html:26
+#: templates/authentication/user_profile.html:8
+#: templates/authentication/user_profile.html:23
+#: templates/authentication/user_profile_update.html:28
+msgid "User profile"
+msgstr ""
+
+#: templates/authentication/change_password.html:49
+msgid "Change you login password"
+msgstr "Change your login password"
+
+#: templates/authentication/change_password.html:55
+#: templates/authentication/password_change_required.html:31
+msgid "Old password"
+msgstr ""
+
+#: templates/authentication/change_password.html:63
+#: templates/authentication/password_change_required.html:39
+#: templates/authentication/set_newpassword.html:30
+msgid "New password"
+msgstr ""
+
+#: templates/authentication/change_password.html:71
+#: templates/authentication/password_change_required.html:47
+msgid "Confirm password"
+msgstr ""
+
+#: templates/authentication/change_password.html:84
+#: templates/authentication/user_profile_update.html:84
+msgid "Cancel"
+msgstr ""
+
+#: templates/authentication/login.html:8 templates/authentication/login.html:53
+#: templates/authentication/register.html:103
+#: templates/authentication/reset_password.html:54
+#: templates/authentication/set_newpassword.html:58
+msgid "Login"
+msgstr ""
+
+#: templates/authentication/login.html:30
+msgid "Login to your account"
+msgstr ""
+
+#: templates/authentication/login.html:35
+#: templates/authentication/register.html:31
+#: templates/authentication/reset_password.html:34
+#: templates/authentication/user_profile_update.html:56
+msgid "Email"
+msgstr ""
+
+#: templates/authentication/login.html:43
+#: templates/authentication/register.html:40
+msgid "Password"
+msgstr ""
+
+#: templates/authentication/login.html:64
+#: templates/authentication/register.html:100
+msgid "Reset Password"
+msgstr ""
+
+#: templates/authentication/login.html:67
+msgid "Create member account"
+msgstr ""
+
+#: templates/authentication/password_change_required.html:26
+msgid "You must change you password"
+msgstr "You must change your password"
+
+#: templates/authentication/register.html:8
+#: templates/authentication/register.html:89
+#: templates/authentication/reset_password.html:57
+msgid "Register"
+msgstr ""
+
+#: templates/authentication/register.html:25
+msgid "Register new account"
+msgstr ""
+
+#: templates/authentication/register.html:48
+#: templates/authentication/set_newpassword.html:38
+msgid "Confirm Password"
+msgstr ""
+
+#: templates/authentication/register.html:58
+msgid "Male"
+msgstr ""
+
+#: templates/authentication/register.html:59
+msgid "Female"
+msgstr ""
+
+#: templates/authentication/register.html:68
+#: templates/authentication/user_profile_update.html:74
+#: templates/authentication/user_profile_update.html:75
+msgid "Mobile number"
+msgstr ""
+
+#: templates/authentication/register.html:77
+#: templates/authentication/user_profile_update.html:62
+#: templates/authentication/user_profile_update.html:63
+msgid "First name"
+msgstr ""
+
+#: templates/authentication/register.html:80
+#: templates/authentication/user_profile_update.html:66
+#: templates/authentication/user_profile_update.html:67
+msgid "Middle name"
+msgstr ""
+
+#: templates/authentication/register.html:83
+#: templates/authentication/user_profile_update.html:70
+#: templates/authentication/user_profile_update.html:71
+msgid "Last name"
+msgstr ""
+
+#: templates/authentication/reset_password.html:8
+#: templates/authentication/reset_password_complete.html:8
+msgid "Reset password"
+msgstr ""
+
+#: templates/authentication/reset_password.html:29
+msgid ""
+"Please enter your valid email address, to receive password reset link in "
+"your email"
+msgstr ""
+
+#: templates/authentication/reset_password.html:44
+msgid "Send activation link"
+msgstr ""
+
+#: templates/authentication/reset_password_complete.html:26
+msgid ""
+"Password reset link has been sent to your email, please check you emails"
+msgstr ""
+"A password reset link has been sent to your email, please check you emails"
+
+#: templates/authentication/reset_password_complete.html:31
+msgid "Request another link"
+msgstr ""
+
+#: templates/authentication/set_newpassword.html:8
+msgid "Set password"
+msgstr ""
+
+#: templates/authentication/set_newpassword.html:25
+msgid "Please set your new password"
+msgstr ""
+
+#: templates/authentication/user_profile.html:62
+msgid "Update profile"
+msgstr ""
+
+#: templates/authentication/user_profile_update.html:8
+msgid "Update user profile"
+msgstr ""
+
+#: templates/authentication/user_profile_update.html:24
+msgid "User profile update"
+msgstr ""
+
+#: templates/authentication/user_profile_update.html:29
+msgid "Update"
+msgstr ""
+
+#: templates/authentication/user_profile_update.html:50
+msgid "Account information"
+msgstr ""
+
+#: templates/authentication/user_profile_update.html:80
+msgid "Update information"
 msgstr ""
 
 #: templates/partials/_table.html:67
@@ -44,57 +232,3 @@ msgstr ""
 msgid ""
 "%(object)s transaction type: %(type)s does not match assigments: %(action)s"
 msgstr ""
-
-
-msgid "Login to you member account"
-msgstr "Login to you member account"
-
-msgid "Email"
-msgstr "Email"
-
-msgid "Password"
-msgstr "Password"
-
-msgid "Password"
-msgstr "Password"
-
-msgid "Login"
-msgstr "Login"
-
-msgid "Reset Password"
-msgstr "Reset Password"
-
-msgid "Create member account"
-msgstr "Create member account"
-
-msgid "Reset password"
-msgstr "Reset password"
-
-msgid "Register new account"
-msgstr "Register new account"
-
-msgid "Confirm password"
-msgstr "Confirm password"
-
-msgid "Mobile number"
-msgstr "Mobile number"
-
-msgid "First name"
-msgstr "First name"
-
-msgid "Middle name"
-msgstr "Middle name"
-
-msgid "Last name"
-msgstr "Last name"
-
-msgid "Register"
-msgstr "Register"
-
-msgid "Male"
-msgstr "Male"
-
-msgid "Female"
-msgstr "Female"
-
-

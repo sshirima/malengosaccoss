@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-19 11:56+0300\n"
-"PO-Revision-Date: 2022-05-19 11:59+0300\n"
+"POT-Creation-Date: 2022-05-23 17:44+0300\n"
+"PO-Revision-Date: 2022-05-23 17:43+0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: sw\n"
@@ -24,7 +24,196 @@ msgstr "Kingereza"
 
 #: core/settings.py:155
 msgid "Swahili"
+msgstr "Kiswahili"
+
+#: templates/authentication/change_password.html:8
+#: templates/authentication/change_password.html:27
+#: templates/authentication/change_password.html:80
+#: templates/authentication/password_change_required.html:9
+#: templates/authentication/password_change_required.html:57
+#: templates/authentication/set_newpassword.html:48
+#: templates/authentication/user_profile.html:61
+msgid "Change password"
+msgstr "Badili nywila"
+
+#: templates/authentication/change_password.html:22
+msgid "User change password"
+msgstr "Badilisha nenosiri la mtumiaji"
+
+#: templates/authentication/change_password.html:26
+#: templates/authentication/user_profile.html:8
+#: templates/authentication/user_profile.html:23
+#: templates/authentication/user_profile_update.html:28
+msgid "User profile"
+msgstr "Wasifu wa mtumiaji"
+
+#: templates/authentication/change_password.html:49
+msgid "Change you login password"
+msgstr "Badilisha nenosiri lako la kuingia"
+
+#: templates/authentication/change_password.html:55
+#: templates/authentication/password_change_required.html:31
+msgid "Old password"
+msgstr "Nenosiri ya zamani"
+
+#: templates/authentication/change_password.html:63
+#: templates/authentication/password_change_required.html:39
+#: templates/authentication/set_newpassword.html:30
+msgid "New password"
+msgstr "Nenosiri mpya"
+
+#: templates/authentication/change_password.html:71
+#: templates/authentication/password_change_required.html:47
+msgid "Confirm password"
+msgstr "Thibitisha nenosiri"
+
+#: templates/authentication/change_password.html:84
+#: templates/authentication/user_profile_update.html:84
+msgid "Cancel"
+msgstr "Ghairi"
+
+#: templates/authentication/login.html:8 templates/authentication/login.html:53
+#: templates/authentication/register.html:103
+#: templates/authentication/reset_password.html:54
+#: templates/authentication/set_newpassword.html:58
+msgid "Login"
+msgstr "Ingia"
+
+#: templates/authentication/login.html:30
+msgid "Login to your account"
+msgstr "Ingia kwenye akaunti yako"
+
+#: templates/authentication/login.html:35
+#: templates/authentication/register.html:31
+#: templates/authentication/reset_password.html:34
+#: templates/authentication/user_profile_update.html:56
+msgid "Email"
+msgstr "Barua pepe"
+
+#: templates/authentication/login.html:43
+#: templates/authentication/register.html:40
+msgid "Password"
+msgstr "Nenosiri"
+
+#: templates/authentication/login.html:64
+#: templates/authentication/register.html:100
+msgid "Reset Password"
+msgstr "Badili Nenosiri"
+
+#: templates/authentication/login.html:67
+msgid "Create member account"
+msgstr "Fungua akaunti ya mwanachama"
+
+#: templates/authentication/password_change_required.html:26
+msgid "You must change you password"
+msgstr "Lazima ubadilishe nenosiri lako"
+
+#: templates/authentication/register.html:8
+#: templates/authentication/register.html:89
+#: templates/authentication/reset_password.html:57
+msgid "Register"
+msgstr "Sajili"
+
+#: templates/authentication/register.html:25
+msgid "Register new account"
+msgstr "Sajili akaunti mpya"
+
+#: templates/authentication/register.html:48
+#: templates/authentication/set_newpassword.html:38
+msgid "Confirm Password"
+msgstr "Thibitisha Nenosiri"
+
+#: templates/authentication/register.html:58
+msgid "Male"
+msgstr "Mwanaume"
+
+#: templates/authentication/register.html:59
+msgid "Female"
+msgstr "Mwanamke"
+
+#: templates/authentication/register.html:68
+#: templates/authentication/user_profile_update.html:74
+#: templates/authentication/user_profile_update.html:75
+msgid "Mobile number"
+msgstr "Namba ya simu"
+
+#: templates/authentication/register.html:77
+#: templates/authentication/user_profile_update.html:62
+#: templates/authentication/user_profile_update.html:63
+msgid "First name"
+msgstr "Jina la kwanza"
+
+#: templates/authentication/register.html:80
+#: templates/authentication/user_profile_update.html:66
+#: templates/authentication/user_profile_update.html:67
+msgid "Middle name"
+msgstr "Jina la kati"
+
+#: templates/authentication/register.html:83
+#: templates/authentication/user_profile_update.html:70
+#: templates/authentication/user_profile_update.html:71
+msgid "Last name"
+msgstr "Jina la mwisho"
+
+#: templates/authentication/reset_password.html:8
+#: templates/authentication/reset_password_complete.html:8
+msgid "Reset password"
+msgstr "Badili nenosiri"
+
+#: templates/authentication/reset_password.html:29
+msgid ""
+"Please enter your valid email address, to receive password reset link in "
+"your email"
 msgstr ""
+"Tafadhali ingiza barua pepe yako halali, ili kupokea kiungo cha kuweka upya "
+"nenosiri katika barua pepe yako"
+
+#: templates/authentication/reset_password.html:44
+msgid "Send activation link"
+msgstr "Tuma kiungo cha kuwezesha"
+
+#: templates/authentication/reset_password_complete.html:26
+msgid ""
+"Password reset link has been sent to your email, please check you emails"
+msgstr ""
+"Kiungo cha kuweka upya nenosiri kimetumwa kwa barua pepe yako, tafadhali "
+"angalia barua pepe yako"
+
+#: templates/authentication/reset_password_complete.html:31
+msgid "Request another link"
+msgstr "Omba kiungo kingine"
+
+#: templates/authentication/set_newpassword.html:8
+msgid "Set password"
+msgstr ""
+
+#: templates/authentication/set_newpassword.html:25
+msgid "Please set your new password"
+msgstr "Tafadhali weka nenosiri lako jipya"
+
+#: templates/authentication/user_profile.html:62
+msgid "Update profile"
+msgstr "Sasisha wasifu"
+
+#: templates/authentication/user_profile_update.html:8
+msgid "Update user profile"
+msgstr "Sasisha wasifu wa mtumiaji"
+
+#: templates/authentication/user_profile_update.html:24
+msgid "User profile update"
+msgstr "Sasisho la wasifu wa mtumiaji"
+
+#: templates/authentication/user_profile_update.html:29
+msgid "Update"
+msgstr "Sasisha"
+
+#: templates/authentication/user_profile_update.html:50
+msgid "Account information"
+msgstr "Taarifa za akaunti"
+
+#: templates/authentication/user_profile_update.html:80
+msgid "Update information"
+msgstr "Sasisha taarifa"
 
 #: templates/partials/_table.html:67
 msgid "previous"
@@ -37,9 +226,11 @@ msgstr "Ijayo"
 #: transactions/forms.py:104
 #, python-format
 msgid "%(object)s already assigned: "
-msgstr "%(object)s tayari umepewa: "
+msgstr "%(object)s tayari imeshawekwa: "
 
 #: transactions/forms.py:111
 #, python-format
-msgid "%(object)s transaction type: %(type)s does not match assigments: %(action)s"
-msgstr "aina ya shughuli ya %(object)s: %(type)s hailingani na kinachopangiwa: %(action)s"
+msgid ""
+"%(object)s transaction type: %(type)s does not match assigments: %(action)s"
+msgstr ""
+"aina ya muamala %(object)s: %(type)s hailingani na kinachopangiwa: %(action)s"

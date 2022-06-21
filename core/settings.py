@@ -57,7 +57,7 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'members',
     'reports',
-    'appcommands'
+    'appcommands',
 ]
 
 MIDDLEWARE = [
@@ -199,4 +199,44 @@ CRISPY_TEMPLATE_PACK = 'bootstrap4'
 APP_NAME = 'Malengo Saccos'
 
 #Django Heroku for static files and database setup
-# django_heroku.settings(locals())
+# django_heroku.settings(locals()) 
+
+#Django login
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '[%{levelname} {asctime} {message}%]',
+            'style': '{',
+        },
+    },
+    
+    'handlers': {
+        'info_handler': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': BASE_DIR / 'logs/application/logs.log',
+            'maxBytes': 5242880,  # 1024 * 1024 * 5B = 5MB
+            'backupCount': 10,
+            'formatter': 'simple',
+        },
+        
+    },
+    'root': {
+        'handlers': ['info_handler'],
+        'level': 'INFO',
+    },
+    
+    # 'loggers': {
+    #     '': {
+    #         'handlers': ['warning_handler'], 
+    #         'level': 'WARNING',
+    #         'propagate': True,
+    #     },
+    # },
+}

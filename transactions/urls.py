@@ -2,6 +2,9 @@ from django.urls import path
 from django.views.decorators.csrf import csrf_exempt
 
 from .views import (
+    BankStatementDeleteView,
+    BankStatementDetailView,
+    BankStatementListView,
     TransactionCreateView,
     TransactionUpdateView, 
     TransactionDetailView, 
@@ -29,4 +32,8 @@ urlpatterns = [
     path('multiple-assign', BankTransactionMultipleAssignView.as_view(), name='bank-transaction-multiple-assign'),
     path('multiple-assign-confirm', BankTransactionMultipleAssignConfirmView.as_view(), name='multiple-assign-confirm'),
     path('get-member-loans', csrf_exempt(get_member_loans)),
+    #Bank statement URLS
+    path('bank-statement-list', BankStatementListView.as_view(), name='bank-statement-list'),
+    path('bank-statement-detail/<id>', BankStatementDetailView.as_view(), name='bank-statement-detail'),
+    path('bank-statement-delete/<id>', BankStatementDeleteView.as_view(), name='bank-statement-delete'),
 ]

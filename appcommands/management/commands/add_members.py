@@ -7,7 +7,7 @@ from django.db import transaction
 from django.conf import settings
 
 from authentication.services import RegistrationService
-from core.utils import print_error_message
+from core.utils import log_error
 
 class Command(BaseCommand):
 
@@ -41,7 +41,7 @@ class Command(BaseCommand):
                     print('Error, user creation fails')
 
         except Exception as e:
-            print_error_message("Error, adding member command", e)
+            log_error("Error, adding member command", e)
         
         
 

@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% load render_table from django_tables2 %}
+
+{% load bootstrap3 %}
+
+{% load humanize %}
+
+{% block title %}
+    Bank Statements
+{% endblock title %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/transactions/main.css'%}">
+{% endblock extra_css %}
+
+
+{% block pageheader %}
+  <!-- Content Header (Page header) -->
+  <div class="content-header">
+    <div class="container-fluid">
+      <div class="row mb-2">
+        <div class="col-sm-6">
+          <h1 class="m-0">Imported Bank Statements</h1>
+        </div><!-- /.col -->
+        <div class="col-sm-6">
+         
+        </div><!-- /.col -->
+      </div><!-- /.row -->
+    </div><!-- /.container-fluid -->
+  </div>
+  
+{% endblock pageheader %}
+  
+
+
+{% block content %}
+
+
+<div class="row" >
+  {% include "partials/_form_errors.html" %}
+
+  <div class="col-sm-12 mb-1">
+    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+      Page size
+      </button>
+      <div class="dropdown-menu" >
+        <a class="dropdown-item" href="{% url 'bank-transaction-list'%}?page={{request.GET.page}}&description={{request.GET.description}}&type={{request.GET.type}}&start_date={{request.GET.start_date}}&end_date={{request.GET.end_date}}&pagination=10">10</a>
+        <a class="dropdown-item" href="{% url 'bank-transaction-list'%}?page={{request.GET.page}}&description={{request.GET.description}}&type={{request.GET.type}}&start_date={{request.GET.start_date}}&end_date={{request.GET.end_date}}&pagination=20">20</a>
+        <a class="dropdown-item" href="{% url 'bank-transaction-list'%}?page={{request.GET.page}}&description={{request.GET.description}}&type={{request.GET.type}}&start_date={{request.GET.start_date}}&end_date={{request.GET.end_date}}&pagination=50">50</a>
+        <a class="dropdown-item" href="{% url 'bank-transaction-list'%}?page={{request.GET.page}}&description={{request.GET.description}}&type={{request.GET.type}}&start_date={{request.GET.start_date}}&end_date={{request.GET.end_date}}&pagination=100">100</a>
+      </div>
+  </div>
+  <div class="col-sm-12">
+    {% include "partials/_messages.html" %}
+    {% render_table table 'partials/_table.html'%}
+  </div>
+</div>
+{% endblock content %}
+  

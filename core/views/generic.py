@@ -34,16 +34,23 @@ class BaseListView(ListView):
         else:
             qs = self.model.objects.filter(**kwargs)
 
-        self.filter = self.filterset_class(self.request.GET, queryset=qs)
-        return self.filter.qs
+        if self.filterset_class:
+            self.filter = self.filterset_class(self.request.GET, queryset=qs)
+            return self.filter.qs
+        return qs
 
     def get_context_data(self, queryset, **kwargs):
         context = super(BaseListView, self).get_context_data()
-        filter = self.filterset_class(self.request.GET, queryset=queryset)
-        table = self.table_class(filter.qs)
+        if self.filterset_class:
+            filter = self.filterset_class(self.request.GET, queryset=queryset)
+            context[self.context_filter_name] = filter
+            table = self.table_class(filter.qs)
+        else:
+            table = self.table_class(queryset)
+
         RequestConfig(self.request, paginate={
                       "per_page": self.get_pagination()}).configure(table)
-        context[self.context_filter_name] = filter
+                      
         context[self.context_table_name] = table
         return context
 

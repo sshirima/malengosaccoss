@@ -8,12 +8,15 @@ from django.contrib import auth
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.contrib.auth import update_session_auth_hash
 from django.conf import settings # import the settings file
+import logging
 
 from members.models import Member
 from .models import User, UserManager
 from .emails import ActivationEmailSender
 from .utils import token_generator
-from core.utils import print_error_message
+from core.utils import log_error
+
+logger = logging.getLogger(__name__)
 
 class RegistrationService():
 
@@ -49,7 +52,7 @@ class RegistrationService():
                 gender = data['gender'],
                 user = user,
             )
-
+            logger.info('Success, member registered: {}'.format(user.email))
             return (True, user)
 
         except Exception as e:
@@ -58,7 +61,7 @@ class RegistrationService():
                 if user:
                     user.delete()
 
-            print_error_message("Error, create user", e)
+            log_error("Error, creating user", e)
             return False, None
         
 
@@ -77,7 +80,7 @@ class RegistrationService():
             return 'http://{}{}'.format(domain,activation_link)
 
         except Exception as e:
-            print('ERROR, creating activation link url: {}'.format(str(e)))
+            log_error("Error, creating activation url", e)
             return None
 
 
@@ -92,7 +95,7 @@ class RegistrationService():
             return sent
             
         except Exception as e:
-            print('ERROR, preparing activation email: {}'.format(str(e)))
+            log_error("Error, sending activation email", e)
             return False
 
     def activate_user(self, uidb64, token):
@@ -101,11 +104,12 @@ class RegistrationService():
             user = User.objects.get(pk=id)
 
             if not token_generator.check_token(user, token):
-                
-                return ('Token already used',False, None)
+                logger.warning('Token already used or expired: {}'.format(user.email))
+                return ('Token already used or expired',False, None)
 
             if user.is_active:
-                return ('User is already activated',False, None)
+                logger.warning('The user is already activated: {}'.format(user.email))
+                return ('The user is already activated',False, None)
 
             user.is_active = True
             user.save()
@@ -113,12 +117,12 @@ class RegistrationService():
             member = user.member
             member.is_active = True
             member.save()
-            
-            return ('User activated', True, user)
+            logger.info('User activation succsess: {}'.format(user.email))
+            return ('', True, user)
 
         except Exception as e:
-            print('ERROR, activating user: {}'.format(str(e)))
-            return ('Fails to activate user', False, None)
+            log_error("Error activating user", e)
+            return ('Error activating user', False, None)
 
 class LoginService():
 
@@ -126,20 +130,23 @@ class LoginService():
         self.request = request
 
     def authenticate_user(self, credentials):
-        email = credentials['email']
-        password = credentials['password']
+        try:
+            email = credentials['email']
+            password = credentials['password']
 
-        user = auth.authenticate(username=email, password=password)
-        
-        if user is not None:
-
-            if user.is_active:
-                auth.login(self.request, user)
-                return ('', True, user)
+            user = auth.authenticate(username=email, password=password)
             
-            return ('',True, user )
-        
-        return ('', False, None)
+            if user is not None:
+                auth.login(self.request, user)
+                logger.info('Success, user logged in: {}'.format(email))
+                return ('', True, user)
+                
+            logger.warning('Fails to authenticate user: {}'.format(email))
+            return ('Fails to authenticate user', False, None)
+
+        except Exception as e:
+            log_error("Error authenticating user", e)
+            return ('Error authenticating user', False, None)
 
 class PasswordResetService():
 
@@ -161,7 +168,7 @@ class PasswordResetService():
             return (user, 'http://{}{}'.format(domain,password_reset_url))
         
         except Exception as e:
-            print('ERROR, creating password reset link: {}'.format(str(e)))
+            log_error("Error creating password reset url", e)
             return (None, '')
 
 
@@ -177,7 +184,7 @@ class PasswordResetService():
             return (user, 'http://{}{}'.format(domain,password_reset_url))
         
         except Exception as e:
-            print('ERROR, creating password reset link: {}'.format(str(e)))
+            log_error("Error creating password reset url for user", e)
             return (None, '')
 
 
@@ -191,7 +198,7 @@ class PasswordResetService():
             return mail_sender.send(subject=email_subject, body=email_body, from_email=sender, to=receivers)
             
         except Exception as e:
-            print('ERROR, sending password reset email: {}'.format(str(e)))
+            log_error("Error sending password reset email", e)
             return False
 
 
@@ -201,11 +208,10 @@ class PasswordResetService():
             user = User.objects.get(pk=id)
 
             if PasswordResetTokenGenerator().check_token(user, token):
-                
                 return True
 
         except Exception as e:
-            print('ERROR, checking password reset token validity: {}'.format(str(e)))
+            log_error("Error checking token validity", e)
             return False
 
         return False
@@ -217,10 +223,11 @@ class PasswordResetService():
             user.set_password(data['password1'])
             user.save()
 
+            logger.info('Success reseting password: {}'.format(user.email))
             return True
 
         except Exception as e:
-            print('ERROR, reseting password: {}'.format(str(e)))
+            log_error("Error, reseting password", e)
             return False
 
     def change_password(self,request, form):
@@ -233,11 +240,11 @@ class PasswordResetService():
                 user.save()
 
             update_session_auth_hash(request, user)  # Important!
-
+            logger.info('Success changing password: {}'.format(user.email))
             return (request, form,True)
             
         except Exception as e:
-            print('ERROR, changing password: {}'.format(str(e)))
+            log_error("Error, changing password", e)
             return (form, request, False)
 
 
@@ -258,8 +265,9 @@ class UserProfileService():
             member.mobile_number = data['mobile_number']
             member.save()
 
+            logger.info('Success, updating user profile: {}'.format(user.email))
             return ('', True, user)
 
         except Exception as e:
-            print('ERROR, updating user profile: {}'.format(str(e)))
+            log_error("Error updating user profile", e)
             return ('', False, None)

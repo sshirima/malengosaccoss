@@ -77,3 +77,43 @@ class ReportTransactionTableFilter(django_filters.FilterSet):
 
     def search_end_date(self, qs, name, value):
         return qs.filter(Q(date_created__lte=value))
+
+class InfoColumn(django_tables2.Column):
+    def render(self, value):
+        if value.lower() == 'info':
+            return mark_safe('<span class="badge badge-info">{}</span>'.format(value))
+
+        elif value.lower() == 'warning':
+            return mark_safe('<span class="badge badge-warning">{}</span>'.format(value))
+
+        elif value.lower() == 'error':
+            return mark_safe('<span class="badge badge-danger">{}</span>'.format(value))
+        else :
+            return value
+
+
+class MessageColumn(django_tables2.Column):
+    def render(self, value):
+        print(value)
+        if value.lower() == 'info':
+            return mark_safe('<p class="text-info">{}</p>'.format(value['message']))
+
+        elif value.lower() == 'warning':
+            return mark_safe('<p class="text-warning">{}</p>'.format(value['message']))
+
+        elif value.lower() == 'error':
+            return mark_safe('<p class="text-danger">{}</p>'.format(value['message']))
+        else :
+            return value
+
+class LogsTable(django_tables2.Table):
+    level = InfoColumn(accessor='level', verbose_name='Level')
+    time = django_tables2.Column(accessor='time', verbose_name='Time')
+    message = django_tables2.Column(accessor='message', verbose_name='Message')
+    
+
+    class Meta:
+        attrs = {'class': 'table '}
+        template_name = 'django_tables2/bootstrap.html'
+        fields = ('level',)
+        sequence = ('level','time','message')

@@ -1,11 +1,9 @@
-import imp
 from django.test import TestCase
 from django.urls.base import reverse
 from authentication.forms import RegistrationForm
 from authentication.services import RegistrationService
 from loans.models import LoanFormFee, LoanInsuranceFee, LoanInterest, LoanLimits, LoanProcessingFee
-from transactions.forms import TransactionCreateForm
-from transactions.services import BankStatementParserService, TransactionCRUDService
+from transactions.services import BankStatementParserService
 from transactions.services import BankTransactionAssignmentService
 # Create your tests here.
 

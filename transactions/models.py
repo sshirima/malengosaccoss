@@ -1,11 +1,9 @@
 from django.urls.base import reverse
 from django.db import models
-import traceback
+from core.utils import log_error
 
 from authentication.models import User
 import uuid
-
-from members.models import Member
 # Create your models here.
 TRANSACTION_STATUS = (
     ('pending', 'Pending' ),
@@ -91,6 +89,7 @@ class BankTransaction(BaseTransaction):
     status = models.CharField(max_length=20, choices=BANK_TRANSACTION_STATUS)
     date_trans = models.DateField()
     date_value = models.DateField()
+    bankstatement = models.ForeignKey(to='BankStatement', on_delete=models.CASCADE, blank=True, null=True)
     
 
     def __str__(self):
@@ -130,6 +129,22 @@ class Transaction(BaseTransaction):
                     related_list.append(related)
                     # if there is return a Tuple of flag = False the related_model object
             except AttributeError as e:  # an attribute error for field occurs when checking for AutoField
-                #traceback.print_exc()
-                pass # just pass as we dont need to check for AutoField
+                log_error('Error, fails to get transaction related object list', e)
+                return []
         return related_list
+
+"""
+Bank Statement model
+"""
+
+class BankStatement(models.Model):
+    id = models.UUIDField(primary_key = True,default = uuid.uuid4, editable = False)
+    filename = models.CharField(max_length=255, null=True)
+    created_by = models.ForeignKey(to=User, on_delete=models.DO_NOTHING, blank=True, null=True)
+    date_created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+
+    class Meta:
+        ordering = ['-date_created']
+
+    def __str__(self):
+        return str(self.filename)

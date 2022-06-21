@@ -8,6 +8,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/transactions/main.css'%}">
+<link rel="stylesheet" href="{% static 'css/select2.min.css'%}">
 {% endblock extra_css %}
 
 
@@ -52,8 +53,8 @@
                 <div class="form-group row">
                   <label for="assign_scope" class="col-sm-2 col-form-label">Assign To: </label>
                   <div class="col-sm-10">
-                    <select name="assign_scope" class="custom-select form-control-border" id="assign_scope">
-                      <option value="">Select Scope</option>
+                    <select name="action" class="custom-select form-control-border" id="assign_scope">
+                      <option value=""></option>
                       {% for scope in assign_scopes %}
                       <option value="{{scope.0}}">{{scope.1}}</option>
                       {% endfor %}
@@ -121,3 +122,9 @@
 </div>
   
 {% endblock content %}
+
+
+{% block extra_js %}
+<script src="{% static 'js/select2.min.js'%}"></script>
+{% endblock extra_js %}
+  

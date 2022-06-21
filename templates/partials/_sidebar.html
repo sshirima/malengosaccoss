@@ -107,6 +107,15 @@
                     </p>
                   </a>
               </li>
+              {% url 'bank-statement-list' as url %}
+              <li class="nav-item {% if request.path == url %}menu-open{% endif %}">
+                  <a href="{% url 'bank-statement-list'%}" class="nav-link">
+                    <i class="nav-icon far fa-list-alt"></i>
+                    <p>
+                      Bank Statements
+                    </p>
+                  </a>
+              </li>
               {% url 'members-list' as url %}
               <li class="nav-item">
                   <a href="{% url 'members-list' %}" class="nav-link">
@@ -116,13 +125,14 @@
                     </p>
                   </a>
               </li>
-              <li class="nav-item">
-                <a href="#" class="nav-link">
-                <i class="nav-icon fas fa-circle"></i>
-                <p>
-                Reports
-                <i class="right fas fa-angle-right"></i>
-                </p>
+              {% url 'report-transactions' as url %}
+              <li class="nav-item {% if request.path == url %}menu-open{% endif %}">
+                <a href="#" class="nav-link ">
+                  <i class="nav-icon fas fa-circle"></i>
+                  <p>
+                  Reports
+                    <i class="fas fa-angle-left right"></i>
+                  </p>
                 </a>
                   <ul class="nav nav-treeview" style="display: none;">
                     {% url 'report-transactions' as url %}
@@ -141,7 +151,19 @@
                     </li>
                   </ul>
               </li>
-          {% endif %}
+
+              {% if request.user.is_admin %}
+
+                  {% url 'logs-list' as url %}
+                  <li class="nav-item ">
+                    <a href="{% url 'logs-list' %}" class="nav-link">
+                    <i class="nav-icon"></i>
+                    <p >Logs</p>
+                    </a>
+                  </li>
+                    
+                  {% endif %}
+              {% endif %}
             
             
         </ul>

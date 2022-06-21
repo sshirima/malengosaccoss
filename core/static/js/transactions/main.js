@@ -1,4 +1,8 @@
 
+$(document).ready(function() {
+  $('.select2').select2();
+});
+
 function onChangeMember() {
   const owner = document.querySelector('#owner');
   const loanarea = document.querySelector('#loanarea');

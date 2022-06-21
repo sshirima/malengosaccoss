@@ -198,7 +198,7 @@ class MemberLoginTest(TestCase):
 
     def test_0008_super_admin_login_fails(self):
         driver = self.login_member('admin@localhost.com', 'WrongPassword')
-        self.assertIn('Fails to authenticate username', driver.page_source)
+        self.assertIn('Fails to authenticate user', driver.page_source)
 
     def test_0009_force_password_change_success(self):
         driver = webdriver.Chrome()
@@ -230,12 +230,13 @@ class MemberLoginTest(TestCase):
         save_changes.click()
         self.assertIn('was changed successfully.', driver.page_source)
 
+
     def test_0010_change_password_required_success(self):
         driver = self.login_member(self.fake_email, 'Chagepass_123')
-        self.assertIn('Please change your password', driver.page_source)
+        self.assertIn('You must change you password', driver.page_source)
 
         driver.get('http://127.0.0.1:8000/dashboard')
-        self.assertIn('Please change your password', driver.page_source)
+        self.assertIn('You must change you password', driver.page_source)
 
         old_password = driver.find_element_by_name('old_password')
         new_password1 = driver.find_element_by_name('new_password1')
@@ -250,6 +251,10 @@ class MemberLoginTest(TestCase):
         self.assertIn('Login', driver.page_source)
         driver = self.login_member(self.fake_email, 'Changeme_123')
         self.assertIn('Dashboard', driver.page_source)
+
+
+    def test_0011_import_statement_xlsx_success(self):
+        pass
 
 
 

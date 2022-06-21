@@ -2,6 +2,9 @@
 from datetime import datetime
 from django.core.mail import EmailMessage
 import threading
+import logging
+
+logger = logging.getLogger(__name__)
 
 def get_formated_date(datetime, format):
     
@@ -13,11 +16,16 @@ def get_filename_with_timestamps(name):
     now = datetime.now()
     return '{}_{}_{}_{}_{}.csv'.format(name, now.year, now.month, now.day, str(now.hour)+str(now.minute)+str(now.second))
 
+def get_timestamps_filename(now=None, name='file'):
+    now = datetime.now() if now is None else now
+    return '{}_{}_{}_{}_{}'.format(now.year, now.month, now.day, str(now.hour)+str(now.minute)+str(now.second), name)
+
 def get_exception_error_message(message, e):
     return '{}: file {}, line {}: {}'.format(message, e.__traceback__.tb_frame.f_code.co_filename, e.__traceback__.tb_lineno, str(e))    
     
-def print_error_message(message, e):
+def log_error(message, e):
     error_message = get_exception_error_message(message, e)
+    logger.error(error_message)
     print(error_message)
 
 
@@ -30,7 +38,7 @@ class SmtpEmailSenderThread(threading.Thread):
         try:
             self.email.send(fail_silently= False)
         except Exception as e:
-            print_error_message("ERROR, Sending email", e)
+            log_error("ERROR, Sending email", e)
 
 
 class SmtpEmailSender():
@@ -49,5 +57,5 @@ class SmtpEmailSender():
                 email.send(fail_silently= False)
             return True
         except Exception as e:
-            print_error_message("ERROR, Sending email", e)
+            log_error("ERROR, Sending email", e)
             return False

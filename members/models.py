@@ -24,7 +24,7 @@ class Member(models.Model):
     is_active = models.BooleanField(default=False)
 
     class Meta:
-        ordering = ['-first_name','middle_name', 'last_name']
+        ordering = ['first_name','middle_name', 'last_name']
 
     def __str__(self):
        return str('{} {}'.format(self.first_name, self.last_name))

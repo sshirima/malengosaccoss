@@ -1,4 +1,4 @@
-from core.utils import print_error_message
+from core.utils import log_error
 from expenses.models import Expense
 from loans.models import Loan, LoanFormFee, LoanInsuranceFee, LoanInterest, LoanProcessingFee, LoanRepayment
 from members.models import Member
@@ -8,12 +8,9 @@ import transactions.models as tr_models
 import pandas as pd
 from django.db import transaction
 from expenses.services import ExpenseCrudService
-
-
 import transactions.models as t_models
-import expenses.models as ex_models
-import shares.models as sh_models
-import savings.models as sv_models
+import logging
+logger = logging.getLogger(__name__)
 
 
 class BaseTransactionService():
@@ -24,7 +21,6 @@ class BaseTransactionService():
             bank_transaction.save()
             return True
         return False
-
 
 class TransactionCRUDService(BaseTransactionService):
 
@@ -57,7 +53,7 @@ class TransactionCRUDService(BaseTransactionService):
 
         except Exception as e:
             msg = "ERROR, creating transaction from bank transaction"
-            print_error_message(msg, e)
+            log_error(msg, e)
             return (msg,False, None, None)
 
     def create_transaction(self, banktransaction, **kwargs):
@@ -76,7 +72,7 @@ class TransactionCRUDService(BaseTransactionService):
             
         except Exception as e:
             msg = "ERROR, saving transaction"
-            print_error_message(msg, e)
+            log_error(msg, e)
 
         return ('', False, None)
 
@@ -158,13 +154,15 @@ class BankStatementParserService():
             print('ERROR, parsing bank statement row: {}'.format(str(e)))
             return df
 
-    def create_bank_transaction_db(self, data, column_names, user):
+    def create_bank_transaction_db(self, data, column_names, user, **kwargs):
         transactions = []
-
         try:
-
+            # filename = kwargs['filename'] 
+            transactions_created = False
+            filename = kwargs['filename']
+            bankstatement = self.create_bankstatement(filename=filename, created_by=user) 
             with transaction.atomic():
-
+                 
                 for index, row in data.iterrows():
 
                     type, amount_valid, amount = self._get_row_amount(row, column_names)
@@ -183,20 +181,48 @@ class BankStatementParserService():
                             'type' : type,
                             'status' : tr_models.BANK_TRANSACTION_STATUS[0][0],
                             'created_by' : user,
+                            'bankstatement':bankstatement
                         }
                         
                     )
+                    transactions_created = transactions_created or created
 
                     if not created:
                         print('Bank transaction already exists')
 
                     transactions.append(banktransaction)
+                
+                if not transactions_created:
+                    self.delete_bankstatement_object(bankstatement)
 
             return '',True,transactions
 
         except Exception as e:
-            print('ERROR, saving bank statement transaction to db: {}'.format(str(e)))
+            self.delete_bankstatement_object(bankstatement)
+            log_error('Error, fails to add transactions to db', e)
             return ('Error saving bank statement transaction to db ', False, [])
+
+
+    def create_bankstatement(self, **kwargs):
+        try:
+            filename = kwargs['filename']
+            created_by = kwargs['created_by']
+            bankstatement =t_models.BankStatement.objects.create(filename=filename, created_by=created_by)
+            logger.info('Success, bank statement created: {}'.format(filename))
+            return bankstatement
+
+        except Exception as e:
+            log_error('Error, fails to create bankstatement', e)
+            return None
+
+    def delete_bankstatement_object(self, bankstatement):
+        try:
+            bankstatement.delete()
+            return True
+        except Exception as e:
+            log_error('Error, fails delete bankstatement', e)
+            return False
+
 
     def _get_row_amount(self, row, column_names):
 

@@ -2,7 +2,7 @@
 from django.core.management.base import BaseCommand
 from django.conf import settings
 
-from core.utils import print_error_message, SmtpEmailSender
+from core.utils import log_error, SmtpEmailSender
 
 class Command(BaseCommand):
     help = "Clearing all data on the database ..."
@@ -33,7 +33,7 @@ class Command(BaseCommand):
             else:
                 self.stdout.write('Exit code 1, fail')
         except Exception as e:
-            print_error_message("ERROR, sending testing email", e)
+            log_error("ERROR, sending testing email", e)
             self.stdout.write('Exit code 2, fail')
 
         

@@ -1,4 +1,5 @@
 
+from datetime import datetime
 from django.shortcuts import redirect, render
 from django.urls.base import reverse_lazy
 from django.views.generic import CreateView, ListView, UpdateView, DeleteView, DetailView, View
@@ -11,6 +12,7 @@ from django.db.models import Sum
 from members.models import Member
 import json
 from django.http import JsonResponse
+from core.utils import get_timestamps_filename
 
 
 from transactions.forms import (
@@ -29,6 +31,7 @@ from transactions.models import (
     BANK_TRANSACTION_STATUS,
     TRANSACTION_STATUS,
     TRANSACTION_TYPE,
+    BankStatement,
     get_transaction_assignment_action_by_type, 
     get_transaction_assignment_action_all,
     BankTransaction, 
@@ -38,6 +41,8 @@ import transactions.models as tr_models
 from loans.models import Loan, LOAN_TYPE
 from transactions.services import BankStatementParserService, BankTransactionAssignmentService, TransactionCRUDService
 from transactions.tables import (
+    BankStatementTable,
+    BankStatementTransactionsTable,
     BankTransactionFlatTable, 
     BankTransactionTable,
     BankTransactionTableExport, 
@@ -50,6 +55,15 @@ from authentication.permissions import MemberStaffPassTestMixin
 from core.views.generic import BaseListView
 # Create your views here.
 
+def get_member_loans(request):
+
+    if request.method == "POST":
+        if request.user.is_authenticated:
+            member_id = json.loads(request.body).get('owner_id')
+            loans = Loan.objects.filter(member__id = member_id).values('id','principle', 'type')
+            return JsonResponse(list(loans), safe=False)
+            
+        return JsonResponse(list({}), safe=False)           
 
 class TransactionListView(LoginRequiredMixin,MemberStaffPassTestMixin, BaseListView):
     
@@ -209,16 +223,19 @@ class BankTransactionImportView(LoginRequiredMixin,MemberStaffPassTestMixin, Vie
         parserService = BankStatementParserService()
         
         if form.is_valid():
-            import_file_path = form.cleaned_data['import_file'].temporary_file_path()
+            uploaded_file = form.cleaned_data['import_file']
+            import_file_path = uploaded_file.temporary_file_path()
+            file_name = get_timestamps_filename(datetime.now(), uploaded_file.name)
+            # print(file_name)
 
             column_names = ['Tran Date', 'Value Date','Tran Particulars','Instrument\nId','Debit','Credit', 'Balance']
             df = parserService.parse_xlsx_file(filename=import_file_path, column_names=column_names)
             
             if len(df.index) == 0:
-                messages.error(request, 'Error, parsing the file')
+                messages.error(request, 'File contain no transaction information')
                 return render(request, self.template_name,{'form':form})
 
-            message, created, qs = parserService.create_bank_transaction_db(df, column_names, self.request.user)
+            message, created, qs = parserService.create_bank_transaction_db(df, column_names, self.request.user, filename=file_name)
             
             if not created:
                 messages.error(request, message)
@@ -440,12 +457,68 @@ class BankTransactionMultipleAssignConfirmView(LoginRequiredMixin,MemberStaffPas
             messages.error(request, 'Not a valid action')
             return False, None
 
-def get_member_loans(request):
+class BankStatementListView(LoginRequiredMixin,MemberStaffPassTestMixin, BaseListView):
+    template_name ='transactions/bankstatement_list.html'
+    model = BankStatement
+    table_class = BankStatementTable
+    filterset_class = None
+    
+    #Export options
+    table_class_export = TransactionTableExport
+    export_filename = None
 
-    if request.method == "POST":
-        if request.user.is_authenticated:
-            member_id = json.loads(request.body).get('owner_id')
-            loans = Loan.objects.filter(member__id = member_id).values('id','principle', 'type')
-            return JsonResponse(list(loans), safe=False)
-            
-        return JsonResponse(list({}), safe=False)           
+
+    def get_context_data(self,*args, **kwargs):
+        queryset = self.get_queryset(**kwargs)
+        context = super(BankStatementListView, self).get_context_data(queryset)
+        return context
+
+class BankStatementDetailView(LoginRequiredMixin,MemberStaffPassTestMixin, DetailView):
+    template_name = 'transactions/bankstatement_detail.html'
+    model = BankStatement
+    context_object_name = 'bankstatement'
+    slug_field = 'id'
+    slug_url_kwarg = 'id'
+    paginate_by = 10
+
+    def get_queryset(self):
+        return BankStatement.objects.select_related('created_by').filter(id = self.kwargs['id'])
+
+    def get_context_data(self,*args, **kwargs):
+        context = super(BankStatementDetailView, self).get_context_data(**kwargs)
+        bankstransactions = BankTransaction.objects.filter(bankstatement=self.object )
+        table = BankStatementTransactionsTable(bankstransactions)
+        RequestConfig(self.request, paginate={"per_page": self.paginate_by}).configure(table)  
+        context['table'] = table
+        return context
+
+class BankStatementDeleteView(LoginRequiredMixin,MemberStaffPassTestMixin, DeleteView):
+    template_name ='transactions/bankstatement_delete.html'
+    model = BankStatement
+    slug_field = 'id'
+    slug_url_kwarg = 'id'
+
+    success_url = reverse_lazy('bank-statement-list')
+
+    def get_queryset(self):
+        return BankStatement.objects.filter(id=self.kwargs['id'])
+
+    def get_context_data(self, **kwargs):
+        context = super(BankStatementDeleteView, self).get_context_data()
+        # print(related_objects)
+        context['banktransactions'] = BankTransaction.objects.filter(bankstatement = self.object)
+        return context
+
+    
+
+    def form_valid(self, form):
+        self.object = self.get_object()
+        service = BankStatementParserService()
+        deleted= service.delete_bankstatement_object(self.object)
+
+        if deleted:
+            messages.success(self.request, 'Bank statement deleted successful')
+            return HttpResponseRedirect(self.get_success_url())
+
+        messages.error(self.request, 'Fails to delete bank statement')
+        return HttpResponseRedirect(reverse_lazy('bank-statement-list'))

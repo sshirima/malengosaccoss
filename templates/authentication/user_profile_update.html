@@ -1,7 +1,11 @@
 {% extends "base.html" %}
 
+{% load i18n %} 
+
+{% load static %}
+
 {% block title %}
-    Profile Update
+{% translate 'Update user profile'%}
 {% endblock title %}
 
 {% load static %}
@@ -17,12 +21,12 @@
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
-            <h1 class="m-0">Update profile</h1>
+            <h1 class="m-0">{% translate 'User profile update'%}</h1>
           </div><!-- /.col -->
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
-              <li class="breadcrumb-item"><a href="{% url 'user-profile'%}">User profile</a></li>
-              <li class="breadcrumb-item active">Update profile</li>
+              <li class="breadcrumb-item"><a href="{% url 'user-profile'%}">{% translate 'User profile'%}</a></li>
+              <li class="breadcrumb-item active">{% translate 'Update'%}</li>
             </ol>
           </div><!-- /.col -->
       </div><!-- /.row -->
@@ -43,51 +47,41 @@
           <!-- <img class="profile-user-img img-fluid img-circle" src="../../dist/img/user4-128x128.jpg" alt="User profile picture"> -->
         </div>
  
-        <h4 class="profile-username text-center mb-3">Update profile</h4>
+        <h4 class="profile-username text-center mb-3">{% translate 'Account information'%}</h4>
 
         <form action="{% url 'user-profile-update'%}" method="post">
           {% csrf_token %}
           
-          <div class="input-group mb-3">
-            <input type="text" class="form-control" value="{{member.first_name}}" name="first_name" placeholder="First name">
-            <div class="input-group-append">
-              <div class="input-group-text">
-                <i class="fas fa-file-alt"></i>
-              </div>
+          <div class="form-group row mb-3">
+            <label for="" class="col-md-3 col-form-label">{% translate 'Email' %}</label>
+            <div class="col-md-9">
+              <p > {{ member.user.email}}</p>
             </div>
+            </div>
+          <div class="form-group row mb-3">
+            <label for="" class="col-md-3 col-form-label">{% translate 'First name' %}</label>
+            <input type="text" class="col-md-9  form-control" value="{{member.first_name}}" name="first_name" placeholder="{% translate 'First name'%}">
           </div>
-          <div class="input-group mb-3">
-            <input type="text" class="form-control" value="{{member.middle_name}}" name="middle_name" placeholder="Middle name">
-            <div class="input-group-append">
-              <div class="input-group-text">
-                <i class="fas fa-file-alt"></i>
-              </div>
-            </div>
+          <div class="form-group row mb-3">
+            <label for="" class="col-md-3 col-form-label">{% translate 'Middle name' %}</label>
+            <input type="text" class="col-md-9  form-control" value="{{member.middle_name}}" name="middle_name" placeholder="{% translate 'Middle name'%}">
           </div>
-          <div class="input-group mb-3">
-            <input type="text" class="form-control" value="{{member.last_name}}" name="last_name" placeholder="Last name">
-            <div class="input-group-append">
-              <div class="input-group-text">
-                <i class="fas fa-file-alt"></i>
-              </div>
-            </div>
+          <div class="form-group row mb-3">
+            <label for="" class="col-md-3 col-form-label">{% translate 'Last name' %}</label>
+            <input type="text" class="col-md-9  form-control" value="{{member.last_name}}" name="last_name" placeholder="{% translate 'Last name'%}">
           </div>
-          <div class="input-group mb-3">
-            <input type="text" class="form-control" value="{{member.mobile_number}}" name="mobile_number" placeholder="Mobile number">
-            <div class="input-group-append">
-              <div class="input-group-text">
-                <i class="fas fa-file-alt"></i>
-              </div>
-            </div>
+          <div class="form-group row mb-3">
+            <label for="" class="col-md-3 col-form-label">{% translate 'Mobile number' %}</label>
+            <input type="text" class="col-md-9  form-control" value="{{member.mobile_number}}" name="mobile_number" placeholder="{% translate 'Mobile number'%}">
           </div>
           
           <div class="row">
             <div class="col-md-6">
-              <button type="submit" id="submit" class="btn btn-outline-info btn-block mt-1">Update</button>
+              <button type="submit" id="submit" class="btn btn-outline-info btn-block mt-1">{% translate 'Update information'%}</button>
             </div>
             <!-- /.col -->
             <div class="col-md-6">
-              <a href="{% url 'user-profile'%}" class="btn btn-outline-danger btn-block mt-2"><b>Cancel</b></a>
+              <a href="{% url 'user-profile'%}" class="btn btn-outline-danger btn-block mt-2"><b>{% translate 'Cancel'%}</b></a>
             </div>
             <!-- /.col -->
           </div>

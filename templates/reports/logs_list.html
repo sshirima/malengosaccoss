@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% load render_table from django_tables2 %}
+
+{% load bootstrap3 %}
+
+{% block title %}
+    Logs
+{% endblock title %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/expenses/main.css'%}">
+{% endblock extra_css %}
+
+
+{% block pageheader %}
+
+  <!-- Content Header (Page header) -->
+  <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">Reports</h1>
+          </div><!-- /.col -->
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+            </ol>
+          </div><!-- /.col -->
+      </div><!-- /.row -->
+    </div><!-- /.container-fluid -->
+  </div>
+  
+{% endblock pageheader %}
+  
+{% block content %}
+
+<div class="row">
+  <div class="col-lg-12">
+    <div class="card card-info card-outline {% if not 'starttime' in request.GET %}collapsed-card{% endif %}  filter-box">
+      <div class="card-header">
+        <h3 class="card-title">Filters Criteria</h3>
+        <div class="card-tools">
+          <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i>
+          </button>
+        </div>
+      </div>
+      <div class="card-body">
+        <form action="" method="get" class="form">
+            <div class="row">
+              <div class="col-md-2">
+                <div class="form-group">
+                  <label for="id_level">Level</label>
+                  <select name="level" class="form-control form-control-sm" id="id_level">
+                    <option ></option>
+                    {% for level in logs_levels %}
+                    <option value="{{level.0}}" {% if request.GET.level == level.0 %} selected {% endif %}>{{level.1}}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label for="id_description">Message</label>
+                  <input type="text" name="message" class="form-control  form-control-sm" value="{{request.GET.message}}" placeholder="Message" title="" id="id_message">
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div  class="form-group">
+                  <label for="id_start_date">Start Date</label>
+                  <input type="date" name="starttime" class="form-control form-control-sm" value="{{request.GET.starttime}}"  placeholder="Start Date" title="" id="id_start_date">
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div  class="form-group">
+                  <div  class="form-group mb-3">
+                    <label for="id_end_date">End Date</label>
+                    <div class="input-group input-group-sm ">
+                      <input type="date" name="endtime" class="form-control form-control-sm" value="{{request.GET.endtime}}" placeholder="End Date" title="" id="id_end_date">
+                      <div class="input-group-append">
+                          <button type="submit" class="btn btn-lg btn-info">
+                            <i class="fa fa-search"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <div class="row">
+    <div class="col-sm-12 mb-1">
+      <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+        Page size
+        </button>
+        <div class="dropdown-menu" >
+          <a class="dropdown-item" href="{% url 'logs-list'%}?page={{request.GET.page}}&description={{request.GET.level}}&starttime={{request.GET.starttime}}&endtime={{request.GET.endtime}}&pagination=10">10</a>
+          <a class="dropdown-item" href="{% url 'logs-list'%}?page={{request.GET.page}}&description={{request.GET.level}}&starttime={{request.GET.starttime}}&endtime={{request.GET.endtime}}&pagination=20">20</a>
+          <a class="dropdown-item" href="{% url 'logs-list'%}?page={{request.GET.page}}&description={{request.GET.level}}&starttime={{request.GET.starttime}}&endtime={{request.GET.endtime}}&pagination=50">50</a>
+          <a class="dropdown-item" href="{% url 'logs-list'%}?page={{request.GET.page}}&description={{request.GET.level}}&starttime={{request.GET.starttime}}&endtime={{request.GET.endtime}}&pagination=100">100</a>
+        </div>
+      <div class="dt-buttons btn-group flex-wrap float-right">
+        <a href="{% url 'logs-list'%}?page={{request.GET.page}}&description={{request.GET.level}}&starttime={{request.GET.starttime}}&endtime={{request.GET.endtime}}&pagination={{request.GET.pagination}}&_export=xlsx" class="btn btn-default "><span>Excel</span></a> 
+        <a href="{% url 'logs-list'%}?page={{request.GET.page}}&description={{request.GET.level}}&starttime={{request.GET.starttime}}&endtime={{request.GET.endtime}}&pagination={{request.GET.pagination}}&_export=csv" class="btn btn-default "><span>CSV</span></a> 
+      </div>
+    </div>
+    <div class="col-md-12">
+      {% include "partials/_messages.html" %}
+      {% render_table table 'partials/_table.html'%}
+    </div>
+  </div>
+{% endblock content %}

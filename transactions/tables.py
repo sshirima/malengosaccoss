@@ -8,7 +8,7 @@ from django.db.models import Q
 from django_tables2.utils import A  # alias for Accessor
 from django.urls.base import reverse
 
-from .models import BankTransaction, Transaction
+from .models import BankStatement, BankTransaction, Transaction
 
 class StatusColumn(django_tables2.Column):
     def render(self, value):
@@ -53,7 +53,7 @@ class BankTransactionTable(django_tables2.Table):
     type = TypeColumn(accessor='type', verbose_name='Type')
     status = StatusColumn(accessor='status', verbose_name = "Status")
     date_trans = django_tables2.Column(accessor='date_trans', verbose_name = "Tran Date")
-    assign = django_tables2.TemplateColumn(template_name ='partials/_btn_assign.html', orderable=False)
+    # assign = django_tables2.TemplateColumn(template_name ='partials/_btn_assign.html', orderable=False)
     #date_updated = django_tables2.Column(accessor='date_updated', verbose_name = "Date Updated")
     #edit_delete = django_tables2.TemplateColumn(template_name ='partials/_update_delete.html')
     
@@ -200,3 +200,38 @@ class TransactionTableFilter(django_filters.FilterSet):
 
     def search_status(self, qs, name, value):
         return qs.filter(Q(status__iexact=value))
+
+
+"""
+Bank statement table
+"""
+class BankStatementTable(django_tables2.Table):
+    filename = django_tables2.Column(accessor='filename', verbose_name='Filename')
+    
+    class Meta:
+        model = BankStatement
+        attrs = {'class': 'table '}
+        template_name = 'django_tables2/bootstrap.html'
+        fields = ('filename',)
+        sequence = ('filename',)
+    
+    def render_filename(self,record):
+        return mark_safe('<a href="{}">{}</a>'.format(reverse("bank-statement-detail", args=[record.id]), record.filename))
+
+class BankStatementTransactionsTable(django_tables2.Table):
+    amount = django_tables2.Column(accessor='amount', verbose_name='Amount')
+    description = django_tables2.Column(accessor='description', verbose_name='Description')
+    type = TypeColumn(accessor='type', verbose_name='Type')
+    status = StatusColumn(accessor='status', verbose_name = "Status")
+    date_trans = django_tables2.Column(accessor='date_trans', verbose_name = "Tran Date")
+    assign = django_tables2.TemplateColumn(template_name ='partials/_btn_assign.html', orderable=False)
+
+    class Meta:
+        model = BankTransaction
+        attrs = {'class': 'table '}
+        template_name = 'django_tables2/bootstrap.html'
+        fields = ('date_trans',)
+        sequence = ('amount','description','date_trans','status','type')
+    
+    def render_amount(self,record):
+        return mark_safe('<a href="{}">{}</a>'.format(reverse("bank-transaction-detail", args=[record.id]), '{:0,.0f}'.format(record.amount)))

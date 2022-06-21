@@ -25,3 +25,7 @@ body{
 .member-box{
     width: 100%;
 }
+
+.auth-link {
+    color: #17a2b8;
+}
